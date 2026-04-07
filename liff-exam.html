@@ -163,6 +163,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   <button class="btn" style="background:var(--navy);color:var(--gold);max-width:200px" onclick="liff.closeWindow()">← กลับ</button>
 </div>
 
+<!-- TIME WARNING -->
+<div id="ov-warning" class="ov hidden" style="background:rgba(15,19,34,0.95); z-index:9999;">
+  <div style="font-size:60px">⏰</div>
+  <div class="ov-title" style="color:var(--gold)">แจ้งเตือนเวลา</div>
+  <div class="ov-sub" style="font-size:16px; color:#fff; max-width: 300px;">เหลือเวลาทำข้อสอบอีก 10 นาทีครับ<br>รีบทำข้อที่เหลือให้เสร็จนะครับ</div>
+  <button class="btn" style="background:var(--gold);color:#000;max-width:200px;margin-top:20px" onclick="document.getElementById('ov-warning').classList.add('hidden')">รับทราบ</button>
+</div>
+
 <!-- RESULT -->
 <div id="result-ov" class="result-ov hidden">
   <div class="result-hero">
@@ -269,8 +277,9 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2
 let questions = [], answers = {}, currentQ = 0, member = null, userId = '';
 let timerInterval = null, timeLeft = 0, submitted = false;
 let selectedSubject = '';  // วิชาที่เลือก
+let tenMinWarningShown = false;
 
-const EXAM_TIME = 20 * 60; // เวลาทำข้อสอบ 20 นาที (หน่วยเป็นวินาที)
+let EXAM_TIME = 20 * 60; // ค่าเริ่มต้น จะถูกอัปเดตจาก Backend
 
 // Subject emoji map
 const SUBJECT_ICONS = {
@@ -373,6 +382,8 @@ async function startExam(subject) {
 
     member    = res.member;
     questions = res.questions;
+    EXAM_TIME = (res.examTimeMinutes || 20) * 60; // ดึงเวลาสอบจากแอดมิน (วินาที)
+    tenMinWarningShown = false; // รีเซ็ตการแจ้งเตือนเวลา
 
     if (!questions || questions.length === 0) {
       document.getElementById('load-txt').textContent = '⚠️ ไม่พบข้อสอบในวิชานี้';
@@ -404,6 +415,13 @@ function startTimer(seconds) {
   timerInterval = setInterval(() => {
     timeLeft--;
     updateTimerDisplay();
+
+    // แจ้งเตือนเมื่อเหลือ 10 นาที (600 วินาที) และระยะเวลาสอบรวมมากกว่า 10 นาที
+    if (timeLeft === 600 && EXAM_TIME > 600 && !tenMinWarningShown) {
+      tenMinWarningShown = true;
+      document.getElementById('ov-warning').classList.remove('hidden');
+    }
+
     if (timeLeft <= 0) { clearInterval(timerInterval); submitExam(true); }
   }, 1000);
 }
