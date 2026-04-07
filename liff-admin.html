@@ -201,6 +201,15 @@ select option{background:var(--surf2)}
     <div class="section-title">🏅 อันดับ TOP 3 (คะแนนสะสม)</div>
     <div id="top3-list"></div>
 
+    <div class="section-title" style="margin-top:20px">⚙️ ตั้งค่าระบบ</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px">
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label">เวลาในการทำข้อสอบ (นาที)</label>
+        <input type="number" id="inp-exam-time" placeholder="เช่น 20" style="width:100%">
+      </div>
+      <button class="btn btn-gold btn-full" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
+    </div>
+
     <div class="section-title" style="margin-top:20px">⚙️ การจัดการ</div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <button class="btn btn-red btn-full" onclick="confirmResetAll()">🗑️ รีเซ็ตผลสอบทั้งหมด</button>
@@ -391,6 +400,11 @@ function renderOverview() {
   document.getElementById('s-not').textContent     = s.notExamed;
   document.getElementById('s-avg').textContent     = s.avgScore + '%';
   document.getElementById('s-qcount').textContent  = s.totalQuestions;
+  
+  // ตั้งค่าเวลา
+  if(adminData.settings) {
+    document.getElementById('inp-exam-time').value = adminData.settings.examTimeMinutes || 20;
+  }
 
   // Top 3
   const top3 = (adminData.leaderboard || []).slice(0, 3);
@@ -623,6 +637,20 @@ async function confirmResetAll() {
     await loadData();
     alert('✅ รีเซ็ตทั้งหมดสำเร็จ');
   } catch(e) { alert('ล้มเหลว: ' + e.message); }
+}
+
+// ==============================================
+// SETTINGS
+// ==============================================
+async function saveSettings() {
+  const t = document.getElementById('inp-exam-time').value;
+  if (!t || isNaN(t) || Number(t) <= 0) return alert('กรุณาระบุเวลาเป็นตัวเลขให้ถูกต้อง');
+  try {
+    const res = await callAPI('POST', { action:'save_settings', secret:adminSecret, examTimeMinutes: Number(t) });
+    if (res.status !== 'ok') throw new Error(res.message);
+    alert('✅ ' + res.message);
+    await loadData();
+  } catch(e) { alert('บันทึกล้มเหลว: ' + e.message); }
 }
 
 // ==============================================
