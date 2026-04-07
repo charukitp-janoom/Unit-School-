@@ -198,7 +198,7 @@ select option{background:var(--surf2)}
     </div>
 
     <!-- Top 3 -->
-    <div class="section-title">🏅 อันดับ TOP 3</div>
+    <div class="section-title">🏅 อันดับ TOP 3 (คะแนนสะสม)</div>
     <div id="top3-list"></div>
 
     <div class="section-title" style="margin-top:20px">⚙️ การจัดการ</div>
@@ -210,17 +210,12 @@ select option{background:var(--surf2)}
 
   <!-- LEADERBOARD TAB -->
   <div id="tab-leaderboard" class="tab-content">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <div class="section-title" style="margin:0">🏆 ตารางอันดับคะแนน</div>
-      <select id="lb-cat-filter" onchange="renderLeaderboard()" style="background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:12px;max-width:140px">
-        <option value="">ทุกวิชา</option>
-      </select>
-    </div>
+    <div class="section-title">🏆 ตารางอันดับคะแนน (สะสมรวม)</div>
     <div id="alert-lb" class="alert-msg hidden"></div>
     <div style="overflow-x:auto">
       <table class="lb-table" id="lb-table">
         <thead class="lb-hdr"><tr>
-          <th>#</th><th>ชื่อ-ยศ</th><th>ตำแหน่ง</th><th>วิชา</th><th>คะแนน</th><th></th>
+          <th>#</th><th>ชื่อ-ยศ</th><th>ตำแหน่ง</th><th>คะแนนรวม</th><th></th>
         </tr></thead>
         <tbody id="lb-body"></tbody>
       </table>
@@ -237,7 +232,7 @@ select option{background:var(--surf2)}
     <div class="table-wrap">
       <table class="data-table">
         <thead><tr>
-          <th>#</th><th>ยศ-ชื่อ</th><th>ตำแหน่ง</th><th>ผลสอบ</th><th>จัดการ</th>
+          <th>#</th><th>ยศ-ชื่อ</th><th>ตำแหน่ง</th><th>ผลสอบ (สะสม)</th><th>จัดการ</th>
         </tr></thead>
         <tbody id="members-body"></tbody>
       </table>
@@ -397,14 +392,6 @@ function renderOverview() {
   document.getElementById('s-avg').textContent     = s.avgScore + '%';
   document.getElementById('s-qcount').textContent  = s.totalQuestions;
 
-  // Populate category filter
-  const cats = [...new Set((adminData.leaderboard||[]).map(e => e.category||'ทุกวิชา'))].sort();
-  const sel = document.getElementById('lb-cat-filter');
-  if (sel) {
-    const cur = sel.value;
-    sel.innerHTML = '<option value="">ทุกวิชา</option>' + cats.map(c => `<option value="${c}" ${c===cur?'selected':''}>${c}</option>`).join('');
-  }
-
   // Top 3
   const top3 = (adminData.leaderboard || []).slice(0, 3);
   const medals = ['🥇','🥈','🥉'];
@@ -429,10 +416,7 @@ function renderOverview() {
 // LEADERBOARD
 // ==============================================
 function renderLeaderboard() {
-  const filterCat = document.getElementById('lb-cat-filter') ? document.getElementById('lb-cat-filter').value : '';
-  let board = adminData.leaderboard || [];
-  if (filterCat) board = board.filter(e => (e.category||'ทุกวิชา') === filterCat);
-
+  const board = adminData.leaderboard || [];
   const tbody = document.getElementById('lb-body');
   document.getElementById('lb-empty').classList.toggle('hidden', board.length > 0);
   tbody.innerHTML = board.map((e, i) => {
@@ -447,7 +431,6 @@ function renderLeaderboard() {
           <div style="font-size:11px;color:var(--muted)">${e.rank||'—'}</div>
         </td>
         <td style="color:var(--muted);font-size:13px">${e.position||'—'}</td>
-        <td style="font-size:12px;color:var(--blue)">${e.category||'ทุกวิชา'}</td>
         <td>
           <div style="font-weight:800;font-size:15px;font-family:'IBM Plex Mono',monospace;color:var(--gold)">${e.totalScore}/${e.maxScore}</div>
           <div class="pct-bar"><div class="pct-fill" style="width:${pct}%"></div></div>
@@ -467,13 +450,25 @@ function renderLeaderboard() {
 function renderMembers() {
   const members = adminData.members || [];
   const scores  = adminData.scores  || [];
-  const scoreMap = {};
-  scores.forEach(s => { scoreMap[s.userId] = s; });
+  
+  // จัดกลุ่มคะแนนและวิชาที่สอบตาม userId
+  const userScores = {};
+  scores.forEach(s => { 
+    if (!userScores[s.userId]) userScores[s.userId] = [];
+    userScores[s.userId].push(s);
+  });
+
+  // ดึงคะแนนสะสมรวมจาก Leaderboard
+  const lbMap = {};
+  (adminData.leaderboard || []).forEach(l => { lbMap[l.userId] = l; });
 
   document.getElementById('members-empty').classList.toggle('hidden', members.length > 0);
   document.getElementById('members-body').innerHTML = members.map((m, i) => {
-    const s   = scoreMap[m.userId];
-    const done = !!s;
+    const lb   = lbMap[m.userId];
+    const us   = userScores[m.userId] || [];
+    const done = !!lb;
+    const subjectsTaken = us.map(x => x.subject || 'ทั่วไป').join(', ');
+
     return `
       <tr>
         <td style="color:var(--muted);font-family:'IBM Plex Mono',monospace">${i+1}</td>
@@ -483,7 +478,8 @@ function renderMembers() {
         </td>
         <td style="color:var(--muted)">${m.position||'—'}</td>
         <td>${done
-          ? `<span class="badge-done">${s.totalScore}/${s.maxScore} (${Math.round(s.percentage)}%) <span style='font-weight:400;opacity:.7'>${s.category||''}</span></span>`
+          ? `<div class="badge-done" style="display:inline-block;margin-bottom:4px">${lb.totalScore}/${lb.maxScore} (${Math.round(lb.percentage)}%)</div>
+             <div style="font-size:10px;color:var(--muted);white-space:normal;line-height:1.4">📚 วิชาที่สอบ: <br>${subjectsTaken}</div>`
           : '<span class="badge-none">ยังไม่ได้สอบ</span>'
         }</td>
         <td>
@@ -609,7 +605,7 @@ async function deleteQuestion(qid) {
 // RESET
 // ==============================================
 async function confirmResetOne(uid, name) {
-  if (!confirm(`ยืนยันรีเซ็ตผลสอบของ "${name}"?`)) return;
+  if (!confirm(`ยืนยันรีเซ็ตผลสอบทั้งหมดของ "${name}"?\n(รวมถึงผลคะแนนในทุกๆ รายวิชา)`)) return;
   try {
     const res = await callAPI('POST', { action:'reset_exam', secret:adminSecret, userId:uid });
     if (res.status !== 'ok') throw new Error(res.message);
