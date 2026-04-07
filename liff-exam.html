@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Unit School — ข้อสอบ</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #1a237e;
+  --navy2:  #283593;
+  --gold:   #ffd700;
+  --gold2:  #ffb300;
+  --bg:     #0f1322;
+  --surface:#161c36;
+  --surf2:  #1e2647;
+  --border: #2a3558;
+  --text:   #e8ecf8;
+  --muted:  #6e7aa0;
+  --green:  #00c853;
+  --red:    #ff5252;
+  --blue:   #4fc3f7;
+  --correct:#00c853;
+  --wrong:  #ff5252;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* OVERLAYS */
+.ov{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9999;padding:32px;text-align:center}
+.ov.hidden{display:none!important}
+.ov-spinner{width:64px;height:64px;border:3px solid var(--surf2);border-top:3px solid var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ov-title{font-size:20px;font-weight:800;color:var(--gold)}
+.ov-sub{font-size:13px;color:var(--muted);max-width:280px;line-height:1.7}
+
+/* RESULT OVERLAY */
+.result-ov{position:fixed;inset:0;background:var(--bg);overflow-y:auto;z-index:9998;padding:20px 16px 80px}
+.result-ov.hidden{display:none!important}
+.result-hero{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:20px;padding:28px 20px;text-align:center;margin-bottom:20px}
+.score-ring{width:120px;height:120px;border-radius:50%;border:4px solid var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 16px;background:rgba(255,215,0,0.06)}
+.score-num{font-size:36px;font-weight:800;color:var(--gold);font-family:'IBM Plex Mono',monospace;line-height:1}
+.score-max{font-size:14px;color:rgba(255,255,255,0.5)}
+.grade-badge{display:inline-block;padding:8px 22px;border-radius:20px;font-weight:800;font-size:15px;margin-bottom:10px}
+.grade-pass{background:rgba(0,200,83,0.15);color:var(--correct);border:1.5px solid rgba(0,200,83,0.4)}
+.grade-fail{background:rgba(255,82,82,0.15);color:var(--wrong);border:1.5px solid rgba(255,82,82,0.4)}
+.grade-great{background:rgba(255,215,0,0.15);color:var(--gold);border:1.5px solid rgba(255,215,0,0.4)}
+.result-name{font-size:18px;font-weight:700;color:var(--text);margin-top:6px}
+.result-sub{font-size:13px;color:var(--muted);margin-top:4px}
+.stats-row{display:flex;gap:12px;margin-bottom:16px}
+.stat-box{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center}
+.stat-val{font-size:24px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--gold)}
+.stat-label{font-size:11px;color:var(--muted);margin-top:4px}
+.rank-box{background:linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,179,0,0.04));border:1.5px solid rgba(255,215,0,0.2);border-radius:14px;padding:16px;text-align:center;margin-bottom:16px}
+.rank-num{font-size:40px;font-weight:800;color:var(--gold);font-family:'IBM Plex Mono',monospace}
+.rank-label{font-size:13px;color:var(--muted)}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,var(--navy),var(--navy2));padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.hdr-info{display:flex;flex-direction:column}
+.hdr-title{font-size:16px;font-weight:800;color:var(--gold)}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,0.55);margin-top:1px}
+.hdr-timer{font-size:18px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--gold);background:rgba(255,215,0,0.08);padding:6px 14px;border-radius:8px;border:1px solid rgba(255,215,0,0.2);min-width:56px;text-align:center}
+.hdr-timer.warn{color:var(--red);border-color:rgba(255,82,82,0.4);animation:pulse .8s ease-in-out infinite}
+
+/* PROGRESS */
+.progress-bar-wrap{height:4px;background:var(--surf2)}
+.progress-bar{height:4px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .4s ease}
+
+/* CONTENT */
+.content{padding:16px 16px 100px;max-width:480px;margin:0 auto}
+
+/* QUESTION CARD */
+.q-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.q-num-badge{width:40px;height:40px;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--gold);font-family:'IBM Plex Mono',monospace;flex-shrink:0}
+.q-meta{flex:1}
+.q-meta-cat{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.q-count{font-size:12px;color:var(--muted);margin-top:1px}
+
+.q-text{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;font-size:16px;font-weight:600;line-height:1.8;margin-bottom:16px;color:var(--text)}
+
+.choices{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.choice{display:flex;align-items:flex-start;gap:12px;background:var(--surf2);border:2px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.choice:active{transform:scale(.98)}
+.choice.selected{border-color:var(--gold);background:rgba(255,215,0,0.06);box-shadow:0 0 0 1px rgba(255,215,0,0.3)}
+.choice.correct-show{border-color:var(--correct);background:rgba(0,200,83,0.08)!important}
+.choice.wrong-show{border-color:var(--wrong);background:rgba(255,82,82,0.08)!important;opacity:.7}
+.choice-key{width:32px;height:32px;border-radius:8px;background:var(--surface);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;font-family:'IBM Plex Mono',monospace;color:var(--muted);flex-shrink:0;transition:all .2s}
+.choice.selected .choice-key{background:var(--gold);color:#1a1a1a;border-color:var(--gold)}
+.choice.correct-show .choice-key{background:var(--correct);color:#fff;border-color:var(--correct)}
+.choice.wrong-show .choice-key{background:var(--wrong);color:#fff;border-color:var(--wrong)}
+.choice-text{font-size:15px;line-height:1.6;padding-top:3px}
+
+/* NAV */
+.nav-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:12px 16px;z-index:200}
+.nav-inner{max-width:480px;margin:0 auto;display:flex;gap:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;-webkit-appearance:none;width:100%}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-prev{background:var(--surf2);color:var(--text);border:1px solid var(--border);flex:0 0 auto;width:auto;padding:14px 20px}
+.btn-next{background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold)}
+.btn-submit{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a}
+.btn-close{background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold)}
+
+/* DOT NAV */
+.dot-nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px}
+.dot{width:28px;height:28px;border-radius:7px;background:var(--surf2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .2s}
+.dot.answered{background:rgba(255,215,0,0.12);border-color:var(--gold);color:var(--gold)}
+.dot.current{background:var(--navy);border-color:var(--gold);color:var(--gold);box-shadow:0 0 0 2px rgba(255,215,0,0.3)}
+
+/* REVIEW */
+.review-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.review-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.review-status{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.review-status.ok{background:rgba(0,200,83,0.15);color:var(--correct)}
+.review-status.ng{background:rgba(255,82,82,0.15);color:var(--wrong)}
+.review-q{font-size:13px;line-height:1.6;flex:1}
+.review-body{padding:10px 16px}
+.review-row{display:flex;gap:8px;font-size:12px;color:var(--muted);margin-bottom:4px}
+.review-row span{font-weight:700}
+.review-row .ok-color{color:var(--correct)}
+.review-row .ng-color{color:var(--wrong)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="ov-load" class="ov">
+  <div class="ov-spinner"></div>
+  <div class="ov-title">📋 Unit School</div>
+  <div class="ov-sub" id="load-txt">กำลังโหลดข้อสอบ...</div>
+</div>
+
+<!-- NOT REGISTERED -->
+<div id="ov-noreg" class="ov hidden">
+  <div style="font-size:60px">⚠️</div>
+  <div class="ov-title" style="color:var(--red)">ยังไม่ได้ลงทะเบียน</div>
+  <div class="ov-sub">กรุณาลงทะเบียนก่อนทำข้อสอบ<br>กลับไปแชทกับ Unit School Bot</div>
+  <button class="btn" style="background:var(--navy);color:var(--gold);max-width:200px" onclick="liff.closeWindow()">← กลับ</button>
+</div>
+
+<!-- RESULT -->
+<div id="result-ov" class="result-ov hidden">
+  <div class="result-hero">
+    <div class="score-ring">
+      <div class="score-num" id="r-score">0</div>
+      <div class="score-max" id="r-max">/ 10</div>
+    </div>
+    <div id="r-grade" class="grade-badge grade-pass">✅ ผ่าน</div>
+    <div class="result-name" id="r-name">—</div>
+    <div class="result-sub" id="r-pos">—</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-val" id="r-pct">0%</div>
+      <div class="stat-label">คะแนนเปอร์เซ็นต์</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="r-correct">0</div>
+      <div class="stat-label">ตอบถูก</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="r-wrong">0</div>
+      <div class="stat-label">ตอบผิด</div>
+    </div>
+  </div>
+
+  <div class="rank-box">
+    <div class="rank-num" id="r-rank">—</div>
+    <div class="rank-label">อันดับปัจจุบัน จากกำลังพล <span id="r-total">—</span> นาย</div>
+  </div>
+
+  <!-- Review -->
+  <div style="font-size:14px;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📝 เฉลยข้อสอบ</div>
+  <div id="review-list"></div>
+
+  <div style="margin-top:16px">
+    <button class="btn btn-close" onclick="liff.closeWindow()">✅ กลับหน้าหลัก LINE</button>
+  </div>
+</div>
+
+<!-- EXAM UI -->
+<div id="exam-ui" class="hidden">
+  <div class="hdr">
+    <div class="hdr-info">
+      <div class="hdr-title">📋 Unit School</div>
+      <div class="hdr-sub" id="hdr-sub">ข้อสอบวัดผลกำลังพล</div>
+    </div>
+    <div class="hdr-timer" id="timer">--:--</div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="prog-bar" style="width:0%"></div>
+  </div>
+
+  <div class="content">
+    <!-- DOT NAV -->
+    <div class="dot-nav" id="dot-nav"></div>
+
+    <!-- QUESTION -->
+    <div id="q-wrap" style="animation:fadeUp .3s ease">
+      <div class="q-header">
+        <div class="q-num-badge" id="q-num">1</div>
+        <div class="q-meta">
+          <div class="q-meta-cat" id="q-cat">—</div>
+          <div class="q-count" id="q-count">ข้อ 1 จาก 10</div>
+        </div>
+      </div>
+      <div class="q-text" id="q-text">—</div>
+      <div class="choices" id="choices"></div>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-inner">
+      <button class="btn btn-prev" id="btn-prev" onclick="prevQ()">←</button>
+      <button class="btn btn-next" id="btn-next" onclick="nextQ()">ถัดไป →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==============================================
+// CONFIG — เปลี่ยน LIFF_ID และ GAS_URL
+// ==============================================
+const LIFF_ID = 'YOUR-LIFF-EXAM-ID';   // << ใส่ LIFF ID
+const GAS_URL = 'YOUR_WEB_APP_URL';     // << ใส่ Web App URL
+
+// State
+let questions = [], answers = {}, currentQ = 0, member = null, userId = '';
+let timerInterval = null, timeLeft = 0, submitted = false;
+
+const EXAM_TIME = 20 * 60; // 20 นาที (วินาที)
+
+// ==============================================
+// INIT
+// ==============================================
+async function init() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
+    const profile = await liff.getProfile();
+    userId = profile.userId;
+
+    document.getElementById('load-txt').textContent = 'กำลังโหลดข้อสอบ...';
+    const res = await callAPI('GET', { action:'get_questions', userId });
+
+    if (!res || res.status === 'error') {
+      if (res && res.message && res.message.includes('ลงทะเบียน')) {
+        document.getElementById('ov-load').classList.add('hidden');
+        document.getElementById('ov-noreg').classList.remove('hidden');
+        return;
+      }
+      throw new Error(res ? res.message : 'โหลดข้อสอบล้มเหลว');
+    }
+
+    member    = res.member;
+    questions = res.questions;
+
+    if (!questions || questions.length === 0) {
+      document.getElementById('load-txt').textContent = '⚠️ ยังไม่มีข้อสอบในระบบ';
+      return;
+    }
+
+    document.getElementById('hdr-sub').textContent = member.fullName;
+    buildDots();
+    renderQuestion(0);
+    startTimer(EXAM_TIME);
+
+    document.getElementById('ov-load').classList.add('hidden');
+    document.getElementById('exam-ui').classList.remove('hidden');
+  } catch(e) {
+    document.getElementById('load-txt').textContent = '❌ ' + e.message;
+  }
+}
+
+// ==============================================
+// TIMER
+// ==============================================
+function startTimer(seconds) {
+  timeLeft = seconds;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) { clearInterval(timerInterval); submitExam(true); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60).toString().padStart(2,'0');
+  const s = (timeLeft % 60).toString().padStart(2,'0');
+  const el = document.getElementById('timer');
+  el.textContent = `${m}:${s}`;
+  el.classList.toggle('warn', timeLeft < 60);
+}
+
+// ==============================================
+// RENDER
+// ==============================================
+function buildDots() {
+  const nav = document.getElementById('dot-nav');
+  nav.innerHTML = '';
+  questions.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = 'dot-' + i;
+    d.textContent = i + 1;
+    d.onclick = () => goToQ(i);
+    nav.appendChild(d);
+  });
+}
+
+function updateDots() {
+  questions.forEach((_, i) => {
+    const d = document.getElementById('dot-' + i);
+    if (!d) return;
+    d.className = 'dot' + (answers[i] !== undefined ? ' answered' : '') + (i === currentQ ? ' current' : '');
+  });
+}
+
+function renderQuestion(idx) {
+  currentQ = idx;
+  const q = questions[idx];
+  if (!q) return;
+
+  document.getElementById('q-num').textContent   = idx + 1;
+  document.getElementById('q-cat').textContent   = q.category || 'ทั่วไป';
+  document.getElementById('q-count').textContent = `ข้อ ${idx+1} จาก ${questions.length}`;
+  document.getElementById('q-text').textContent  = q.questionText;
+
+  // Progress bar
+  const pct = ((idx + 1) / questions.length) * 100;
+  document.getElementById('prog-bar').style.width = pct + '%';
+
+  // Choices
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+  const choiceKeys = ['A','B','C','D'];
+  choiceKeys.forEach(key => {
+    const text = q.choices[key];
+    if (!text) return;
+    const div = document.createElement('div');
+    div.className = 'choice' + (answers[idx] === key ? ' selected' : '');
+    div.innerHTML = `<div class="choice-key">${key}</div><div class="choice-text">${text}</div>`;
+    div.onclick = () => selectAnswer(key);
+    container.appendChild(div);
+  });
+
+  // NAV buttons
+  document.getElementById('btn-prev').style.display = idx === 0 ? 'none' : 'flex';
+  const isLast = idx === questions.length - 1;
+  const btnNext = document.getElementById('btn-next');
+  if (isLast) {
+    btnNext.className = 'btn btn-submit';
+    btnNext.textContent = '📤 ส่งข้อสอบ';
+    btnNext.onclick = () => confirmSubmit();
+  } else {
+    btnNext.className = 'btn btn-next';
+    btnNext.textContent = 'ถัดไป →';
+    btnNext.onclick = nextQ;
+  }
+
+  updateDots();
+}
+
+function selectAnswer(key) {
+  answers[currentQ] = key;
+  document.querySelectorAll('.choice').forEach(c => {
+    const k = c.querySelector('.choice-key').textContent;
+    c.classList.toggle('selected', k === key);
+  });
+  updateDots();
+}
+
+function nextQ() { if (currentQ < questions.length - 1) renderQuestion(currentQ + 1); }
+function prevQ() { if (currentQ > 0) renderQuestion(currentQ - 1); }
+function goToQ(i) { renderQuestion(i); }
+
+// ==============================================
+// SUBMIT
+// ==============================================
+function confirmSubmit() {
+  const unanswered = questions.length - Object.keys(answers).length;
+  if (unanswered > 0) {
+    if (!confirm(`ยังมี ${unanswered} ข้อที่ยังไม่ได้ตอบ\nต้องการส่งข้อสอบเลยไหม?`)) return;
+  } else {
+    if (!confirm('ยืนยันส่งข้อสอบ?')) return;
+  }
+  submitExam(false);
+}
+
+async function submitExam(timeout) {
+  if (submitted) return;
+  submitted = true;
+  clearInterval(timerInterval);
+
+  document.getElementById('exam-ui').classList.add('hidden');
+  document.getElementById('ov-load').classList.remove('hidden');
+  document.getElementById('load-txt').textContent = '⏳ กำลังตรวจข้อสอบ...';
+
+  // แปลง answers index → questionId
+  const answerMap = {};
+  questions.forEach((q, i) => { answerMap[q.questionId] = answers[i] || ''; });
+
+  try {
+    const res = await callAPI('POST', { action:'submit_exam', userId, answers: answerMap });
+    if (!res || res.status === 'error') throw new Error(res ? res.message : 'ส่งข้อสอบล้มเหลว');
+    showResult(res);
+  } catch(e) {
+    document.getElementById('load-txt').textContent = '❌ ' + e.message;
+  }
+}
+
+function showResult(res) {
+  document.getElementById('ov-load').classList.add('hidden');
+  document.getElementById('result-ov').classList.remove('hidden');
+
+  const pct   = res.percentage;
+  const grade = pct >= 80 ? { text:'🌟 ดีเยี่ยม', cls:'grade-great' }
+              : pct >= 60 ? { text:'✅ ผ่าน', cls:'grade-pass' }
+                           : { text:'❌ ยังไม่ผ่าน', cls:'grade-fail' };
+
+  document.getElementById('r-score').textContent   = res.totalScore;
+  document.getElementById('r-max').textContent     = '/ ' + res.maxScore;
+  document.getElementById('r-pct').textContent     = pct + '%';
+  document.getElementById('r-correct').textContent = res.totalScore;
+  document.getElementById('r-wrong').textContent   = res.maxScore - res.totalScore;
+  document.getElementById('r-rank').textContent    = '#' + res.rank;
+  document.getElementById('r-total').textContent   = res.total;
+  document.getElementById('r-name').textContent    = member.fullName;
+  document.getElementById('r-pos').textContent     = member.position;
+
+  const gradeEl = document.getElementById('r-grade');
+  gradeEl.textContent = grade.text;
+  gradeEl.className   = 'grade-badge ' + grade.cls;
+
+  // Review
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  (res.results || []).forEach((r, i) => {
+    const q    = questions.find(qq => String(qq.questionId) === String(r.qid));
+    const isOk = r.isCorrect;
+    const card = document.createElement('div');
+    card.className = 'review-card';
+    card.innerHTML = `
+      <div class="review-hdr">
+        <div class="review-status ${isOk?'ok':'ng'}">${isOk?'✅':'❌'}</div>
+        <div class="review-q">ข้อ ${i+1}: ${q ? q.questionText : '—'}</div>
+      </div>
+      <div class="review-body">
+        <div class="review-row">คุณตอบ: <span class="${isOk?'ok-color':'ng-color'}">${r.userAnswer || '-'} ${r.userAnswer && q ? q.choices[r.userAnswer]||'' : ''}</span></div>
+        ${!isOk ? `<div class="review-row">เฉลย: <span class="ok-color">${r.correct} ${q ? q.choices[r.correct]||'' : ''}</span></div>` : ''}
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  window.scrollTo(0,0);
+}
+
+// ==============================================
+// API HELPER
+// ==============================================
+async function callAPI(method, params, timeoutMs=30000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    let url = GAS_URL, opts = { signal: ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
+    const resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ');
+    throw e;
+  }
+}
+
+window.onerror = (msg) => { document.getElementById('load-txt').textContent = '❌ ' + msg; };
+init();
+</script>
+</body>
+</html>

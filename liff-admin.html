@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Unit School — Admin Dashboard</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #1a237e;
+  --navy2:  #283593;
+  --gold:   #ffd700;
+  --gold2:  #ffb300;
+  --bg:     #0f1322;
+  --surface:#161c36;
+  --surf2:  #1e2647;
+  --border: #2a3558;
+  --text:   #e8ecf8;
+  --muted:  #6e7aa0;
+  --green:  #00c853;
+  --red:    #ff5252;
+  --blue:   #4fc3f7;
+  --purple: #ce93d8;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* OVERLAYS */
+.ov{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9999;padding:32px;text-align:center}
+.ov.hidden{display:none!important}
+.ov-spinner{width:64px;height:64px;border:3px solid var(--surf2);border-top:3px solid var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOGIN SCREEN */
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 28px;width:100%;max-width:340px;text-align:center}
+.login-icon{font-size:56px;margin-bottom:12px}
+.login-title{font-size:20px;font-weight:800;color:var(--gold);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+.pin-input{width:100%;background:var(--surf2);border:2px solid var(--border);border-radius:12px;padding:15px;font-size:20px;font-family:'IBM Plex Mono',monospace;color:var(--text);outline:none;text-align:center;letter-spacing:4px;margin-bottom:16px}
+.pin-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,0.1)}
+.err-msg{font-size:13px;color:var(--red);margin-bottom:12px;min-height:20px}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,var(--navy),var(--navy2));padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.hdr-left{display:flex;align-items:center;gap:12px}
+.hdr-badge{width:36px;height:36px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.hdr-title{font-size:15px;font-weight:800;color:var(--gold)}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,0.55)}
+
+/* TABS */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{flex:none;padding:12px 20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* CONTENT */
+.tab-content{display:none;padding:16px 16px 80px;max-width:600px;margin:0 auto}
+.tab-content.active{display:block}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
+.stat-val{font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--gold)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+.stat-card.green .stat-val{color:var(--green)}
+.stat-card.red .stat-val{color:var(--red)}
+.stat-card.blue .stat-val{color:var(--blue)}
+
+/* LEADERBOARD TABLE */
+.lb-table{width:100%;border-collapse:collapse}
+.lb-hdr th{padding:10px 12px;text-align:left;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--surf2)}
+.lb-row td{padding:12px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle}
+.lb-row:hover td{background:rgba(255,215,0,0.03)}
+.lb-row.top1 td{background:rgba(255,215,0,0.06)}
+.lb-row.top2 td{background:rgba(192,192,192,0.04)}
+.lb-row.top3 td{background:rgba(205,127,50,0.04)}
+.rank-badge{width:28px;height:28px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:'IBM Plex Mono',monospace}
+.r1{background:rgba(255,215,0,0.15);color:var(--gold)}
+.r2{background:rgba(192,192,192,0.15);color:#ccc}
+.r3{background:rgba(205,127,50,0.15);color:#cd7f32}
+.r-other{background:var(--surf2);color:var(--muted)}
+.pct-bar{height:6px;background:var(--surf2);border-radius:3px;margin-top:4px;overflow:hidden}
+.pct-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px}
+
+/* MEMBER TABLE */
+.table-wrap{overflow-x:auto}
+.data-table{width:100%;border-collapse:collapse;min-width:400px}
+.data-table th{padding:10px 12px;text-align:left;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--surf2);white-space:nowrap}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;white-space:nowrap}
+.data-table tr:hover td{background:rgba(255,255,255,0.02)}
+.badge-done{background:rgba(0,200,83,0.12);color:var(--green);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.badge-none{background:rgba(255,82,82,0.12);color:var(--red);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
+
+/* QUESTION EDITOR */
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.q-card-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.q-id{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--muted)}
+.q-cat-tag{font-size:11px;background:rgba(79,195,247,0.12);color:var(--blue);padding:3px 10px;border-radius:6px;font-weight:700}
+.q-text-preview{font-size:13px;padding:12px 16px;line-height:1.7;color:var(--text)}
+.q-choices-preview{padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:6px}
+.q-choice-tag{font-size:11px;background:var(--surf2);border:1px solid var(--border);padding:4px 10px;border-radius:6px;font-family:'IBM Plex Mono',monospace}
+.q-choice-tag.correct{background:rgba(0,200,83,0.12);border-color:rgba(0,200,83,0.3);color:var(--green)}
+.q-actions{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+
+/* FORM */
+.form-group{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:block}
+input[type=text],textarea,select{width:100%;background:var(--surf2);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-family:'Sarabun',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+input[type=text]:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,0.08)}
+input[type=text]::placeholder,textarea::placeholder{color:var(--muted)}
+textarea{resize:vertical;min-height:80px}
+select option{background:var(--surf2)}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:flex;align-items:flex-end}
+.modal-backdrop.hidden{display:none!important}
+.modal{background:var(--surface);border-top-left-radius:20px;border-top-right-radius:20px;padding:24px 20px;width:100%;max-height:90vh;overflow-y:auto;border:1px solid var(--border)}
+.modal-title{font-size:17px;font-weight:800;color:var(--gold);margin-bottom:20px}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;-webkit-appearance:none}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-primary{background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a}
+.btn-red{background:rgba(255,82,82,0.15);color:var(--red);border:1px solid rgba(255,82,82,0.3)}
+.btn-secondary{background:var(--surf2);color:var(--text);border:1px solid var(--border)}
+.btn-sm{padding:8px 14px;font-size:13px}
+.btn-full{width:100%}
+.fab{position:fixed;bottom:24px;right:20px;width:52px;height:52px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(255,215,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center}
+
+.section-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;margin-top:4px}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state-icon{font-size:48px;margin-bottom:12px}
+.alert-msg{border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:12px}
+.alert-msg.success{background:rgba(0,200,83,0.1);border:1px solid rgba(0,200,83,0.3);color:var(--green)}
+.alert-msg.error{background:rgba(255,82,82,0.1);border:1px solid rgba(255,82,82,0.3);color:var(--red)}
+.alert-msg.hidden{display:none!important}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="ov-load" class="ov">
+  <div class="ov-spinner"></div>
+  <div style="font-size:18px;font-weight:800;color:var(--gold)">Admin Dashboard</div>
+  <div style="font-size:13px;color:var(--muted)" id="load-txt">กำลังเชื่อมต่อ...</div>
+</div>
+
+<!-- LOGIN -->
+<div id="ov-login" class="ov hidden">
+  <div class="login-box">
+    <div class="login-icon">🔐</div>
+    <div class="login-title">Admin Dashboard</div>
+    <div class="login-sub">Unit School ห้องเรียนอัจฉริยะ<br>กรอกรหัสผ่านสำหรับผู้ดูแลระบบ</div>
+    <input type="password" class="pin-input" id="pin-input" placeholder="••••••" maxlength="20">
+    <div class="err-msg" id="err-msg"></div>
+    <button class="btn btn-gold btn-full" onclick="doLogin()">🔓 เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-badge">🎖️</div>
+      <div>
+        <div class="hdr-title">Admin Dashboard</div>
+        <div class="hdr-sub">Unit School — ห้องเรียนอัจฉริยะ</div>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="loadData()">🔄</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">📊 ภาพรวม</div>
+    <div class="tab" onclick="showTab('leaderboard')">🏆 อันดับ</div>
+    <div class="tab" onclick="showTab('members')">👤 กำลังพล</div>
+    <div class="tab" onclick="showTab('questions')">📝 ข้อสอบ</div>
+  </div>
+
+  <!-- OVERVIEW TAB -->
+  <div id="tab-overview" class="tab-content active">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" id="s-members">—</div><div class="stat-label">กำลังพลลงทะเบียน</div></div>
+      <div class="stat-card green"><div class="stat-val" id="s-examed">—</div><div class="stat-label">ทำข้อสอบแล้ว</div></div>
+      <div class="stat-card red"><div class="stat-val" id="s-not">—</div><div class="stat-label">ยังไม่ได้สอบ</div></div>
+      <div class="stat-card blue"><div class="stat-val" id="s-avg">—%</div><div class="stat-label">คะแนนเฉลี่ย</div></div>
+    </div>
+    <div class="stat-card" style="margin-bottom:16px">
+      <div class="stat-val" id="s-qcount" style="color:var(--purple)">—</div>
+      <div class="stat-label">จำนวนข้อสอบที่ใช้งาน</div>
+    </div>
+
+    <!-- Top 3 -->
+    <div class="section-title">🏅 อันดับ TOP 3</div>
+    <div id="top3-list"></div>
+
+    <div class="section-title" style="margin-top:20px">⚙️ การจัดการ</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-red btn-full" onclick="confirmResetAll()">🗑️ รีเซ็ตผลสอบทั้งหมด</button>
+      <button class="btn btn-primary btn-full" onclick="loadData()">🔄 รีเฟรชข้อมูล</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD TAB -->
+  <div id="tab-leaderboard" class="tab-content">
+    <div class="section-title">🏆 ตารางอันดับคะแนน</div>
+    <div id="alert-lb" class="alert-msg hidden"></div>
+    <div style="overflow-x:auto">
+      <table class="lb-table" id="lb-table">
+        <thead class="lb-hdr"><tr>
+          <th>#</th><th>ชื่อ-ยศ</th><th>ตำแหน่ง</th><th>คะแนน</th><th></th>
+        </tr></thead>
+        <tbody id="lb-body"></tbody>
+      </table>
+    </div>
+    <div id="lb-empty" class="empty-state hidden">
+      <div class="empty-state-icon">🎓</div>
+      <div>ยังไม่มีผลการสอบ</div>
+    </div>
+  </div>
+
+  <!-- MEMBERS TAB -->
+  <div id="tab-members" class="tab-content">
+    <div class="section-title">👤 รายชื่อกำลังพลทั้งหมด</div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>#</th><th>ยศ-ชื่อ</th><th>ตำแหน่ง</th><th>ผลสอบ</th><th>จัดการ</th>
+        </tr></thead>
+        <tbody id="members-body"></tbody>
+      </table>
+    </div>
+    <div id="members-empty" class="empty-state hidden">
+      <div class="empty-state-icon">👤</div>
+      <div>ยังไม่มีกำลังพลลงทะเบียน</div>
+    </div>
+  </div>
+
+  <!-- QUESTIONS TAB -->
+  <div id="tab-questions" class="tab-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="section-title" style="margin:0">📝 ชุดข้อสอบ</div>
+      <button class="btn btn-gold btn-sm" onclick="openAddModal()">+ เพิ่มข้อสอบ</button>
+    </div>
+    <div id="alert-q" class="alert-msg hidden"></div>
+    <div id="q-list"></div>
+    <div id="q-empty" class="empty-state hidden">
+      <div class="empty-state-icon">📝</div>
+      <div>ยังไม่มีข้อสอบ<br><small>กดปุ่ม + เพิ่มข้อสอบเพื่อเริ่มต้น</small></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL: เพิ่ม/แก้ไขข้อสอบ -->
+<div id="modal-q" class="modal-backdrop hidden" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-title">➕ เพิ่มข้อสอบใหม่</div>
+    <input type="hidden" id="m-qid">
+    <div class="form-group">
+      <label class="form-label">คำถาม *</label>
+      <textarea id="m-qtext" placeholder="พิมพ์คำถาม..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ตัวเลือก A *</label>
+      <input type="text" id="m-a" placeholder="ตัวเลือก A">
+    </div>
+    <div class="form-group">
+      <label class="form-label">ตัวเลือก B *</label>
+      <input type="text" id="m-b" placeholder="ตัวเลือก B">
+    </div>
+    <div class="form-group">
+      <label class="form-label">ตัวเลือก C *</label>
+      <input type="text" id="m-c" placeholder="ตัวเลือก C">
+    </div>
+    <div class="form-group">
+      <label class="form-label">ตัวเลือก D *</label>
+      <input type="text" id="m-d" placeholder="ตัวเลือก D">
+    </div>
+    <div class="form-group">
+      <label class="form-label">คำตอบที่ถูกต้อง *</label>
+      <select id="m-answer">
+        <option value="">เลือกคำตอบ</option>
+        <option value="A">A</option><option value="B">B</option>
+        <option value="C">C</option><option value="D">D</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">หมวดหมู่</label>
+      <input type="text" id="m-cat" placeholder="เช่น วิชาธุรการ, วิชาการทหาร" value="ทั่วไป">
+    </div>
+    <div id="modal-err" class="alert-msg hidden"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeAllModal()">ยกเลิก</button>
+      <button class="btn btn-gold" style="flex:2" onclick="saveQuestion()">💾 บันทึกข้อสอบ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==============================================
+// CONFIG — เปลี่ยน LIFF_ID และ GAS_URL
+// ==============================================
+const LIFF_ID  = 'YOUR-LIFF-ADMIN-ID';  // << ใส่ LIFF ID
+const GAS_URL  = 'YOUR_WEB_APP_URL';    // << ใส่ Web App URL
+
+let adminSecret = '';
+let adminData   = null;
+let userId      = '';
+
+// ==============================================
+// INIT
+// ==============================================
+async function init() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
+    const profile = await liff.getProfile();
+    userId = profile.userId;
+    document.getElementById('ov-load').classList.add('hidden');
+    document.getElementById('ov-login').classList.remove('hidden');
+    document.getElementById('pin-input').focus();
+  } catch(e) {
+    document.getElementById('load-txt').textContent = '❌ ' + e.message;
+  }
+}
+
+// ==============================================
+// LOGIN
+// ==============================================
+async function doLogin() {
+  const secret = document.getElementById('pin-input').value.trim();
+  if (!secret) return;
+  document.getElementById('err-msg').textContent = '';
+  document.getElementById('ov-login').classList.add('hidden');
+  document.getElementById('ov-load').classList.remove('hidden');
+  document.getElementById('load-txt').textContent = 'กำลังตรวจสอบ...';
+
+  try {
+    const res = await callAPI('POST', { action:'admin_login', userId, secret });
+    if (res.status !== 'ok') throw new Error(res.message || 'รหัสไม่ถูกต้อง');
+    adminSecret = secret;
+    await loadData();
+    document.getElementById('ov-load').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+  } catch(e) {
+    document.getElementById('ov-load').classList.add('hidden');
+    document.getElementById('ov-login').classList.remove('hidden');
+    document.getElementById('err-msg').textContent = '❌ ' + e.message;
+    document.getElementById('pin-input').value = '';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('ov-login').classList.contains('hidden')) doLogin();
+});
+
+// ==============================================
+// LOAD DATA
+// ==============================================
+async function loadData() {
+  try {
+    const res = await callAPI('GET', { action:'admin_data', secret: adminSecret });
+    if (res.status !== 'ok') throw new Error(res.message);
+    adminData = res;
+    renderAll();
+  } catch(e) { alert('โหลดข้อมูลล้มเหลว: ' + e.message); }
+}
+
+function renderAll() {
+  renderOverview();
+  renderLeaderboard();
+  renderMembers();
+  renderQuestions();
+}
+
+// ==============================================
+// OVERVIEW
+// ==============================================
+function renderOverview() {
+  const s = adminData.stats;
+  document.getElementById('s-members').textContent = s.totalMembers;
+  document.getElementById('s-examed').textContent  = s.totalExamed;
+  document.getElementById('s-not').textContent     = s.notExamed;
+  document.getElementById('s-avg').textContent     = s.avgScore + '%';
+  document.getElementById('s-qcount').textContent  = s.totalQuestions;
+
+  // Top 3
+  const top3 = (adminData.leaderboard || []).slice(0, 3);
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('top3-list').innerHTML = top3.length === 0
+    ? '<div class="empty-state" style="padding:20px"><div class="empty-state-icon">🎓</div><div>ยังไม่มีผลสอบ</div></div>'
+    : top3.map((e, i) => `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;animation:fadeUp .3s ease">
+        <div style="font-size:28px">${medals[i]}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:15px">${e.fullName}</div>
+          <div style="font-size:12px;color:var(--muted)">${e.position || '—'}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:20px;font-weight:800;color:var(--gold);font-family:'IBM Plex Mono',monospace">${e.totalScore}/${e.maxScore}</div>
+          <div style="font-size:12px;color:var(--muted)">${Math.round(e.percentage)}%</div>
+        </div>
+      </div>
+    `).join('');
+}
+
+// ==============================================
+// LEADERBOARD
+// ==============================================
+function renderLeaderboard() {
+  const board = adminData.leaderboard || [];
+  const tbody = document.getElementById('lb-body');
+  document.getElementById('lb-empty').classList.toggle('hidden', board.length > 0);
+  tbody.innerHTML = board.map((e, i) => {
+    const rcls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+    const bcls = i === 0 ? 'r1'    : i === 1 ? 'r2'    : i === 2 ? 'r3' : 'r-other';
+    const pct  = Math.round(e.percentage);
+    return `
+      <tr class="lb-row ${rcls}">
+        <td><div class="rank-badge ${bcls}">${i+1}</div></td>
+        <td>
+          <div style="font-weight:700;font-size:14px">${e.fullName}</div>
+          <div style="font-size:11px;color:var(--muted)">${e.rank||'—'}</div>
+        </td>
+        <td style="color:var(--muted);font-size:13px">${e.position||'—'}</td>
+        <td>
+          <div style="font-weight:800;font-size:15px;font-family:'IBM Plex Mono',monospace;color:var(--gold)">${e.totalScore}/${e.maxScore}</div>
+          <div class="pct-bar"><div class="pct-fill" style="width:${pct}%"></div></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${pct}%</div>
+        </td>
+        <td>
+          <button class="btn btn-red btn-sm" onclick="confirmResetOne('${e.userId}','${e.fullName}')">รีเซ็ต</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ==============================================
+// MEMBERS
+// ==============================================
+function renderMembers() {
+  const members = adminData.members || [];
+  const scores  = adminData.scores  || [];
+  const scoreMap = {};
+  scores.forEach(s => { scoreMap[s.userId] = s; });
+
+  document.getElementById('members-empty').classList.toggle('hidden', members.length > 0);
+  document.getElementById('members-body').innerHTML = members.map((m, i) => {
+    const s   = scoreMap[m.userId];
+    const done = !!s;
+    return `
+      <tr>
+        <td style="color:var(--muted);font-family:'IBM Plex Mono',monospace">${i+1}</td>
+        <td>
+          <div style="font-weight:700">${m.fullName}</div>
+          <div style="font-size:11px;color:var(--muted)">${m.rank||'—'}</div>
+        </td>
+        <td style="color:var(--muted)">${m.position||'—'}</td>
+        <td>${done
+          ? `<span class="badge-done">${s.totalScore}/${s.maxScore} (${Math.round(s.percentage)}%)</span>`
+          : '<span class="badge-none">ยังไม่ได้สอบ</span>'
+        }</td>
+        <td>
+          ${done ? `<button class="btn btn-red btn-sm" onclick="confirmResetOne('${m.userId}','${m.fullName}')">รีเซ็ต</button>` : '—'}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ==============================================
+// QUESTIONS
+// ==============================================
+function renderQuestions() {
+  const qs = adminData.questions || [];
+  document.getElementById('q-empty').classList.toggle('hidden', qs.length > 0);
+  document.getElementById('q-list').innerHTML = qs.map(q => {
+    const choices = ['A','B','C','D'].map(k => {
+      const val = q['choice'+k];
+      const isCorrect = q.correctAnswer.toUpperCase() === k;
+      return val ? `<span class="q-choice-tag ${isCorrect?'correct':''}">${k}: ${val}</span>` : '';
+    }).join('');
+    return `
+      <div class="q-card" style="animation:fadeUp .3s ease">
+        <div class="q-card-hdr">
+          <div>
+            <div class="q-id">${q.questionId}</div>
+          </div>
+          <div class="q-cat-tag">${q.category||'ทั่วไป'}</div>
+        </div>
+        <div class="q-text-preview">${q.questionText}</div>
+        <div class="q-choices-preview">${choices}</div>
+        <div class="q-actions">
+          <button class="btn btn-secondary btn-sm" style="flex:1" onclick='openEditModal(${JSON.stringify(q)})'>✏️ แก้ไข</button>
+          <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteQuestion('${q.questionId}')">🗑️ ลบ</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ==============================================
+// QUESTION CRUD
+// ==============================================
+function openAddModal() {
+  document.getElementById('modal-title').textContent = '➕ เพิ่มข้อสอบใหม่';
+  document.getElementById('m-qid').value   = '';
+  document.getElementById('m-qtext').value = '';
+  document.getElementById('m-a').value     = '';
+  document.getElementById('m-b').value     = '';
+  document.getElementById('m-c').value     = '';
+  document.getElementById('m-d').value     = '';
+  document.getElementById('m-answer').value= '';
+  document.getElementById('m-cat').value   = 'ทั่วไป';
+  document.getElementById('modal-err').className = 'alert-msg hidden';
+  document.getElementById('modal-q').classList.remove('hidden');
+}
+
+function openEditModal(q) {
+  document.getElementById('modal-title').textContent = '✏️ แก้ไขข้อสอบ';
+  document.getElementById('m-qid').value    = q.questionId;
+  document.getElementById('m-qtext').value  = q.questionText;
+  document.getElementById('m-a').value      = q.choiceA;
+  document.getElementById('m-b').value      = q.choiceB;
+  document.getElementById('m-c').value      = q.choiceC;
+  document.getElementById('m-d').value      = q.choiceD;
+  document.getElementById('m-answer').value = q.correctAnswer;
+  document.getElementById('m-cat').value    = q.category||'ทั่วไป';
+  document.getElementById('modal-err').className = 'alert-msg hidden';
+  document.getElementById('modal-q').classList.remove('hidden');
+}
+
+async function saveQuestion() {
+  const qtext  = document.getElementById('m-qtext').value.trim();
+  const a = document.getElementById('m-a').value.trim();
+  const b = document.getElementById('m-b').value.trim();
+  const c = document.getElementById('m-c').value.trim();
+  const d = document.getElementById('m-d').value.trim();
+  const ans = document.getElementById('m-answer').value;
+  const cat = document.getElementById('m-cat').value.trim();
+  const qid = document.getElementById('m-qid').value;
+
+  if (!qtext||!a||!b||!c||!d||!ans) {
+    const el = document.getElementById('modal-err');
+    el.textContent = '❌ กรุณากรอกข้อมูลให้ครบทุกช่อง';
+    el.className = 'alert-msg error';
+    return;
+  }
+
+  try {
+    const res = await callAPI('POST', {
+      action:'save_question', secret:adminSecret,
+      questionId:qid||undefined, questionText:qtext,
+      choiceA:a, choiceB:b, choiceC:c, choiceD:d,
+      correctAnswer:ans, category:cat
+    });
+    if (res.status !== 'ok') throw new Error(res.message);
+    closeAllModal();
+    await loadData();
+    showTabAlert('alert-q', 'success', '✅ ' + (res.message || 'บันทึกสำเร็จ'));
+    showTab('questions');
+  } catch(e) {
+    const el = document.getElementById('modal-err');
+    el.textContent = '❌ ' + e.message;
+    el.className = 'alert-msg error';
+  }
+}
+
+async function deleteQuestion(qid) {
+  if (!confirm('ยืนยันลบข้อสอบนี้?')) return;
+  try {
+    const res = await callAPI('POST', { action:'delete_question', secret:adminSecret, questionId:qid });
+    if (res.status !== 'ok') throw new Error(res.message);
+    await loadData();
+    showTabAlert('alert-q', 'success', '✅ ลบข้อสอบสำเร็จ');
+  } catch(e) { alert('ลบล้มเหลว: ' + e.message); }
+}
+
+// ==============================================
+// RESET
+// ==============================================
+async function confirmResetOne(uid, name) {
+  if (!confirm(`ยืนยันรีเซ็ตผลสอบของ "${name}"?`)) return;
+  try {
+    const res = await callAPI('POST', { action:'reset_exam', secret:adminSecret, userId:uid });
+    if (res.status !== 'ok') throw new Error(res.message);
+    await loadData();
+    alert('✅ รีเซ็ตสำเร็จ');
+  } catch(e) { alert('ล้มเหลว: ' + e.message); }
+}
+
+async function confirmResetAll() {
+  if (!confirm('⚠️ ยืนยันรีเซ็ตผลสอบ "ทั้งหมด"?\nการกระทำนี้ไม่สามารถย้อนกลับได้')) return;
+  if (!confirm('ยืนยันอีกครั้ง — รีเซ็ตผลสอบทุกคน?')) return;
+  try {
+    const res = await callAPI('POST', { action:'reset_exam', secret:adminSecret });
+    if (res.status !== 'ok') throw new Error(res.message);
+    await loadData();
+    alert('✅ รีเซ็ตทั้งหมดสำเร็จ');
+  } catch(e) { alert('ล้มเหลว: ' + e.message); }
+}
+
+// ==============================================
+// UI HELPERS
+// ==============================================
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const names = ['overview','leaderboard','members','questions'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function showTabAlert(id, type, msg) {
+  const el = document.getElementById(id);
+  el.textContent  = msg;
+  el.className    = 'alert-msg ' + type;
+  setTimeout(() => { el.className = 'alert-msg hidden'; }, 4000);
+}
+
+function closeModal(e) { if (e.target === document.getElementById('modal-q')) closeAllModal(); }
+function closeAllModal() { document.getElementById('modal-q').classList.add('hidden'); }
+
+// ==============================================
+// API HELPER
+// ==============================================
+async function callAPI(method, params, timeoutMs=30000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
+    const resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ');
+    throw e;
+  }
+}
+
+window.onerror = (msg) => { document.getElementById('load-txt').textContent = '❌ ' + msg; };
+init();
+</script>
+</body>
+</html>
