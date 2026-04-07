@@ -244,8 +244,8 @@ select option{background:var(--surf2);color:var(--text)}
 // ==============================================
 // CONFIG — เปลี่ยน LIFF_ID และ GAS_URL
 // ==============================================
-const LIFF_ID = 'YOUR-LIFF-REGISTER-ID';   // << ใส่ LIFF ID
-const GAS_URL = 'YOUR_WEB_APP_URL';         // << ใส่ Web App URL
+const LIFF_ID = '2009717287-28e2ynXL';   // << ใส่ LIFF ID
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';         // << ใส่ Web App URL
 
 // State
 const S = { rank:'', name:'', pos:'', userId:'', displayName:'', submitting:false };
@@ -265,8 +265,11 @@ async function init() {
     const res = await callGAS('GET', { action:'get_member', userId: S.userId });
     if (res && res.member) {
       const m = res.member;
-      // pre-fill
-      document.getElementById('inp-name').value = m.fullName.replace(m.rank,'').trim();
+      // pre-fill — ตัด rank ออกจาก fullName แบบ safe (ไม่ใช้ regex เพราะ rank มีจุด)
+      const rankPrefix = m.rank && m.fullName.startsWith(m.rank)
+        ? m.fullName.slice(m.rank.length).trim()
+        : m.fullName;
+      document.getElementById('inp-name').value = rankPrefix;
       document.getElementById('inp-pos').value  = m.position;
       // select rank
       document.querySelectorAll('.rank-pill').forEach(p => {
@@ -340,7 +343,7 @@ async function submitReg() {
   btn.textContent = '⏳ กำลังบันทึก...';
   clearAlert('alert2');
 
-  const fullName = S.rank === 'อื่นๆ' ? S.name : `${S.rank} ${S.name}`;
+  const fullName = (!S.rank || S.rank === 'อื่นๆ') ? S.name.trim() : `${S.rank} ${S.name}`.trim();
 
   try {
     await callGAS('POST', {
