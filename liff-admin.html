@@ -308,8 +308,8 @@ select option{background:var(--surf2)}
 // ==============================================
 // CONFIG — เปลี่ยน LIFF_ID และ GAS_URL
 // ==============================================
-const LIFF_ID  = 'YOUR-LIFF-ADMIN-ID';  // << ใส่ LIFF ID
-const GAS_URL  = 'YOUR_WEB_APP_URL';    // << ใส่ Web App URL
+const LIFF_ID  = '2009717287-baGusOWI';  // << ใส่ LIFF ID
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';    // << ใส่ Web App URL
 
 let adminSecret = '';
 let adminData   = null;
@@ -480,10 +480,13 @@ function renderMembers() {
 // ==============================================
 // QUESTIONS
 // ==============================================
+const _qMap = {}; // store questions by index for safe onclick reference
+
 function renderQuestions() {
   const qs = adminData.questions || [];
   document.getElementById('q-empty').classList.toggle('hidden', qs.length > 0);
-  document.getElementById('q-list').innerHTML = qs.map(q => {
+  document.getElementById('q-list').innerHTML = qs.map((q, idx) => {
+    _qMap[idx] = q; // เก็บ object จริงไว้ใน map หลีกเลี่ยง JSON.stringify ใน attribute
     const choices = ['A','B','C','D'].map(k => {
       const val = q['choice'+k];
       const isCorrect = q.correctAnswer.toUpperCase() === k;
@@ -500,7 +503,7 @@ function renderQuestions() {
         <div class="q-text-preview">${q.questionText}</div>
         <div class="q-choices-preview">${choices}</div>
         <div class="q-actions">
-          <button class="btn btn-secondary btn-sm" style="flex:1" onclick='openEditModal(${JSON.stringify(q)})'>✏️ แก้ไข</button>
+          <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openEditModal(_qMap[${idx}])">✏️ แก้ไข</button>
           <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteQuestion('${q.questionId}')">🗑️ ลบ</button>
         </div>
       </div>
