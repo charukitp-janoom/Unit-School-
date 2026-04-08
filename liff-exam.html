@@ -264,6 +264,7 @@ const LIFF_ID = '2009717287-nSod0Xpx';   // << ใส่ LIFF ID
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';   // << ใส่ Web App URL ค่าเดียว
 
 // State
+let allQuestions = []; // เก็บข้อสอบทั้งหมดไว้ในเครื่อง โหลดแค่รอบเดียว!
 let questions = [], answers = {}, currentQ = 0, member = null, userId = '';
 let timerInterval = null, timeLeft = 0, submitted = false;
 let selectedSubject = '';  // วิชาที่เลือก
@@ -297,10 +298,10 @@ async function init() {
     const profile = await liff.getProfile();
     userId = profile.userId;
 
-    document.getElementById('load-txt').textContent = 'กำลังโหลดรายวิชา...';
+    document.getElementById('load-txt').textContent = 'กำลังโหลดข้อมูลข้อสอบ...';
 
-    // ดึงรายชื่อวิชาก่อน
-    const res = await callAPI('GET', { action:'get_subjects', userId });
+    // 🚀 [อัปเดตเพื่อความเร็ว]: โหลดข้อสอบทั้งหมดมาเก็บไว้รอบเดียวเลย
+    const res = await callAPI('GET', { action:'get_questions', userId });
 
     if (!res || res.status === 'error') {
       if (res && res.message && res.message.includes('ลงทะเบียน')) {
@@ -311,15 +312,25 @@ async function init() {
       throw new Error(res ? res.message : 'โหลดข้อมูลล้มเหลว');
     }
 
-    member = res.member;
+    member    = res.member;
+    allQuestions = res.questions || []; // เก็บข้อสอบทั้งหมดไว้
+    EXAM_TIME = (res.examTimeMinutes || 20) * 60;
 
-    if (!res.subjects || res.subjects.length === 0) {
+    if (allQuestions.length === 0) {
       document.getElementById('load-txt').textContent = '⚠️ ยังไม่มีข้อสอบในระบบ';
       return;
     }
 
+    // คำนวณรายวิชาและจำนวนข้อด้วย Javascript ในมือถือ (ประหยัดเวลาเซิร์ฟเวอร์)
+    const subCount = {};
+    allQuestions.forEach(q => {
+      const cat = q.category || 'ทั่วไป';
+      subCount[cat] = (subCount[cat] || 0) + 1;
+    });
+    const subjects = Object.keys(subCount).map(k => ({ name: k, count: subCount[k] }));
+
     // แสดงหน้าเลือกวิชา
-    renderSubjectPicker(res.subjects);
+    renderSubjectPicker(subjects);
     document.getElementById('ov-load').classList.add('hidden');
     document.getElementById('subject-ov').classList.remove('hidden');
 
@@ -355,50 +366,33 @@ function renderSubjectPicker(subjects) {
   });
 }
 
-async function startExam(subject) {
+function startExam(subject) {
   selectedSubject = subject;
+  tenMinWarningShown = false;
 
-  // ซ่อน subject picker แสดง loading
-  document.getElementById('subject-ov').classList.add('hidden');
-  document.getElementById('ov-load').classList.remove('hidden');
-  document.getElementById('load-txt').textContent = `กำลังโหลดข้อสอบ ${subject}...`;
+  // 🚀 กรองข้อสอบเฉพาะวิชาที่เลือก
+  let filteredQs = allQuestions.filter(q => (q.category || 'ทั่วไป') === subject);
 
-  try {
-    const res = await callAPI('GET', { action:'get_questions', userId, subject });
+  // สุ่มแค่ลำดับข้อสอบ แต่ไม่สุ่มตัวเลือก A, B, C, D
+  questions = filteredQs.map(q => {
+    // ดึงตัวเลือก A, B, C, D มาเก็บเรียงตามเดิม
+    q.shuffledKeys = ['A', 'B', 'C', 'D'].filter(k => q.choices[k]);
+    return q;
+  });
 
-    if (!res || res.status === 'error') {
-      throw new Error(res ? res.message : 'โหลดข้อสอบล้มเหลว');
-    }
-
-    member    = res.member;
-    
-    // รับค่าเวลาจาก Backend
-    EXAM_TIME = (res.examTimeMinutes || 20) * 60;
-    tenMinWarningShown = false;
-
-    // สุ่มลำดับตัวเลือก (A, B, C, D) 
-    questions = res.questions.map(q => {
-      const keys = ['A', 'B', 'C', 'D'].filter(k => q.choices[k]);
-      q.shuffledKeys = keys.sort(() => Math.random() - 0.5);
-      return q;
-    });
-
-    if (!questions || questions.length === 0) {
-      document.getElementById('load-txt').textContent = '⚠️ ไม่พบข้อสอบในวิชานี้';
-      return;
-    }
-
-    document.getElementById('hdr-sub').textContent = subject;
-    buildDots();
-    renderQuestion(0);
-    startTimer(EXAM_TIME);
-
-  } catch(e) {
-    // กลับไปหน้าเลือกวิชา ถ้า error
-    document.getElementById('ov-load').classList.add('hidden');
-    document.getElementById('subject-ov').classList.remove('hidden');
-    alert('❌ ' + e.message);
+  if (questions.length === 0) {
+    alert('ไม่พบข้อสอบในวิชานี้');
+    return;
   }
+
+  document.getElementById('hdr-sub').textContent = subject;
+  buildDots();
+  renderQuestion(0);
+  startTimer(EXAM_TIME);
+
+  // เปลี่ยนหน้าแบบทันที
+  document.getElementById('subject-ov').classList.add('hidden');
+  document.getElementById('exam-ui').classList.remove('hidden');
 }
 
 // ==============================================
@@ -470,19 +464,17 @@ function renderQuestion(idx) {
   // Choices
   const container = document.getElementById('choices');
   container.innerHTML = '';
-  const displayLabels = ['A', 'B', 'C', 'D'];
 
-  q.shuffledKeys.forEach((originalKey, index) => {
-    const text = q.choices[originalKey];
+  // แสดงตัวเลือกตามลำดับ A, B, C, D เสมอ
+  q.shuffledKeys.forEach((key) => {
+    const text = q.choices[key];
     if (!text) return;
-    const displayLabel = displayLabels[index]; // คงตัวอักษร ก ข ค ง (A B C D) ไว้ตามลำดับ
     
     const div = document.createElement('div');
-    div.className = 'choice' + (answers[idx] === originalKey ? ' selected' : '');
-    // [แก้ไขบั๊ก: เพิ่ม data-key ซ่อนคีย์ที่แท้จริงไว้]
-    div.setAttribute('data-key', originalKey); 
-    div.innerHTML = `<div class="choice-key">${displayLabel}</div><div class="choice-text">${text}</div>`;
-    div.onclick = () => selectAnswer(originalKey);
+    div.className = 'choice' + (answers[idx] === key ? ' selected' : '');
+    div.setAttribute('data-key', key); 
+    div.innerHTML = `<div class="choice-key">${key}</div><div class="choice-text">${text}</div>`;
+    div.onclick = () => selectAnswer(key);
     container.appendChild(div);
   });
 
@@ -506,7 +498,6 @@ function renderQuestion(idx) {
 function selectAnswer(key) {
   answers[currentQ] = key;
   document.querySelectorAll('.choice').forEach(c => {
-    // [แก้ไขบั๊ก: ดึงคีย์ของจริงจาก data-key แทนที่จะดึงตัวอักษร A B C D จากหน้าจอ]
     const k = c.getAttribute('data-key');
     c.classList.toggle('selected', k === key);
   });
@@ -589,8 +580,8 @@ function showResult(res) {
         <div class="review-q">ข้อ ${i+1}: ${q ? q.questionText : '—'}</div>
       </div>
       <div class="review-body">
-        <div class="review-row">คุณตอบ: <span class="${isOk?'ok-color':'ng-color'}">${r.userAnswer && q ? q.choices[r.userAnswer]||'' : '-'}</span></div>
-        ${!isOk ? `<div class="review-row">เฉลย: <span class="ok-color">${q ? q.choices[r.correct]||'' : ''}</span></div>` : ''}
+        <div class="review-row">คุณตอบ: <span class="${isOk?'ok-color':'ng-color'}">${r.userAnswer || '-'} ${r.userAnswer && q ? q.choices[r.userAnswer]||'' : ''}</span></div>
+        ${!isOk ? `<div class="review-row">เฉลย: <span class="ok-color">${r.correct} ${q ? q.choices[r.correct]||'' : ''}</span></div>` : ''}
       </div>
     `;
     list.appendChild(card);
