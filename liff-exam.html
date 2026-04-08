@@ -268,18 +268,18 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
 <script>
 // ==============================================
-// CONFIG — กรุณาใส่ข้อมูลของคุณด้านล่าง
+// CONFIG — เปลี่ยน LIFF_ID และ GAS_URL
 // ==============================================
-const LIFF_ID = '2009717287-nSod0Xpx';   // << ใส่ LIFF ID (LIFF ทำข้อสอบ)
+const LIFF_ID = '2009717287-nSod0Xpx';   // << ใส่ LIFF ID
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';   // << ใส่ Web App URL ค่าเดียว
 
 // State
 let questions = [], answers = {}, currentQ = 0, member = null, userId = '';
 let timerInterval = null, timeLeft = 0, submitted = false;
 let selectedSubject = '';  // วิชาที่เลือก
-let tenMinWarningShown = false;
+let tenMinWarningShown = false; // แจ้งเตือน 10 นาที
 
-let EXAM_TIME = 20 * 60; // ค่าเริ่มต้น จะถูกอัปเดตจาก Backend
+let EXAM_TIME = 20 * 60; // ค่านี้จะถูกเขียนทับจากฐานข้อมูล
 
 // Subject emoji map
 const SUBJECT_ICONS = {
@@ -382,10 +382,14 @@ async function startExam(subject) {
 
     member    = res.member;
     
-    // อัปเดต: ทำการสุ่มลำดับตัวเลือก (A, B, C, D) ของแต่ละคำถาม
+    // รับค่าเวลาจาก Backend
+    EXAM_TIME = (res.examTimeMinutes || 20) * 60;
+    tenMinWarningShown = false;
+
+    // สุ่มลำดับตัวเลือก (A, B, C, D) 
     questions = res.questions.map(q => {
-      const keys = ['A', 'B', 'C', 'D'].filter(k => q.choices[k]); // ดึงเฉพาะตัวเลือกที่มีข้อความ
-      q.shuffledKeys = keys.sort(() => Math.random() - 0.5); // สลับตำแหน่ง ก ข ค ง
+      const keys = ['A', 'B', 'C', 'D'].filter(k => q.choices[k]);
+      q.shuffledKeys = keys.sort(() => Math.random() - 0.5);
       return q;
     });
 
@@ -398,9 +402,6 @@ async function startExam(subject) {
     buildDots();
     renderQuestion(0);
     startTimer(EXAM_TIME);
-
-    document.getElementById('ov-load').classList.add('hidden');
-    document.getElementById('exam-ui').classList.remove('hidden');
 
   } catch(e) {
     // กลับไปหน้าเลือกวิชา ถ้า error
@@ -420,7 +421,7 @@ function startTimer(seconds) {
     timeLeft--;
     updateTimerDisplay();
 
-    // แจ้งเตือนเมื่อเหลือ 10 นาที (600 วินาที) และระยะเวลาสอบรวมมากกว่า 10 นาที
+    // แจ้งเตือนเมื่อเหลือ 10 นาที (600 วินาที)
     if (timeLeft === 600 && EXAM_TIME > 600 && !tenMinWarningShown) {
       tenMinWarningShown = true;
       document.getElementById('ov-warning').classList.remove('hidden');
@@ -476,20 +477,20 @@ function renderQuestion(idx) {
   const pct = ((idx + 1) / questions.length) * 100;
   document.getElementById('prog-bar').style.width = pct + '%';
 
-  // อัปเดต: นำตัวเลือกที่ถูกสุ่มไว้มาแสดงผล โดยให้แสดงป้าย A,B,C,D เรียงตามปกติ
+  // Choices
   const container = document.getElementById('choices');
   container.innerHTML = '';
-  const displayLabels = ['A', 'B', 'C', 'D']; 
+  const displayLabels = ['A', 'B', 'C', 'D'];
 
   q.shuffledKeys.forEach((originalKey, index) => {
     const text = q.choices[originalKey];
     if (!text) return;
-    const displayLabel = displayLabels[index]; // แสดงตัวอักษรเรียง A->B->C->D เสมอ
+    const displayLabel = displayLabels[index]; // คงตัวอักษร ก ข ค ง (A B C D) ไว้ตามลำดับ
     
     const div = document.createElement('div');
     div.className = 'choice' + (answers[idx] === originalKey ? ' selected' : '');
     div.innerHTML = `<div class="choice-key">${displayLabel}</div><div class="choice-text">${text}</div>`;
-    div.onclick = () => selectAnswer(originalKey); // แต่เวลาบันทึก จะบันทึก Key ที่แท้จริงไปให้ระบบตรวจ
+    div.onclick = () => selectAnswer(originalKey);
     container.appendChild(div);
   });
 
@@ -589,7 +590,6 @@ function showResult(res) {
     const isOk = r.isCorrect;
     const card = document.createElement('div');
     card.className = 'review-card';
-    // อัปเดต: ในหน้าเฉลย ให้แสดงเฉพาะข้อความคำตอบไปเลย เพื่อไม่ให้กำลังพลสับสนกับตัวอักษร A B C D ที่ถูกสลับไปแล้ว
     card.innerHTML = `
       <div class="review-hdr">
         <div class="review-status ${isOk?'ok':'ng'}">${isOk?'✅':'❌'}</div>
