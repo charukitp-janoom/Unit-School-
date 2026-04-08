@@ -302,8 +302,11 @@ select option{background:var(--surf2)}
       </select>
     </div>
     <div class="form-group">
-      <label class="form-label">หมวดหมู่</label>
-      <input type="text" id="m-cat" placeholder="เช่น วิชาธุรการ, วิชาการทหาร" value="ทั่วไป">
+      <label class="form-label">หมวดหมู่ / รายวิชา *</label>
+      <select id="m-cat-select" onchange="toggleNewCat()">
+        <option value="">-- เลือกวิชา --</option>
+      </select>
+      <input type="text" id="m-cat-new" placeholder="พิมพ์ชื่อวิชาใหม่..." class="hidden" style="margin-top:8px;">
     </div>
     <div id="modal-err" class="alert-msg hidden"></div>
     <div style="display:flex;gap:10px">
@@ -512,35 +515,104 @@ const _qMap = {}; // store questions by index for safe onclick reference
 function renderQuestions() {
   const qs = adminData.questions || [];
   document.getElementById('q-empty').classList.toggle('hidden', qs.length > 0);
-  document.getElementById('q-list').innerHTML = qs.map((q, idx) => {
-    _qMap[idx] = q; // เก็บ object จริงไว้ใน map หลีกเลี่ยง JSON.stringify ใน attribute
-    const choices = ['A','B','C','D'].map(k => {
-      const val = q['choice'+k];
-      const isCorrect = q.correctAnswer.toUpperCase() === k;
-      return val ? `<span class="q-choice-tag ${isCorrect?'correct':''}">${k}: ${val}</span>` : '';
-    }).join('');
-    return `
-      <div class="q-card" style="animation:fadeUp .3s ease">
-        <div class="q-card-hdr">
-          <div>
-            <div class="q-id">${q.questionId}</div>
+  
+  if (qs.length === 0) {
+    document.getElementById('q-list').innerHTML = '';
+    return;
+  }
+
+  // จัดกลุ่มข้อสอบตามรายวิชา
+  const groups = {};
+  qs.forEach(q => {
+    const cat = q.category || 'ทั่วไป';
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(q);
+  });
+
+  const sortedCats = Object.keys(groups).sort();
+  let html = '';
+  let globalIdx = 0;
+
+  sortedCats.forEach(cat => {
+    // สร้างหัวข้อแยกตามหมวดหมู่วิชา
+    html += `<div class="section-title" style="margin-top:24px; border-bottom:1px solid var(--border); padding-bottom:8px; color:var(--gold); font-size: 14px;">📚 ${cat} <span style="font-size:11px; color:var(--muted); font-weight:normal; text-transform:none;">(จำนวน ${groups[cat].length} ข้อ)</span></div>`;
+    
+    groups[cat].forEach(q => {
+      _qMap[globalIdx] = q; 
+      const choices = ['A','B','C','D'].map(k => {
+        const val = q['choice'+k];
+        const isCorrect = q.correctAnswer.toUpperCase() === k;
+        return val ? `<span class="q-choice-tag ${isCorrect?'correct':''}">${k}: ${val}</span>` : '';
+      }).join('');
+      
+      html += `
+        <div class="q-card" style="animation:fadeUp .3s ease">
+          <div class="q-card-hdr">
+            <div>
+              <div class="q-id">${q.questionId}</div>
+            </div>
           </div>
-          <div class="q-cat-tag">${q.category||'ทั่วไป'}</div>
+          <div class="q-text-preview">${q.questionText}</div>
+          <div class="q-choices-preview">${choices}</div>
+          <div class="q-actions">
+            <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openEditModal(_qMap[${globalIdx}])">✏️ แก้ไข</button>
+            <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteQuestion('${q.questionId}')">🗑️ ลบ</button>
+          </div>
         </div>
-        <div class="q-text-preview">${q.questionText}</div>
-        <div class="q-choices-preview">${choices}</div>
-        <div class="q-actions">
-          <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openEditModal(_qMap[${idx}])">✏️ แก้ไข</button>
-          <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteQuestion('${q.questionId}')">🗑️ ลบ</button>
-        </div>
-      </div>
-    `;
-  }).join('');
+      `;
+      globalIdx++;
+    });
+  });
+
+  document.getElementById('q-list').innerHTML = html;
 }
 
 // ==============================================
 // QUESTION CRUD
 // ==============================================
+function populateCategoryDropdown(selectedValue = '') {
+  const select = document.getElementById('m-cat-select');
+  const newCatInput = document.getElementById('m-cat-new');
+  const qs = adminData.questions || [];
+  
+  // ดึงรายชื่อวิชาทั้งหมดที่ไม่ซ้ำกัน
+  const cats = [...new Set(qs.map(q => q.category || 'ทั่วไป'))].sort();
+
+  let options = '';
+  cats.forEach(c => {
+    options += `<option value="${c}">${c}</option>`;
+  });
+  options += `<option value="NEW" style="color:var(--gold)">+ เพิ่มวิชาใหม่...</option>`;
+  select.innerHTML = options;
+
+  if (selectedValue && cats.includes(selectedValue)) {
+    select.value = selectedValue;
+    newCatInput.classList.add('hidden');
+    newCatInput.value = '';
+  } else if (selectedValue) {
+    // กรณีเป็นวิชาใหม่ที่ยังไม่มีในตัวเลือก
+    select.value = 'NEW';
+    newCatInput.classList.remove('hidden');
+    newCatInput.value = selectedValue;
+  } else {
+    // Default ตอนเปิดเพิ่มข้อสอบ
+    select.value = cats.length > 0 ? cats[0] : 'NEW';
+    if (select.value === 'NEW') newCatInput.classList.remove('hidden');
+    else newCatInput.classList.add('hidden');
+  }
+}
+
+function toggleNewCat() {
+  const select = document.getElementById('m-cat-select');
+  const input = document.getElementById('m-cat-new');
+  if (select.value === 'NEW') {
+    input.classList.remove('hidden');
+    input.focus();
+  } else {
+    input.classList.add('hidden');
+  }
+}
+
 function openAddModal() {
   document.getElementById('modal-title').textContent = '➕ เพิ่มข้อสอบใหม่';
   document.getElementById('m-qid').value   = '';
@@ -550,7 +622,9 @@ function openAddModal() {
   document.getElementById('m-c').value     = '';
   document.getElementById('m-d').value     = '';
   document.getElementById('m-answer').value= '';
-  document.getElementById('m-cat').value   = 'ทั่วไป';
+  
+  populateCategoryDropdown(); // ดึงรายวิชามาใส่ใน Dropdown
+  
   document.getElementById('modal-err').className = 'alert-msg hidden';
   document.getElementById('modal-q').classList.remove('hidden');
 }
@@ -564,7 +638,9 @@ function openEditModal(q) {
   document.getElementById('m-c').value      = q.choiceC;
   document.getElementById('m-d').value      = q.choiceD;
   document.getElementById('m-answer').value = q.correctAnswer;
-  document.getElementById('m-cat').value    = q.category||'ทั่วไป';
+  
+  populateCategoryDropdown(q.category || 'ทั่วไป'); // เซ็ตค่าให้ตรงกับวิชาเดิม
+  
   document.getElementById('modal-err').className = 'alert-msg hidden';
   document.getElementById('modal-q').classList.remove('hidden');
 }
@@ -576,12 +652,18 @@ async function saveQuestion() {
   const c = document.getElementById('m-c').value.trim();
   const d = document.getElementById('m-d').value.trim();
   const ans = document.getElementById('m-answer').value;
-  const cat = document.getElementById('m-cat').value.trim();
+  
+  // เช็คว่าเลือกวิชาจาก Dropdown หรือพิมพ์วิชาใหม่
+  let cat = document.getElementById('m-cat-select').value;
+  if (cat === 'NEW') {
+    cat = document.getElementById('m-cat-new').value.trim();
+  }
+  
   const qid = document.getElementById('m-qid').value;
 
-  if (!qtext||!a||!b||!c||!d||!ans) {
+  if (!qtext||!a||!b||!c||!d||!ans||!cat) {
     const el = document.getElementById('modal-err');
-    el.textContent = '❌ กรุณากรอกข้อมูลให้ครบทุกช่อง';
+    el.textContent = '❌ กรุณากรอกข้อมูลให้ครบทุกช่อง (รวมถึงหมวดหมู่วิชา)';
     el.className = 'alert-msg error';
     return;
   }
