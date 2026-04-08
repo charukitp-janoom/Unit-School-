@@ -381,9 +381,13 @@ async function startExam(subject) {
     }
 
     member    = res.member;
-    questions = res.questions;
-    EXAM_TIME = (res.examTimeMinutes || 20) * 60; // ดึงเวลาสอบจากแอดมิน (วินาที)
-    tenMinWarningShown = false; // รีเซ็ตการแจ้งเตือนเวลา
+    
+    // อัปเดต: ทำการสุ่มลำดับตัวเลือก (A, B, C, D) ของแต่ละคำถาม
+    questions = res.questions.map(q => {
+      const keys = ['A', 'B', 'C', 'D'].filter(k => q.choices[k]); // ดึงเฉพาะตัวเลือกที่มีข้อความ
+      q.shuffledKeys = keys.sort(() => Math.random() - 0.5); // สลับตำแหน่ง ก ข ค ง
+      return q;
+    });
 
     if (!questions || questions.length === 0) {
       document.getElementById('load-txt').textContent = '⚠️ ไม่พบข้อสอบในวิชานี้';
@@ -472,17 +476,20 @@ function renderQuestion(idx) {
   const pct = ((idx + 1) / questions.length) * 100;
   document.getElementById('prog-bar').style.width = pct + '%';
 
-  // Choices
+  // อัปเดต: นำตัวเลือกที่ถูกสุ่มไว้มาแสดงผล โดยให้แสดงป้าย A,B,C,D เรียงตามปกติ
   const container = document.getElementById('choices');
   container.innerHTML = '';
-  const choiceKeys = ['A','B','C','D'];
-  choiceKeys.forEach(key => {
-    const text = q.choices[key];
+  const displayLabels = ['A', 'B', 'C', 'D']; 
+
+  q.shuffledKeys.forEach((originalKey, index) => {
+    const text = q.choices[originalKey];
     if (!text) return;
+    const displayLabel = displayLabels[index]; // แสดงตัวอักษรเรียง A->B->C->D เสมอ
+    
     const div = document.createElement('div');
-    div.className = 'choice' + (answers[idx] === key ? ' selected' : '');
-    div.innerHTML = `<div class="choice-key">${key}</div><div class="choice-text">${text}</div>`;
-    div.onclick = () => selectAnswer(key);
+    div.className = 'choice' + (answers[idx] === originalKey ? ' selected' : '');
+    div.innerHTML = `<div class="choice-key">${displayLabel}</div><div class="choice-text">${text}</div>`;
+    div.onclick = () => selectAnswer(originalKey); // แต่เวลาบันทึก จะบันทึก Key ที่แท้จริงไปให้ระบบตรวจ
     container.appendChild(div);
   });
 
@@ -582,14 +589,15 @@ function showResult(res) {
     const isOk = r.isCorrect;
     const card = document.createElement('div');
     card.className = 'review-card';
+    // อัปเดต: ในหน้าเฉลย ให้แสดงเฉพาะข้อความคำตอบไปเลย เพื่อไม่ให้กำลังพลสับสนกับตัวอักษร A B C D ที่ถูกสลับไปแล้ว
     card.innerHTML = `
       <div class="review-hdr">
         <div class="review-status ${isOk?'ok':'ng'}">${isOk?'✅':'❌'}</div>
         <div class="review-q">ข้อ ${i+1}: ${q ? q.questionText : '—'}</div>
       </div>
       <div class="review-body">
-        <div class="review-row">คุณตอบ: <span class="${isOk?'ok-color':'ng-color'}">${r.userAnswer || '-'} ${r.userAnswer && q ? q.choices[r.userAnswer]||'' : ''}</span></div>
-        ${!isOk ? `<div class="review-row">เฉลย: <span class="ok-color">${r.correct} ${q ? q.choices[r.correct]||'' : ''}</span></div>` : ''}
+        <div class="review-row">คุณตอบ: <span class="${isOk?'ok-color':'ng-color'}">${r.userAnswer && q ? q.choices[r.userAnswer]||'' : '-'}</span></div>
+        ${!isOk ? `<div class="review-row">เฉลย: <span class="ok-color">${q ? q.choices[r.correct]||'' : ''}</span></div>` : ''}
       </div>
     `;
     list.appendChild(card);
