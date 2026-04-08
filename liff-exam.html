@@ -148,14 +148,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="ov-load" class="ov">
   <div class="ov-spinner"></div>
   <div class="ov-title">📋 Unit School</div>
   <div class="ov-sub" id="load-txt">กำลังโหลดข้อสอบ...</div>
 </div>
 
-<!-- NOT REGISTERED -->
 <div id="ov-noreg" class="ov hidden">
   <div style="font-size:60px">⚠️</div>
   <div class="ov-title" style="color:var(--red)">ยังไม่ได้ลงทะเบียน</div>
@@ -163,7 +161,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   <button class="btn" style="background:var(--navy);color:var(--gold);max-width:200px" onclick="liff.closeWindow()">← กลับ</button>
 </div>
 
-<!-- TIME WARNING -->
 <div id="ov-warning" class="ov hidden" style="background:rgba(15,19,34,0.95); z-index:9999;">
   <div style="font-size:60px">⏰</div>
   <div class="ov-title" style="color:var(--gold)">แจ้งเตือนเวลา</div>
@@ -171,7 +168,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   <button class="btn" style="background:var(--gold);color:#000;max-width:200px;margin-top:20px" onclick="document.getElementById('ov-warning').classList.add('hidden')">รับทราบ</button>
 </div>
 
-<!-- RESULT -->
 <div id="result-ov" class="result-ov hidden">
   <div class="result-hero">
     <div class="score-ring">
@@ -203,7 +199,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <div class="rank-label">อันดับปัจจุบัน จากกำลังพล <span id="r-total">—</span> นาย</div>
   </div>
 
-  <!-- Review -->
   <div style="font-size:14px;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📝 เฉลยข้อสอบ</div>
   <div id="review-list"></div>
 
@@ -212,7 +207,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- SUBJECT PICKER -->
 <div id="subject-ov" class="subject-ov hidden">
   <div class="subject-hdr">
     <div class="subject-hdr-title">📚 เลือกวิชาที่ต้องการสอบ</div>
@@ -223,11 +217,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <div class="subject-section-label" style="padding:0;margin-bottom:8px">📋 วิชาที่เปิดสอบ</div>
   </div>
   <div class="subject-list" id="subject-list">
-    <!-- rendered by JS -->
-  </div>
+    </div>
 </div>
 
-<!-- EXAM UI -->
 <div id="exam-ui" class="hidden">
   <div class="hdr">
     <div class="hdr-info">
@@ -241,10 +233,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 
   <div class="content">
-    <!-- DOT NAV -->
     <div class="dot-nav" id="dot-nav"></div>
 
-    <!-- QUESTION -->
     <div id="q-wrap" style="animation:fadeUp .3s ease">
       <div class="q-header">
         <div class="q-num-badge" id="q-num">1</div>
@@ -489,6 +479,8 @@ function renderQuestion(idx) {
     
     const div = document.createElement('div');
     div.className = 'choice' + (answers[idx] === originalKey ? ' selected' : '');
+    // [แก้ไขบั๊ก: เพิ่ม data-key ซ่อนคีย์ที่แท้จริงไว้]
+    div.setAttribute('data-key', originalKey); 
     div.innerHTML = `<div class="choice-key">${displayLabel}</div><div class="choice-text">${text}</div>`;
     div.onclick = () => selectAnswer(originalKey);
     container.appendChild(div);
@@ -514,7 +506,8 @@ function renderQuestion(idx) {
 function selectAnswer(key) {
   answers[currentQ] = key;
   document.querySelectorAll('.choice').forEach(c => {
-    const k = c.querySelector('.choice-key').textContent;
+    // [แก้ไขบั๊ก: ดึงคีย์ของจริงจาก data-key แทนที่จะดึงตัวอักษร A B C D จากหน้าจอ]
+    const k = c.getAttribute('data-key');
     c.classList.toggle('selected', k === key);
   });
   updateDots();
