@@ -118,14 +118,12 @@ select option{background:var(--surf2);color:var(--text)}
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="ov-load" class="ov">
   <div class="ov-spinner"></div>
   <div class="ov-title">🎖️ Unit School</div>
   <div class="ov-sub" id="load-txt">กำลังเชื่อมต่อระบบ...</div>
 </div>
 
-<!-- SUCCESS -->
 <div id="ov-success" class="ov-success hidden">
   <div class="success-badge">✅</div>
   <div class="success-title">ลงทะเบียนสำเร็จ!</div>
@@ -137,7 +135,6 @@ select option{background:var(--surf2);color:var(--text)}
   </div>
 </div>
 
-<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-badge">🎖️</div>
   <div>
@@ -146,7 +143,6 @@ select option{background:var(--surf2);color:var(--text)}
   </div>
 </div>
 
-<!-- STEPS -->
 <div class="steps">
   <div class="step-item active" id="step1"><span class="step-num">①</span>ข้อมูล</div>
   <div class="step-item" id="step2"><span class="step-num">②</span>ยืนยัน</div>
@@ -154,7 +150,6 @@ select option{background:var(--surf2);color:var(--text)}
 
 <div class="content">
 
-  <!-- SECTION 1: FORM -->
   <div id="sec-form">
     <div class="hero" style="margin-top:16px">
       <div class="hero-title">ยินดีต้อนรับ กำลังพล</div>
@@ -204,7 +199,6 @@ select option{background:var(--surf2);color:var(--text)}
     <button class="btn btn-primary" id="btn-next" onclick="goConfirm()">ถัดไป →</button>
   </div>
 
-  <!-- SECTION 2: CONFIRM -->
   <div id="sec-confirm" class="hidden">
     <div class="card" style="margin-top:16px">
       <div class="card-hdr">📋 ตรวจสอบข้อมูลก่อนลงทะเบียน</div>
@@ -242,17 +236,13 @@ select option{background:var(--surf2);color:var(--text)}
 
 <script>
 // ==============================================
-// CONFIG — กรุณาใส่ข้อมูลของคุณด้านล่าง
+// CONFIG — เปลี่ยน LIFF_ID และ GAS_URL
 // ==============================================
-const LIFF_ID = '2009717287-28e2ynXL';   // << ใส่ LIFF ID
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';         // << ใส่ Web App URL
+const LIFF_ID = '2009717287-28e2ynXL';   
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-// State
 const S = { rank:'', name:'', pos:'', userId:'', displayName:'', submitting:false };
 
-// ==============================================
-// INIT
-// ==============================================
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
@@ -261,17 +251,14 @@ async function init() {
     S.userId      = profile.userId;
     S.displayName = profile.displayName;
 
-    // ตรวจสอบว่าเคยลงทะเบียนแล้วหรือเปล่า
     const res = await callGAS('GET', { action:'get_member', userId: S.userId });
     if (res && res.member) {
       const m = res.member;
-      // pre-fill — ตัด rank ออกจาก fullName แบบ safe (ไม่ใช้ regex เพราะ rank มีจุด)
       const rankPrefix = m.rank && m.fullName.startsWith(m.rank)
         ? m.fullName.slice(m.rank.length).trim()
         : m.fullName;
       document.getElementById('inp-name').value = rankPrefix;
       document.getElementById('inp-pos').value  = m.position;
-      // select rank
       document.querySelectorAll('.rank-pill').forEach(p => {
         if (p.textContent.trim() === m.rank) { p.classList.add('selected'); S.rank = m.rank; }
       });
@@ -284,18 +271,12 @@ async function init() {
   }
 }
 
-// ==============================================
-// RANK SELECTION
-// ==============================================
 function selectRank(el, rank) {
   document.querySelectorAll('.rank-pill').forEach(p => p.classList.remove('selected'));
   el.classList.add('selected');
   S.rank = rank;
 }
 
-// ==============================================
-// STEP NAVIGATION
-// ==============================================
 function setStep(n) {
   document.querySelectorAll('.step-item').forEach((s, i) => {
     s.classList.toggle('active', i+1 === n);
@@ -332,9 +313,6 @@ function goForm() {
   setStep(1);
 }
 
-// ==============================================
-// SUBMIT
-// ==============================================
 async function submitReg() {
   if (S.submitting) return;
   S.submitting = true;
@@ -368,9 +346,6 @@ async function submitReg() {
   }
 }
 
-// ==============================================
-// API HELPER
-// ==============================================
 async function callGAS(method, params, timeoutMs=25000) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -398,9 +373,6 @@ async function callGAS(method, params, timeoutMs=25000) {
   }
 }
 
-// ==============================================
-// ALERT HELPERS
-// ==============================================
 function setAlert(id, type, iconId, txtId, icon, text) {
   const el = document.getElementById(id);
   el.className = 'alert ' + type;
