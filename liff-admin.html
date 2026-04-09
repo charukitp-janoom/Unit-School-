@@ -319,8 +319,8 @@ select option{background:var(--surf2);color:var(--text)}
 // ==============================================
 // CONFIG — เปลี่ยน LIFF_ID และ GAS_URL
 // ==============================================
-const LIFF_ID  = '2009717287-baGusOWI';  // << ใส่ LIFF ID
-const GAS_URL  = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';    // << ใส่ Web App URL
+const LIFF_ID  = '2009717287-baGusOWI';  // << LIFF Admin
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
 let adminSecret = '';
 let adminData   = null;
@@ -697,7 +697,7 @@ async function saveQuestion() {
       correctAnswer:ans, category:cat
     });
     if (res.status !== 'ok') throw new Error(res.message);
-    currentSubTab = cat; // ย้ายไปเปิดแท็บวิชาที่เพิ่งบันทึกอัตโนมัติ
+    currentSubTab = cat; 
     closeAllModal();
     await loadData();
     showTabAlert('alert-q', 'success', '✅ ' + (res.message || 'บันทึกสำเร็จ'));
