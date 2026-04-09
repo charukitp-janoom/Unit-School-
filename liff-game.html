@@ -32,6 +32,26 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: v
 .spinner { width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Screen Styles */
+.start-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; width: 100%; max-width: 500px; margin: 0 auto;}
+.start-logo { font-size: 80px; margin-bottom: 20px; text-shadow: 0 0 30px var(--gold-glow); }
+.start-title { font-size: 36px; font-weight: 800; color: var(--gold); margin-bottom: 10px; line-height: 1.2; }
+.start-sub { font-size: 15px; color: #aaa; margin-bottom: 40px; line-height: 1.6; }
+
+/* Buttons */
+.action-btn { background: var(--gold); color: #000; border: none; padding: 16px 32px; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; width: 100%; max-width: 320px; font-family: 'Sarabun', sans-serif; transition: 0.2s; }
+.action-btn:active { transform: scale(0.96); }
+.btn-outline { background: transparent; border: 2px solid var(--gold); color: var(--gold); }
+.btn-outline:active { background: rgba(255, 215, 0, 0.1); }
+
+/* Leaderboard */
+.lb-container { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; margin-bottom: 20px; }
+.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.lb-item:last-child { border-bottom: none; }
+.lb-rank { font-size: 18px; font-weight: 800; color: var(--gold); width: 40px; text-align: left; }
+.lb-name { flex: 1; text-align: left; font-size: 15px; color: var(--text); }
+.lb-prize { font-size: 17px; font-weight: 800; color: var(--green); font-family: 'IBM Plex Mono', monospace; text-align: right; }
+
 /* Game UI */
 .game-container { max-width: 600px; margin: 0 auto; width: 100%; padding: 20px 16px; flex: 1; display: flex; flex-direction: column; }
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -75,10 +95,9 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: v
 @keyframes pulse { from { box-shadow: 0 0 5px var(--gold-glow); } to { box-shadow: 0 0 20px var(--gold-glow); } }
 
 /* Game Over / Win UI */
-.end-screen { text-align: center; padding: 40px 20px; }
+.end-screen { text-align: center; padding: 40px 20px; width: 100%; max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;}
 .end-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; }
 .end-prize { font-size: 48px; font-weight: 800; color: var(--gold); font-family: 'IBM Plex Mono', monospace; margin: 20px 0; text-shadow: 0 0 20px var(--gold-glow); }
-.action-btn { background: var(--gold); color: #000; border: none; padding: 16px 32px; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; width: 100%; max-width: 300px; margin-top: 20px; font-family: 'Sarabun', sans-serif; }
 </style>
 </head>
 <body>
@@ -87,8 +106,35 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: v
 <!-- Loading -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <h2 style="color:var(--gold);">เตรียมคำถาม...</h2>
-  <p style="color:#aaa; margin-top:10px;" id="load-msg">กำลังรวบรวมข้อสอบจากทุกหมวดหมู่</p>
+  <h2 style="color:var(--gold);">เตรียมข้อมูล...</h2>
+  <p style="color:#aaa; margin-top:10px;" id="load-msg">ระบบกำลังเตรียมความพร้อม</p>
+</div>
+
+<!-- Start UI -->
+<div id="start-ui" class="ov hidden">
+  <div class="start-screen">
+    <div class="start-logo">💰</div>
+    <div class="start-title">เกมเศรษฐี<br>Unit School</div>
+    <div class="start-sub">ตอบคำถาม 12 ข้อ เพื่อชิงเงินรางวัลจำลองสูงสุด<br>1,000,000 บาท! วัดความรู้ ท้าทายความสามารถ</div>
+    
+    <button class="action-btn" onclick="startRealGame()" style="margin-bottom:14px;">🎮 เริ่มเล่นเกม</button>
+    <button class="action-btn btn-outline" onclick="showLeaderboard()">🏆 ดูทำเนียบเศรษฐี</button>
+    
+    <button class="quit-btn" style="margin-top:36px; font-size:14px; border:none;" onclick="liff.closeWindow()">← ปิดหน้าต่าง</button>
+  </div>
+</div>
+
+<!-- Leaderboard UI -->
+<div id="lb-ui" class="ov hidden" style="align-items: stretch; padding: 40px 20px;">
+  <div class="start-screen" style="justify-content: flex-start; height: auto;">
+    <div class="start-title" style="font-size: 28px;">🏆 ทำเนียบเศรษฐี</div>
+    <div class="start-sub" style="margin-bottom: 16px;">จัดอันดับจากเงินรางวัลสะสมสูงสุด</div>
+    
+    <div id="lb-loading" style="color:var(--gold); margin: 20px 0;">กำลังโหลดข้อมูลทำเนียบ...</div>
+    <div class="lb-container" id="lb-list" style="display:none;"></div>
+    
+    <button class="action-btn btn-outline" style="margin-top: auto;" onclick="closeLeaderboard()">ย้อนกลับ</button>
+  </div>
 </div>
 
 <!-- Main Game -->
@@ -120,12 +166,14 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: v
 <!-- End Screen -->
 <div id="end-ui" class="ov hidden">
   <div class="end-screen">
-    <div id="end-icon" style="font-size: 80px; margin-bottom: 20px;">🏆</div>
+    <div id="end-icon" style="font-size: 80px; margin-bottom: 10px;">🏆</div>
     <div class="end-title" id="end-title">ยินดีด้วย!</div>
-    <div style="color:#aaa;">คุณได้รับเงินรางวัลสะสม</div>
+    <div style="color:#aaa;">คุณได้รับเงินรางวัลจำลองกลับบ้าน</div>
     <div class="end-prize" id="end-prize">฿0</div>
-    <div id="end-desc" style="margin-bottom: 30px; font-size: 14px;">ความรู้ของคุณอยู่ในระดับแนวหน้า!</div>
-    <button class="action-btn" onclick="liff.closeWindow()">กลับสู่หน้าหลัก</button>
+    
+    <button class="action-btn" onclick="startRealGame()" style="margin-bottom:12px;">🔄 เล่นใหม่อีกครั้ง</button>
+    <button class="action-btn btn-outline" onclick="showLeaderboard()">🏆 ดูทำเนียบเศรษฐี</button>
+    <button class="quit-btn" style="margin-top:24px; font-size:14px; border:none;" onclick="liff.closeWindow()">← ปิดหน้าต่าง</button>
   </div>
 </div>
 
@@ -138,11 +186,13 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2
 
 // Game State
 const PRIZES = ['1,000', '2,000', '3,000', '5,000', '10,000', '20,000', '40,000', '80,000', '150,000', '300,000', '500,000', '1,000,000'];
+let allQs = [];
 let questions = [];
 let currentLevel = 0;
 let isAnswerLocked = false;
 let currentCorrectAnswer = '';
 let currentShuffledKeys = [];
+let userId = '';
 
 // Timer State
 let qTimerInterval = null;
@@ -155,32 +205,42 @@ async function init() {
     if (!liff.isLoggedIn()) { liff.login(); return; }
     
     const profile = await liff.getProfile();
+    userId = profile.userId;
     
-    // โหลดข้อมูลแบบเสถียร
-    const data = await callAPI('GET', { action:'get_questions', userId: profile.userId });
+    const data = await callAPI('GET', { action:'get_questions', userId: userId });
 
     if (data.status === 'error') throw new Error(data.message);
 
-    let allQs = data.questions || [];
+    allQs = data.questions || [];
     if (allQs.length < PRIZES.length) throw new Error(`ข้อสอบในระบบมีน้อยกว่า ${PRIZES.length} ข้อ (ปัจจุบันมี ${allQs.length} ข้อ)`);
     
-    // สุ่มข้อสอบให้ได้ 12 ข้อ
-    questions = allQs.sort(() => Math.random() - 0.5).slice(0, PRIZES.length);
-
-    // เช็กว่ามีเฉลยส่งมาจากระบบหรือไม่
-    if (!questions[0].correctAnswer) {
+    if (!allQs[0].correctAnswer) {
        throw new Error("⚠️ ไม่พบข้อมูลเฉลย! กรุณาไปที่ Google Apps Script แล้วกด Deploy -> New version อีกครั้งครับ");
     }
 
-    document.getElementById('ov-load').style.display = 'none';
-    document.getElementById('game-ui').style.display = 'flex';
-    
-    buildLadder();
-    loadQuestion(0);
+    // พร้อมเล่น! ซ่อนหน้าโหลด โชว์หน้าเริ่มเกม
+    document.getElementById('ov-load').classList.add('hidden');
+    document.getElementById('start-ui').classList.remove('hidden');
 
   } catch(e) {
     document.getElementById('ov-load').innerHTML = `<h2 style="color:var(--gold);font-size:24px;margin-bottom:10px">พบข้อผิดพลาด</h2><p style="color:#ff5252;padding:0 20px;line-height:1.6">${e.message}</p><button class="action-btn" style="margin-top:30px; font-size: 16px" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>`;
   }
+}
+
+// เริ่มเกมแบบจริงๆ
+function startRealGame() {
+  document.getElementById('start-ui').classList.add('hidden');
+  document.getElementById('end-ui').classList.add('hidden');
+  document.getElementById('game-ui').style.display = 'flex';
+  
+  // สุ่มข้อสอบ 12 ข้อทุกครั้งที่เริ่มเกมใหม่
+  questions = allQs.sort(() => Math.random() - 0.5).slice(0, PRIZES.length);
+  
+  // รีเซ็ตตัวช่วย
+  document.getElementById('btn-5050').classList.remove('used');
+
+  buildLadder();
+  loadQuestion(0);
 }
 
 function buildLadder() {
@@ -241,7 +301,6 @@ function timeIsUp() {
   if (isAnswerLocked) return;
   isAnswerLocked = true;
 
-  // หาปุ่มที่ถูกต้องเพื่อเฉลยให้ดู
   const correctDisplayLetter = ['A','B','C','D'].find(l => {
     const b = document.getElementById(`btn-${l}`);
     return b && b.getAttribute('data-real-key') === currentCorrectAnswer;
@@ -251,11 +310,9 @@ function timeIsUp() {
      document.getElementById(`btn-${correctDisplayLetter}`).classList.add('correct');
   }
 
-  // แทรกข้อความหมดเวลาในโจทย์
   const qTextBox = document.getElementById('q-text');
   qTextBox.innerHTML = `<span style="color:var(--red); font-size:24px; display:block; margin-bottom:10px;">⏰ หมดเวลา!</span>` + qTextBox.innerHTML;
 
-  // รอ 2.5 วินาทีแล้วเรียกจบเกม (สถานะ Timeout)
   setTimeout(() => { endGame(false, false, true); }, 2500);
 }
 
@@ -266,7 +323,6 @@ function loadQuestion(level) {
 
   const displayLetters = ['A', 'B', 'C', 'D'];
 
-  // รีเซ็ตปุ่มทั้งหมด
   displayLetters.forEach(l => {
     const btn = document.getElementById(`btn-${l}`);
     btn.className = 'choice-btn';
@@ -280,7 +336,6 @@ function loadQuestion(level) {
   currentCorrectAnswer = (q.correctAnswer || '').toUpperCase();
   currentShuffledKeys = displayLetters.filter(k => q.choices && q.choices[k]).sort(() => Math.random() - 0.5);
 
-  // ใส่ข้อมูลลงปุ่ม
   currentShuffledKeys.forEach((key, index) => {
     const letter = displayLetters[index];
     const btn = document.getElementById(`btn-${letter}`);
@@ -289,20 +344,18 @@ function loadQuestion(level) {
     btn.setAttribute('data-real-key', key);
   });
 
-  // เริ่มจับเวลาใหม่ทุกครั้งที่โหลดคำถามเสร็จ
   startQTimer();
 }
 
 function selectAnswer(displayLetter) {
   if (isAnswerLocked) return;
   isAnswerLocked = true;
-  stopQTimer(); // หยุดเวลาทันทีที่กดเลือกคำตอบ!
+  stopQTimer(); 
 
   const btn = document.getElementById(`btn-${displayLetter}`);
   const realKey = btn.getAttribute('data-real-key');
   btn.classList.add('selected');
 
-  // ลุ้นคำตอบ 2 วินาที
   setTimeout(() => {
     btn.classList.remove('selected');
     
@@ -312,17 +365,15 @@ function selectAnswer(displayLetter) {
     });
 
     if (realKey === currentCorrectAnswer) {
-      // ตอบถูก
       btn.classList.add('correct');
       setTimeout(() => {
         if (currentLevel === PRIZES.length - 1) {
-          endGame(true); // ชนะเลิศ
+          endGame(true); 
         } else {
-          loadQuestion(currentLevel + 1); // ไปข้อถัดไป
+          loadQuestion(currentLevel + 1); 
         }
       }, 1500);
     } else {
-      // ตอบผิด
       btn.classList.add('wrong');
       if(correctDisplayLetter) {
          document.getElementById(`btn-${correctDisplayLetter}`).classList.add('correct');
@@ -342,7 +393,6 @@ function useFiftyFifty() {
   const displayLetters = ['A','B','C','D'].filter(l => document.getElementById(`btn-${l}`).style.display !== 'none');
   const wrongLetters = displayLetters.filter(l => document.getElementById(`btn-${l}`).getAttribute('data-real-key') !== currentCorrectAnswer);
   
-  // สุ่มซ่อน 2 ข้อที่ผิด (เวลายังเดินต่อเพื่อความตื่นเต้น)
   wrongLetters.sort(() => Math.random() - 0.5).slice(0, 2).forEach(l => {
     document.getElementById(`btn-${l}`).classList.add('hidden-choice');
   });
@@ -356,46 +406,100 @@ function quitGame() {
 }
 
 function endGame(isWin, isQuit = false, isTimeout = false) {
-  stopQTimer(); // ปิดนาฬิกาอีกครั้งเพื่อความชัวร์
+  stopQTimer(); 
   document.getElementById('game-ui').style.display = 'none';
   const endUI = document.getElementById('end-ui');
   endUI.classList.remove('hidden');
 
-  let finalPrize = '0';
+  let finalPrizeIndex = -1;
+  let finalPrizeText = '0';
   let title = 'จบเกม!';
   let icon = '❌';
 
   if (isWin) {
     title = 'สุดยอดอัจฉริยะ!';
     icon = '👑';
-    finalPrize = PRIZES[PRIZES.length - 1];
+    finalPrizeIndex = PRIZES.length - 1;
   } else if (isQuit) {
     title = 'รับเงินกลับบ้าน!';
     icon = '💰';
-    finalPrize = currentLevel > 0 ? PRIZES[currentLevel - 1] : '0';
-  } else if (isTimeout) {
-    title = 'หมดเวลา!';
-    icon = '⏰';
-    // หาจุด Save ล่าสุด (ทุกๆ 4 ข้อ)
-    let safeLevel = -1;
-    for (let i = currentLevel - 1; i >= 0; i--) {
-      if ((i + 1) % 4 === 0) { safeLevel = i; break; }
-    }
-    finalPrize = safeLevel >= 0 ? PRIZES[safeLevel] : '0';
+    finalPrizeIndex = currentLevel - 1;
   } else {
-    title = 'ตอบผิด!';
-    icon = '💀';
-    // หาจุด Save ล่าสุด (ทุกๆ 4 ข้อ)
+    title = isTimeout ? 'หมดเวลา!' : 'ตอบผิด!';
+    icon = isTimeout ? '⏰' : '💀';
     let safeLevel = -1;
     for (let i = currentLevel - 1; i >= 0; i--) {
       if ((i + 1) % 4 === 0) { safeLevel = i; break; }
     }
-    finalPrize = safeLevel >= 0 ? PRIZES[safeLevel] : '0';
+    finalPrizeIndex = safeLevel;
   }
+
+  finalPrizeText = finalPrizeIndex >= 0 ? PRIZES[finalPrizeIndex] : '0';
 
   document.getElementById('end-title').textContent = title;
   document.getElementById('end-icon').textContent = icon;
-  document.getElementById('end-prize').textContent = `฿${finalPrize}`;
+  document.getElementById('end-prize').textContent = `฿${finalPrizeText}`;
+
+  // 📡 ส่งคะแนนเกมไปเก็บที่ระบบหลังบ้านแบบ Background
+  if (finalPrizeIndex >= 0) {
+    callAPI('POST', { 
+      action: 'submit_game_score', 
+      userId: userId,
+      prizeIndex: finalPrizeIndex,
+      prizeText: finalPrizeText
+    }).catch(e => console.error("Error saving game score:", e));
+  }
+}
+
+// ==============================================
+// LEADERBOARD
+// ==============================================
+async function showLeaderboard() {
+  document.getElementById('start-ui').classList.add('hidden');
+  document.getElementById('end-ui').classList.add('hidden');
+  document.getElementById('game-ui').style.display = 'none';
+  
+  document.getElementById('lb-ui').classList.remove('hidden');
+  document.getElementById('lb-loading').style.display = 'block';
+  document.getElementById('lb-list').style.display = 'none';
+
+  try {
+    const res = await callAPI('GET', { action:'get_game_leaderboard' });
+    if (res.status === 'error') throw new Error(res.message);
+
+    const list = document.getElementById('lb-list');
+    list.innerHTML = '';
+    
+    if (res.leaderboard.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">ยังไม่มีผู้พิชิตเงินรางวัล<br><br>เริ่มเล่นเป็นคนแรกเลย!</div>';
+    } else {
+      res.leaderboard.forEach((e, i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+        const isMe = e.userId === userId ? 'font-weight:800; color:var(--gold);' : 'font-weight:700;';
+        
+        list.innerHTML += `
+          <div class="lb-item">
+            <div class="lb-rank">${medal}</div>
+            <div class="lb-name">
+              <div style="${isMe}">${e.fullName} ${e.userId === userId ? '(คุณ)' : ''}</div>
+              <div style="font-size:11px; color:#888;">${e.rank} ${e.position}</div>
+            </div>
+            <div class="lb-prize">฿${e.prizeText}</div>
+          </div>
+        `;
+      });
+    }
+    document.getElementById('lb-loading').style.display = 'none';
+    list.style.display = 'block';
+
+  } catch(e) {
+    document.getElementById('lb-loading').innerHTML = '<span style="color:var(--red)">❌ โหลดข้อมูลล้มเหลว</span>';
+  }
+}
+
+function closeLeaderboard() {
+  document.getElementById('lb-ui').classList.add('hidden');
+  document.getElementById('start-ui').classList.remove('hidden');
 }
 
 // API Helper
