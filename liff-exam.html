@@ -155,14 +155,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="ov-load" class="ov">
   <div class="ov-spinner"></div>
   <div class="ov-title">📋 Unit School</div>
   <div class="ov-sub" id="load-txt">กำลังโหลดข้อสอบ...</div>
 </div>
 
-<!-- NOT REGISTERED -->
 <div id="ov-noreg" class="ov hidden">
   <div style="font-size:60px">⚠️</div>
   <div class="ov-title" style="color:var(--red)">ยังไม่ได้ลงทะเบียน</div>
@@ -170,7 +168,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   <button class="btn" style="background:var(--navy);color:var(--gold);max-width:200px" onclick="liff.closeWindow()">← กลับ</button>
 </div>
 
-<!-- TIME WARNING -->
 <div id="ov-warning" class="ov hidden" style="background:rgba(15,19,34,0.95); z-index:9999;">
   <div style="font-size:60px">⏰</div>
   <div class="ov-title" style="color:var(--gold)">แจ้งเตือนเวลา</div>
@@ -178,7 +175,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   <button class="btn" style="background:var(--gold);color:#000;max-width:200px;margin-top:20px" onclick="document.getElementById('ov-warning').classList.add('hidden')">รับทราบ</button>
 </div>
 
-<!-- RESULT -->
 <div id="result-ov" class="result-ov hidden">
   <div class="result-hero">
     <div class="score-ring">
@@ -210,7 +206,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <div class="rank-label">อันดับปัจจุบัน จากกำลังพล <span id="r-total">—</span> นาย</div>
   </div>
 
-  <!-- Review -->
   <div style="font-size:14px;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📝 เฉลยข้อสอบ</div>
   <div id="review-list"></div>
 
@@ -219,7 +214,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- SUBJECT PICKER -->
 <div id="subject-ov" class="subject-ov hidden">
   <div class="subject-hdr">
     <div class="subject-hdr-title">📚 เลือกวิชาที่ต้องการสอบ</div>
@@ -230,11 +224,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <div class="subject-section-label" style="padding:0;margin-bottom:8px">📋 วิชาที่เปิดสอบ</div>
   </div>
   <div class="subject-list" id="subject-list">
-    <!-- rendered by JS -->
-  </div>
+    </div>
 </div>
 
-<!-- EXAM UI -->
 <div id="exam-ui" class="hidden">
   <div class="hdr">
     <div class="hdr-info">
@@ -248,10 +240,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 
   <div class="content">
-    <!-- DOT NAV -->
     <div class="dot-nav" id="dot-nav"></div>
 
-    <!-- QUESTION -->
     <div id="q-wrap" style="animation:fadeUp .3s ease">
       <div class="q-header">
         <div class="q-num-badge" id="q-num">1</div>
@@ -277,7 +267,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 // ==============================================
 // CONFIG — เปลี่ยน LIFF_ID และ GAS_URL
 // ==============================================
-const LIFF_ID = '2009717287-nSod0Xpx';   // << ใส่ LIFF ID Exam
+const LIFF_ID = '2009717287-nSod0Xpx';   
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec'; 
 
 // State
@@ -321,7 +311,6 @@ async function init() {
 
     document.getElementById('load-txt').textContent = 'กำลังโหลดข้อมูลข้อสอบ...';
 
-    // โหลดครั้งเดียวจบ!
     const res = await callAPI('GET', { action:'get_questions', userId });
 
     if (!res || res.status === 'error') {
@@ -400,7 +389,6 @@ function startExam(subject) {
   selectedSubject = subject;
   tenMinWarningShown = false;
 
-  // 🔄 เช็กสถานะการสอบที่ค้างไว้
   const savedStateStr = localStorage.getItem(examStateKey);
   let savedState = null;
   if (savedStateStr) {
@@ -419,11 +407,9 @@ function startExam(subject) {
     }
   }
 
-  // 📝 เริ่มต้นข้อสอบใหม่
   let filteredQs = allQuestions.filter(q => (q.category || 'ทั่วไป') === subject);
 
   questions = filteredQs.map(q => {
-    // ดึง A, B, C, D มาเก็บเรียงตามเดิม (ไม่สลับ กขคง)
     q.shuffledKeys = ['A', 'B', 'C', 'D'].filter(k => q.choices[k]);
     return q;
   });
@@ -450,7 +436,6 @@ function finishStartExam() {
   document.getElementById('exam-ui').classList.remove('hidden');
 }
 
-// 💾 บันทึกสถานะลงเครื่อง
 function saveExamState() {
   const state = {
     subject: selectedSubject,
@@ -532,7 +517,6 @@ function renderQuestion(idx) {
   const container = document.getElementById('choices');
   container.innerHTML = '';
 
-  // แสดงตัวเลือกตามลำดับ A, B, C, D เสมอ
   q.shuffledKeys.forEach((key) => {
     const text = q.choices[key];
     if (!text) return;
@@ -568,7 +552,7 @@ function selectAnswer(key) {
     c.classList.toggle('selected', k === key);
   });
   updateDots();
-  saveExamState(); // 💾 บันทึกอัตโนมัติ
+  saveExamState(); 
 }
 
 function nextQ() { if (currentQ < questions.length - 1) renderQuestion(currentQ + 1); }
@@ -604,7 +588,6 @@ async function submitExam(timeout) {
     const res = await callAPI('POST', { action:'submit_exam', userId, answers: answerMap, subject: selectedSubject });
     if (!res || res.status === 'error') throw new Error(res ? res.message : 'ส่งข้อสอบล้มเหลว');
     
-    // 🧹 ล้างหน่วยความจำเมื่อส่งสำเร็จ
     localStorage.removeItem(examStateKey);
     
     showResult(res);
