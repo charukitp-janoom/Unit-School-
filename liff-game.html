@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Unit School — เกมเศรษฐี</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-color: #0b0c10;
+  --panel-bg: #121826;
+  --gold: #ffb300;
+  --gold-glow: rgba(255, 179, 0, 0.4);
+  --btn-blue: linear-gradient(180deg, #1e3c72 0%, #1a237e 100%);
+  --btn-gold: linear-gradient(180deg, #ffca28 0%, #ff8f00 100%);
+  --btn-green: linear-gradient(180deg, #43a047 0%, #1b5e20 100%);
+  --btn-red: linear-gradient(180deg, #e53935 0%, #b71c1c 100%);
+  --border: #4a69bd;
+  --text: #ffffff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: var(--text); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* Background effect */
+.bg-glow { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 150vw; height: 50vh; background: radial-gradient(ellipse at center, rgba(30,60,114,0.4) 0%, rgba(11,12,16,0) 70%); z-index: -1; pointer-events: none; }
+
+/* Overlays */
+.ov { position: fixed; inset: 0; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 20px; text-align: center; }
+.ov.hidden { display: none !important; }
+.spinner { width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Game UI */
+.game-container { max-width: 600px; margin: 0 auto; width: 100%; padding: 20px 16px; flex: 1; display: flex; flex-direction: column; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.lifelines { display: flex; gap: 12px; }
+.lifeline-btn { background: var(--panel-bg); border: 2px solid var(--gold); color: var(--gold); width: 50px; height: 35px; border-radius: 20px; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 10px var(--gold-glow); transition: 0.3s; }
+.lifeline-btn.used { opacity: 0.3; border-color: #555; color: #555; pointer-events: none; box-shadow: none; text-decoration: line-through; }
+.quit-btn { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+
+/* Prize Ladder */
+.ladder-container { background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 20px; display: flex; flex-direction: column-reverse; gap: 4px; height: 180px; overflow-y: hidden; position: relative; }
+.ladder-step { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; color: #888; font-weight: bold; border-radius: 4px; transition: 0.3s; }
+.ladder-step.safe { color: var(--text); }
+.ladder-step.active { background: var(--gold); color: #000; font-size: 14px; box-shadow: 0 0 10px var(--gold-glow); }
+.ladder-step.passed { color: var(--gold); }
+
+/* Question Box */
+.question-box { background: var(--btn-blue); border: 2px solid var(--gold); border-radius: 16px; padding: 24px 20px; text-align: center; font-size: 18px; font-weight: 600; line-height: 1.6; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); min-height: 120px; display: flex; align-items: center; justify-content: center; }
+
+/* Choices */
+.choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .choices-grid { grid-template-columns: 1fr; } }
+.choice-btn { background: var(--panel-bg); border: 2px solid var(--border); border-radius: 30px; padding: 16px; color: var(--text); font-size: 15px; font-family: 'Sarabun', sans-serif; cursor: pointer; display: flex; align-items: center; transition: all 0.2s; position: relative; overflow: hidden; text-align: left; }
+.choice-letter { color: var(--gold); font-weight: 800; font-family: 'IBM Plex Mono', monospace; margin-right: 12px; font-size: 16px; }
+.choice-text { flex: 1; pointer-events: none; }
+
+/* Choice States */
+.choice-btn.selected { background: var(--btn-gold); border-color: #fff; color: #000; animation: pulse 0.5s infinite alternate; }
+.choice-btn.selected .choice-letter { color: #000; }
+.choice-btn.correct { background: var(--btn-green); border-color: #fff; color: #fff; animation: none; box-shadow: 0 0 20px rgba(0,200,83,0.6); }
+.choice-btn.correct .choice-letter { color: #fff; }
+.choice-btn.wrong { background: var(--btn-red); border-color: #fff; color: #fff; animation: none; }
+.choice-btn.wrong .choice-letter { color: #fff; }
+.choice-btn.hidden-choice { visibility: hidden; pointer-events: none; }
+
+@keyframes pulse { from { box-shadow: 0 0 5px var(--gold-glow); } to { box-shadow: 0 0 20px var(--gold-glow); } }
+
+/* Game Over / Win UI */
+.end-screen { text-align: center; padding: 40px 20px; }
+.end-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; }
+.end-prize { font-size: 48px; font-weight: 800; color: var(--gold); font-family: 'IBM Plex Mono', monospace; margin: 20px 0; text-shadow: 0 0 20px var(--gold-glow); }
+.action-btn { background: var(--gold); color: #000; border: none; padding: 16px 32px; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; width: 100%; max-width: 300px; margin-top: 20px; font-family: 'Sarabun', sans-serif; }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<!-- Loading -->
+<div id="ov-load" class="ov">
+  <div class="spinner"></div>
+  <h2 style="color:var(--gold);">เตรียมคำถาม...</h2>
+  <p style="color:#aaa; margin-top:10px;">กำลังรวบรวมข้อสอบจากทุกหมวดหมู่</p>
+</div>
+
+<!-- Main Game -->
+<div id="game-ui" class="game-container" style="display:none;">
+  <div class="header">
+    <button class="quit-btn" onclick="quitGame()">🚪 เลิกเล่น</button>
+    <div class="lifelines">
+      <button id="btn-5050" class="lifeline-btn" onclick="useFiftyFifty()">50:50</button>
+    </div>
+  </div>
+
+  <div class="ladder-container" id="ladder">
+    <!-- Rendered via JS -->
+  </div>
+
+  <div class="question-box" id="q-text">
+    คำถามจะแสดงที่นี่?
+  </div>
+
+  <div class="choices-grid">
+    <button class="choice-btn" id="btn-A" onclick="selectAnswer('A')"><span class="choice-letter">A:</span><span class="choice-text" id="txt-A">-</span></button>
+    <button class="choice-btn" id="btn-B" onclick="selectAnswer('B')"><span class="choice-letter">B:</span><span class="choice-text" id="txt-B">-</span></button>
+    <button class="choice-btn" id="btn-C" onclick="selectAnswer('C')"><span class="choice-letter">C:</span><span class="choice-text" id="txt-C">-</span></button>
+    <button class="choice-btn" id="btn-D" onclick="selectAnswer('D')"><span class="choice-letter">D:</span><span class="choice-text" id="txt-D">-</span></button>
+  </div>
+</div>
+
+<!-- End Screen -->
+<div id="end-ui" class="ov hidden">
+  <div class="end-screen">
+    <div id="end-icon" style="font-size: 80px; margin-bottom: 20px;">🏆</div>
+    <div class="end-title" id="end-title">ยินดีด้วย!</div>
+    <div style="color:#aaa;">คุณได้รับเงินรางวัลสะสม</div>
+    <div class="end-prize" id="end-prize">฿0</div>
+    <div id="end-desc" style="margin-bottom: 30px; font-size: 14px;">ความรู้ของคุณอยู่ในระดับแนวหน้า!</div>
+    <button class="action-btn" onclick="liff.closeWindow()">กลับสู่หน้าหลัก</button>
+  </div>
+</div>
+
+<script>
+// ==============================================
+// CONFIG
+// ==============================================
+const LIFF_ID = 'YOUR-LIFF-GAME-ID';   // << ใส่ LIFF ID (สร้างใหม่สำหรับเกม)
+const GAS_URL = 'YOUR_WEB_APP_URL';    // << ใส่ Web App URL เดิมของคุณ
+
+// Game State
+const PRIZES = ['1,000', '2,000', '3,000', '5,000', '10,000', '20,000', '40,000', '80,000', '150,000', '300,000', '500,000', '1,000,000'];
+let questions = [];
+let currentLevel = 0;
+let isAnswerLocked = false;
+let currentCorrectAnswer = '';
+let currentShuffledKeys = [];
+
+async function init() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
+    
+    // ดึงข้อสอบทั้งหมดแบบไม่แยกหมวด
+    const profile = await liff.getProfile();
+    const res = await fetch(`${GAS_URL}?action=get_questions&userId=${profile.userId}`);
+    const data = await res.json();
+
+    if (data.status === 'error') throw new Error(data.message);
+
+    // สุ่มข้อสอบมาแค่เท่ากับจำนวนขั้นบันไดรางวัล (12 ข้อ)
+    let allQs = data.questions || [];
+    if (allQs.length < PRIZES.length) throw new Error(`ข้อสอบในระบบมีน้อยกว่า ${PRIZES.length} ข้อ`);
+    
+    questions = allQs.sort(() => Math.random() - 0.5).slice(0, PRIZES.length);
+
+    document.getElementById('ov-load').style.display = 'none';
+    document.getElementById('game-ui').style.display = 'flex';
+    
+    buildLadder();
+    loadQuestion(0);
+
+  } catch(e) {
+    document.getElementById('ov-load').innerHTML = `<h2 style="color:red">ผิดพลาด</h2><p>${e.message}</p><button class="quit-btn" style="margin-top:20px" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>`;
+  }
+}
+
+function buildLadder() {
+  const ladder = document.getElementById('ladder');
+  ladder.innerHTML = '';
+  PRIZES.forEach((prize, idx) => {
+    const isSafe = (idx + 1) % 4 === 0 || idx === PRIZES.length - 1; // ทุกๆ 4 ข้อเป็นจุด Save
+    const div = document.createElement('div');
+    div.className = `ladder-step ${isSafe ? 'safe' : ''}`;
+    div.id = `step-${idx}`;
+    div.innerHTML = `<span>${idx + 1}</span><span>฿${prize}</span>`;
+    ladder.appendChild(div);
+  });
+}
+
+function updateLadder() {
+  PRIZES.forEach((_, idx) => {
+    const el = document.getElementById(`step-${idx}`);
+    el.classList.remove('active', 'passed');
+    if (idx < currentLevel) el.classList.add('passed');
+    if (idx === currentLevel) el.classList.add('active');
+  });
+}
+
+function loadQuestion(level) {
+  isAnswerLocked = false;
+  currentLevel = level;
+  updateLadder();
+
+  // รีเซ็ตปุ่ม
+  ['A','B','C','D'].forEach(k => {
+    const btn = document.getElementById(`btn-${k}`);
+    btn.className = 'choice-btn';
+  });
+
+  const q = questions[level];
+  document.getElementById('q-text').textContent = q.questionText;
+  
+  // สลับตำแหน่ง ก ข ค ง แบบสุ่ม เพื่อให้เกมตื่นเต้น
+  currentShuffledKeys = ['A','B','C','D'].filter(k => q.choices[k]).sort(() => Math.random() - 0.5);
+  currentCorrectAnswer = q.correctAnswer.toUpperCase();
+
+  // ใส่ข้อมูลลงปุ่ม
+  const displayLetters = ['A', 'B', 'C', 'D'];
+  currentShuffledKeys.forEach((key, index) => {
+    const letter = displayLetters[index];
+    const btn = document.getElementById(`btn-${letter}`);
+    btn.style.display = 'flex';
+    document.getElementById(`txt-${letter}`).textContent = q.choices[key];
+    btn.setAttribute('data-real-key', key);
+  });
+
+  // ซ่อนปุ่มที่ไม่มีข้อความ (กรณีโจทย์มีแค่ 2-3 ช้อยส์)
+  for (let i = currentShuffledKeys.length; i < 4; i++) {
+    document.getElementById(`btn-${displayLetters[i]}`).style.display = 'none';
+  }
+}
+
+function selectAnswer(displayLetter) {
+  if (isAnswerLocked) return;
+  isAnswerLocked = true;
+
+  const btn = document.getElementById(`btn-${displayLetter}`);
+  const realKey = btn.getAttribute('data-real-key');
+  btn.classList.add('selected');
+
+  // ลุ้นคำตอบ 2 วินาที
+  setTimeout(() => {
+    btn.classList.remove('selected');
+    
+    // หาปุ่มที่ถูกต้อง
+    const correctDisplayLetter = ['A','B','C','D'].find(l => {
+      const b = document.getElementById(`btn-${l}`);
+      return b.getAttribute('data-real-key') === currentCorrectAnswer;
+    });
+
+    if (realKey === currentCorrectAnswer) {
+      // ตอบถูก
+      btn.classList.add('correct');
+      setTimeout(() => {
+        if (currentLevel === PRIZES.length - 1) {
+          endGame(true); // ชนะเลิศ
+        } else {
+          loadQuestion(currentLevel + 1); // ไปข้อถัดไป
+        }
+      }, 1500);
+    } else {
+      // ตอบผิด
+      btn.classList.add('wrong');
+      if(correctDisplayLetter) document.getElementById(`btn-${correctDisplayLetter}`).classList.add('correct');
+      
+      setTimeout(() => { endGame(false); }, 2000);
+    }
+  }, 2000);
+}
+
+function useFiftyFifty() {
+  if (isAnswerLocked) return;
+  const btn5050 = document.getElementById('btn-5050');
+  if (btn5050.classList.contains('used')) return;
+  
+  btn5050.classList.add('used');
+
+  const displayLetters = ['A','B','C','D'].filter(l => document.getElementById(`btn-${l}`).style.display !== 'none');
+  const wrongLetters = displayLetters.filter(l => document.getElementById(`btn-${l}`).getAttribute('data-real-key') !== currentCorrectAnswer);
+  
+  // สุ่มซ่อน 2 ข้อที่ผิด
+  wrongLetters.sort(() => Math.random() - 0.5).slice(0, 2).forEach(l => {
+    document.getElementById(`btn-${l}`).classList.add('hidden-choice');
+  });
+}
+
+function quitGame() {
+  if (confirm('คุณต้องการเลิกเล่นและรับเงินรางวัลเท่าที่สะสมได้ตอนนี้หรือไม่?')) {
+    endGame(false, true);
+  }
+}
+
+function endGame(isWin, isQuit = false) {
+  document.getElementById('game-ui').style.display = 'none';
+  const endUI = document.getElementById('end-ui');
+  endUI.classList.remove('hidden');
+
+  let finalPrize = '0';
+  let title = 'จบเกม!';
+  let icon = '❌';
+
+  if (isWin) {
+    title = 'สุดยอดอัจฉริยะ!';
+    icon = '👑';
+    finalPrize = PRIZES[PRIZES.length - 1];
+  } else if (isQuit) {
+    title = 'รับเงินกลับบ้าน!';
+    icon = '💰';
+    finalPrize = currentLevel > 0 ? PRIZES[currentLevel - 1] : '0';
+  } else {
+    title = 'ตอบผิด!';
+    icon = '💀';
+    // หาจุด Save ล่าสุด
+    let safeLevel = -1;
+    for (let i = currentLevel - 1; i >= 0; i--) {
+      if ((i + 1) % 4 === 0) { safeLevel = i; break; }
+    }
+    finalPrize = safeLevel >= 0 ? PRIZES[safeLevel] : '0';
+  }
+
+  document.getElementById('end-title').textContent = title;
+  document.getElementById('end-icon').textContent = icon;
+  document.getElementById('end-prize').textContent = `฿${finalPrize}`;
+}
+
+init();
+</script>
+</body>
+</html>
