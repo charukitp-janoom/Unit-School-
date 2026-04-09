@@ -18,6 +18,7 @@
   --btn-red: linear-gradient(180deg, #e53935 0%, #b71c1c 100%);
   --border: #4a69bd;
   --text: #ffffff;
+  --red: #ff5252;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: var(--text); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
@@ -34,6 +35,12 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: v
 /* Game UI */
 .game-container { max-width: 600px; margin: 0 auto; width: 100%; padding: 20px 16px; flex: 1; display: flex; flex-direction: column; }
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+
+/* Timer UI */
+.timer-box { font-size: 24px; font-weight: 800; font-family: 'IBM Plex Mono', monospace; color: var(--gold); border: 3px solid var(--gold); border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px var(--gold-glow); transition: 0.3s; background: var(--panel-bg); flex-shrink: 0; }
+.timer-box.warning { border-color: var(--red); color: var(--red); box-shadow: 0 0 20px rgba(229,57,53,0.6); animation: pulse-red 0.5s infinite alternate; }
+@keyframes pulse-red { from { transform: scale(1); } to { transform: scale(1.15); } }
+
 .lifelines { display: flex; gap: 12px; }
 .lifeline-btn { background: var(--panel-bg); border: 2px solid var(--gold); color: var(--gold); width: 50px; height: 35px; border-radius: 20px; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 10px var(--gold-glow); transition: 0.3s; }
 .lifeline-btn.used { opacity: 0.3; border-color: #555; color: #555; pointer-events: none; box-shadow: none; text-decoration: line-through; }
@@ -47,7 +54,7 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: v
 .ladder-step.passed { color: var(--gold); }
 
 /* Question Box */
-.question-box { background: var(--btn-blue); border: 2px solid var(--gold); border-radius: 16px; padding: 24px 20px; text-align: center; font-size: 18px; font-weight: 600; line-height: 1.6; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); min-height: 120px; display: flex; align-items: center; justify-content: center; }
+.question-box { background: var(--btn-blue); border: 2px solid var(--gold); border-radius: 16px; padding: 24px 20px; text-align: center; font-size: 18px; font-weight: 600; line-height: 1.6; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
 /* Choices */
 .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -88,6 +95,7 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: v
 <div id="game-ui" class="game-container" style="display:none;">
   <div class="header">
     <button class="quit-btn" onclick="quitGame()">🚪 เลิกเล่น</button>
+    <div class="timer-box" id="q-timer">60</div> <!-- ระบบจับเวลาใหม่ -->
     <div class="lifelines">
       <button id="btn-5050" class="lifeline-btn" onclick="useFiftyFifty()">50:50</button>
     </div>
@@ -126,7 +134,7 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: v
 // CONFIG
 // ==============================================
 const LIFF_ID = '2009717287-qTXoc8Mw';   // << LIFF ID ของเกมเศรษฐี
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';    // << Web App URL
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
 // Game State
 const PRIZES = ['1,000', '2,000', '3,000', '5,000', '10,000', '20,000', '40,000', '80,000', '150,000', '300,000', '500,000', '1,000,000'];
@@ -136,6 +144,11 @@ let isAnswerLocked = false;
 let currentCorrectAnswer = '';
 let currentShuffledKeys = [];
 
+// Timer State
+let qTimerInterval = null;
+let qTimeLeft = 60;
+const MAX_Q_TIME = 60;
+
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
@@ -143,6 +156,7 @@ async function init() {
     
     const profile = await liff.getProfile();
     
+    // โหลดข้อมูลแบบเสถียร
     const data = await callAPI('GET', { action:'get_questions', userId: profile.userId });
 
     if (data.status === 'error') throw new Error(data.message);
@@ -150,8 +164,10 @@ async function init() {
     let allQs = data.questions || [];
     if (allQs.length < PRIZES.length) throw new Error(`ข้อสอบในระบบมีน้อยกว่า ${PRIZES.length} ข้อ (ปัจจุบันมี ${allQs.length} ข้อ)`);
     
+    // สุ่มข้อสอบให้ได้ 12 ข้อ
     questions = allQs.sort(() => Math.random() - 0.5).slice(0, PRIZES.length);
 
+    // เช็กว่ามีเฉลยส่งมาจากระบบหรือไม่
     if (!questions[0].correctAnswer) {
        throw new Error("⚠️ ไม่พบข้อมูลเฉลย! กรุณาไปที่ Google Apps Script แล้วกด Deploy -> New version อีกครั้งครับ");
     }
@@ -171,7 +187,7 @@ function buildLadder() {
   const ladder = document.getElementById('ladder');
   ladder.innerHTML = '';
   PRIZES.forEach((prize, idx) => {
-    const isSafe = (idx + 1) % 4 === 0 || idx === PRIZES.length - 1;
+    const isSafe = (idx + 1) % 4 === 0 || idx === PRIZES.length - 1; // ทุกๆ 4 ข้อเป็นจุด Save
     const div = document.createElement('div');
     div.className = `ladder-step ${isSafe ? 'safe' : ''}`;
     div.id = `step-${idx}`;
@@ -189,6 +205,60 @@ function updateLadder() {
   });
 }
 
+// ==============================================
+// QUESTION & TIMER LOGIC
+// ==============================================
+function startQTimer() {
+  clearInterval(qTimerInterval);
+  qTimeLeft = MAX_Q_TIME;
+  updateQTimerUI();
+  
+  qTimerInterval = setInterval(() => {
+    qTimeLeft--;
+    updateQTimerUI();
+    if (qTimeLeft <= 0) {
+      timeIsUp();
+    }
+  }, 1000);
+}
+
+function updateQTimerUI() {
+  const el = document.getElementById('q-timer');
+  el.textContent = qTimeLeft;
+  if (qTimeLeft <= 10) {
+    el.classList.add('warning');
+  } else {
+    el.classList.remove('warning');
+  }
+}
+
+function stopQTimer() {
+  clearInterval(qTimerInterval);
+}
+
+function timeIsUp() {
+  stopQTimer();
+  if (isAnswerLocked) return;
+  isAnswerLocked = true;
+
+  // หาปุ่มที่ถูกต้องเพื่อเฉลยให้ดู
+  const correctDisplayLetter = ['A','B','C','D'].find(l => {
+    const b = document.getElementById(`btn-${l}`);
+    return b && b.getAttribute('data-real-key') === currentCorrectAnswer;
+  });
+
+  if(correctDisplayLetter) {
+     document.getElementById(`btn-${correctDisplayLetter}`).classList.add('correct');
+  }
+
+  // แทรกข้อความหมดเวลาในโจทย์
+  const qTextBox = document.getElementById('q-text');
+  qTextBox.innerHTML = `<span style="color:var(--red); font-size:24px; display:block; margin-bottom:10px;">⏰ หมดเวลา!</span>` + qTextBox.innerHTML;
+
+  // รอ 2.5 วินาทีแล้วเรียกจบเกม (สถานะ Timeout)
+  setTimeout(() => { endGame(false, false, true); }, 2500);
+}
+
 function loadQuestion(level) {
   isAnswerLocked = false;
   currentLevel = level;
@@ -196,6 +266,7 @@ function loadQuestion(level) {
 
   const displayLetters = ['A', 'B', 'C', 'D'];
 
+  // รีเซ็ตปุ่มทั้งหมด
   displayLetters.forEach(l => {
     const btn = document.getElementById(`btn-${l}`);
     btn.className = 'choice-btn';
@@ -209,23 +280,29 @@ function loadQuestion(level) {
   currentCorrectAnswer = (q.correctAnswer || '').toUpperCase();
   currentShuffledKeys = displayLetters.filter(k => q.choices && q.choices[k]).sort(() => Math.random() - 0.5);
 
+  // ใส่ข้อมูลลงปุ่ม
   currentShuffledKeys.forEach((key, index) => {
     const letter = displayLetters[index];
     const btn = document.getElementById(`btn-${letter}`);
-    btn.style.display = 'flex';
+    btn.style.display = 'flex'; 
     document.getElementById(`txt-${letter}`).textContent = q.choices[key];
     btn.setAttribute('data-real-key', key);
   });
+
+  // เริ่มจับเวลาใหม่ทุกครั้งที่โหลดคำถามเสร็จ
+  startQTimer();
 }
 
 function selectAnswer(displayLetter) {
   if (isAnswerLocked) return;
   isAnswerLocked = true;
+  stopQTimer(); // หยุดเวลาทันทีที่กดเลือกคำตอบ!
 
   const btn = document.getElementById(`btn-${displayLetter}`);
   const realKey = btn.getAttribute('data-real-key');
   btn.classList.add('selected');
 
+  // ลุ้นคำตอบ 2 วินาที
   setTimeout(() => {
     btn.classList.remove('selected');
     
@@ -235,15 +312,17 @@ function selectAnswer(displayLetter) {
     });
 
     if (realKey === currentCorrectAnswer) {
+      // ตอบถูก
       btn.classList.add('correct');
       setTimeout(() => {
         if (currentLevel === PRIZES.length - 1) {
-          endGame(true);
+          endGame(true); // ชนะเลิศ
         } else {
-          loadQuestion(currentLevel + 1);
+          loadQuestion(currentLevel + 1); // ไปข้อถัดไป
         }
       }, 1500);
     } else {
+      // ตอบผิด
       btn.classList.add('wrong');
       if(correctDisplayLetter) {
          document.getElementById(`btn-${correctDisplayLetter}`).classList.add('correct');
@@ -263,6 +342,7 @@ function useFiftyFifty() {
   const displayLetters = ['A','B','C','D'].filter(l => document.getElementById(`btn-${l}`).style.display !== 'none');
   const wrongLetters = displayLetters.filter(l => document.getElementById(`btn-${l}`).getAttribute('data-real-key') !== currentCorrectAnswer);
   
+  // สุ่มซ่อน 2 ข้อที่ผิด (เวลายังเดินต่อเพื่อความตื่นเต้น)
   wrongLetters.sort(() => Math.random() - 0.5).slice(0, 2).forEach(l => {
     document.getElementById(`btn-${l}`).classList.add('hidden-choice');
   });
@@ -270,11 +350,13 @@ function useFiftyFifty() {
 
 function quitGame() {
   if (confirm('คุณต้องการเลิกเล่นและรับเงินรางวัลเท่าที่สะสมได้ตอนนี้หรือไม่?')) {
+    stopQTimer();
     endGame(false, true);
   }
 }
 
-function endGame(isWin, isQuit = false) {
+function endGame(isWin, isQuit = false, isTimeout = false) {
+  stopQTimer(); // ปิดนาฬิกาอีกครั้งเพื่อความชัวร์
   document.getElementById('game-ui').style.display = 'none';
   const endUI = document.getElementById('end-ui');
   endUI.classList.remove('hidden');
@@ -291,9 +373,19 @@ function endGame(isWin, isQuit = false) {
     title = 'รับเงินกลับบ้าน!';
     icon = '💰';
     finalPrize = currentLevel > 0 ? PRIZES[currentLevel - 1] : '0';
+  } else if (isTimeout) {
+    title = 'หมดเวลา!';
+    icon = '⏰';
+    // หาจุด Save ล่าสุด (ทุกๆ 4 ข้อ)
+    let safeLevel = -1;
+    for (let i = currentLevel - 1; i >= 0; i--) {
+      if ((i + 1) % 4 === 0) { safeLevel = i; break; }
+    }
+    finalPrize = safeLevel >= 0 ? PRIZES[safeLevel] : '0';
   } else {
     title = 'ตอบผิด!';
     icon = '💀';
+    // หาจุด Save ล่าสุด (ทุกๆ 4 ข้อ)
     let safeLevel = -1;
     for (let i = currentLevel - 1; i >= 0; i--) {
       if ((i + 1) % 4 === 0) { safeLevel = i; break; }
@@ -306,6 +398,7 @@ function endGame(isWin, isQuit = false) {
   document.getElementById('end-prize').textContent = `฿${finalPrize}`;
 }
 
+// API Helper
 async function callAPI(method, params, timeoutMs=30000) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
