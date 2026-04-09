@@ -135,25 +135,34 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .subject-hdr-sub{font-size:13px;color:rgba(255,255,255,0.6)}
 .subject-greeting{font-size:14px;color:rgba(255,255,255,0.85);margin-top:10px;font-weight:600}
 .subject-list{padding:20px 16px;max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+
+/* รูปร่างวิชาที่ผ่านแล้ว */
 .subject-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
 .subject-card:active{transform:scale(.97)}
-.subject-card:hover,.subject-card:active{border-color:var(--gold);background:rgba(255,215,0,0.05)}
+.subject-card:not(.completed):hover, .subject-card:not(.completed):active{border-color:var(--gold);background:rgba(255,215,0,0.05)}
+.subject-card.completed { opacity:0.7; cursor:not-allowed; background: rgba(255,255,255,0.02); }
+.subject-card.completed:active { transform:none; }
 .subject-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.subject-card.completed .subject-icon { filter: grayscale(1); opacity: 0.5; }
 .subject-info{flex:1}
 .subject-name{font-size:16px;font-weight:700;color:var(--text);margin-bottom:3px}
-.subject-count{font-size:12px;color:var(--muted)}
+.subject-count{font-size:12px;color:var(--muted);display:flex;align-items:center;}
 .subject-arrow{font-size:18px;color:var(--muted)}
+
+.badge-done-text { font-size: 11px; color: var(--green); font-weight: 800; background: rgba(0,200,83,0.15); padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
 .subject-section-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:0 16px;margin-bottom:4px;max-width:480px;margin-left:auto;margin-right:auto}
 </style>
 </head>
 <body>
 
+<!-- LOADING -->
 <div id="ov-load" class="ov">
   <div class="ov-spinner"></div>
   <div class="ov-title">📋 Unit School</div>
   <div class="ov-sub" id="load-txt">กำลังโหลดข้อสอบ...</div>
 </div>
 
+<!-- NOT REGISTERED -->
 <div id="ov-noreg" class="ov hidden">
   <div style="font-size:60px">⚠️</div>
   <div class="ov-title" style="color:var(--red)">ยังไม่ได้ลงทะเบียน</div>
@@ -161,6 +170,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   <button class="btn" style="background:var(--navy);color:var(--gold);max-width:200px" onclick="liff.closeWindow()">← กลับ</button>
 </div>
 
+<!-- TIME WARNING -->
 <div id="ov-warning" class="ov hidden" style="background:rgba(15,19,34,0.95); z-index:9999;">
   <div style="font-size:60px">⏰</div>
   <div class="ov-title" style="color:var(--gold)">แจ้งเตือนเวลา</div>
@@ -168,6 +178,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   <button class="btn" style="background:var(--gold);color:#000;max-width:200px;margin-top:20px" onclick="document.getElementById('ov-warning').classList.add('hidden')">รับทราบ</button>
 </div>
 
+<!-- RESULT -->
 <div id="result-ov" class="result-ov hidden">
   <div class="result-hero">
     <div class="score-ring">
@@ -199,6 +210,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <div class="rank-label">อันดับปัจจุบัน จากกำลังพล <span id="r-total">—</span> นาย</div>
   </div>
 
+  <!-- Review -->
   <div style="font-size:14px;font-weight:700;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📝 เฉลยข้อสอบ</div>
   <div id="review-list"></div>
 
@@ -207,6 +219,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<!-- SUBJECT PICKER -->
 <div id="subject-ov" class="subject-ov hidden">
   <div class="subject-hdr">
     <div class="subject-hdr-title">📚 เลือกวิชาที่ต้องการสอบ</div>
@@ -217,9 +230,11 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
     <div class="subject-section-label" style="padding:0;margin-bottom:8px">📋 วิชาที่เปิดสอบ</div>
   </div>
   <div class="subject-list" id="subject-list">
-    </div>
+    <!-- rendered by JS -->
+  </div>
 </div>
 
+<!-- EXAM UI -->
 <div id="exam-ui" class="hidden">
   <div class="hdr">
     <div class="hdr-info">
@@ -233,8 +248,10 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 
   <div class="content">
+    <!-- DOT NAV -->
     <div class="dot-nav" id="dot-nav"></div>
 
+    <!-- QUESTION -->
     <div id="q-wrap" style="animation:fadeUp .3s ease">
       <div class="q-header">
         <div class="q-num-badge" id="q-num">1</div>
@@ -260,17 +277,20 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 // ==============================================
 // CONFIG — เปลี่ยน LIFF_ID และ GAS_URL
 // ==============================================
-const LIFF_ID = '2009717287-nSod0Xpx';   // << ใส่ LIFF ID
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';   // << ใส่ Web App URL ค่าเดียว
+const LIFF_ID = '2009717287-nSod0Xpx';   // << ใส่ LIFF ID Exam
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec'; 
 
 // State
-let allQuestions = []; // เก็บข้อสอบทั้งหมดไว้ในเครื่อง โหลดแค่รอบเดียว!
+let allQuestions = []; 
+let completedSubjects = [];
 let questions = [], answers = {}, currentQ = 0, member = null, userId = '';
 let timerInterval = null, timeLeft = 0, submitted = false;
-let selectedSubject = '';  // วิชาที่เลือก
-let tenMinWarningShown = false; // แจ้งเตือน 10 นาที
+let selectedSubject = '';  
+let tenMinWarningShown = false; 
 
-let EXAM_TIME = 20 * 60; // ค่านี้จะถูกเขียนทับจากฐานข้อมูล
+let originalExamTime = 20 * 60; 
+let examEndTime = 0; 
+let examStateKey = ''; 
 
 // Subject emoji map
 const SUBJECT_ICONS = {
@@ -297,10 +317,11 @@ async function init() {
     if (!liff.isLoggedIn()) { liff.login(); return; }
     const profile = await liff.getProfile();
     userId = profile.userId;
+    examStateKey = 'examState_' + userId;
 
     document.getElementById('load-txt').textContent = 'กำลังโหลดข้อมูลข้อสอบ...';
 
-    // 🚀 [อัปเดตเพื่อความเร็ว]: โหลดข้อสอบทั้งหมดมาเก็บไว้รอบเดียวเลย
+    // โหลดครั้งเดียวจบ!
     const res = await callAPI('GET', { action:'get_questions', userId });
 
     if (!res || res.status === 'error') {
@@ -313,15 +334,15 @@ async function init() {
     }
 
     member    = res.member;
-    allQuestions = res.questions || []; // เก็บข้อสอบทั้งหมดไว้
-    EXAM_TIME = (res.examTimeMinutes || 20) * 60;
+    allQuestions = res.questions || []; 
+    completedSubjects = res.completedSubjects || []; 
+    originalExamTime = (res.examTimeMinutes || 20) * 60;
 
     if (allQuestions.length === 0) {
       document.getElementById('load-txt').textContent = '⚠️ ยังไม่มีข้อสอบในระบบ';
       return;
     }
 
-    // คำนวณรายวิชาและจำนวนข้อด้วย Javascript ในมือถือ (ประหยัดเวลาเซิร์ฟเวอร์)
     const subCount = {};
     allQuestions.forEach(q => {
       const cat = q.category || 'ทั่วไป';
@@ -329,7 +350,6 @@ async function init() {
     });
     const subjects = Object.keys(subCount).map(k => ({ name: k, count: subCount[k] }));
 
-    // แสดงหน้าเลือกวิชา
     renderSubjectPicker(subjects);
     document.getElementById('ov-load').classList.add('hidden');
     document.getElementById('subject-ov').classList.remove('hidden');
@@ -350,18 +370,28 @@ function renderSubjectPicker(subjects) {
   list.innerHTML = '';
 
   subjects.forEach(sub => {
+    const isCompleted = completedSubjects.includes(sub.name);
     const icon = SUBJECT_ICONS[sub.name] || '📋';
+    
     const card = document.createElement('div');
-    card.className = 'subject-card';
+    card.className = 'subject-card' + (isCompleted ? ' completed' : '');
+    
     card.innerHTML = `
       <div class="subject-icon">${icon}</div>
       <div class="subject-info">
-        <div class="subject-name">${sub.name}</div>
-        <div class="subject-count">${sub.count} ข้อ</div>
+        <div class="subject-name" style="${isCompleted ? 'color: var(--muted);' : ''}">${sub.name}</div>
+        <div class="subject-count">${sub.count} ข้อ ${isCompleted ? '<span class="badge-done-text">✅ ผ่านแล้ว</span>' : ''}</div>
       </div>
-      <div class="subject-arrow">›</div>
+      <div class="subject-arrow">${isCompleted ? '🔒' : '›'}</div>
     `;
-    card.onclick = () => startExam(sub.name);
+    
+    card.onclick = () => {
+      if(isCompleted) {
+        alert('✅ คุณได้ทำการสอบวิชานี้และส่งคำตอบไปเรียบร้อยแล้วครับ ไม่สามารถทำซ้ำได้');
+      } else {
+        startExam(sub.name);
+      }
+    };
     list.appendChild(card);
   });
 }
@@ -370,12 +400,30 @@ function startExam(subject) {
   selectedSubject = subject;
   tenMinWarningShown = false;
 
-  // 🚀 กรองข้อสอบเฉพาะวิชาที่เลือก
+  // 🔄 เช็กสถานะการสอบที่ค้างไว้
+  const savedStateStr = localStorage.getItem(examStateKey);
+  let savedState = null;
+  if (savedStateStr) {
+    try { savedState = JSON.parse(savedStateStr); } catch(e) {}
+  }
+
+  if (savedState && savedState.subject === subject) {
+    if (confirm('พบข้อสอบที่คุณทำค้างไว้ ต้องการทำต่อจากเดิมหรือไม่?')) {
+      questions = savedState.questions;
+      answers = savedState.answers;
+      examEndTime = savedState.endTime;
+      finishStartExam();
+      return; 
+    } else {
+      localStorage.removeItem(examStateKey);
+    }
+  }
+
+  // 📝 เริ่มต้นข้อสอบใหม่
   let filteredQs = allQuestions.filter(q => (q.category || 'ทั่วไป') === subject);
 
-  // สุ่มแค่ลำดับข้อสอบ แต่ไม่สุ่มตัวเลือก A, B, C, D
   questions = filteredQs.map(q => {
-    // ดึงตัวเลือก A, B, C, D มาเก็บเรียงตามเดิม
+    // ดึง A, B, C, D มาเก็บเรียงตามเดิม (ไม่สลับ กขคง)
     q.shuffledKeys = ['A', 'B', 'C', 'D'].filter(k => q.choices[k]);
     return q;
   });
@@ -384,29 +432,50 @@ function startExam(subject) {
     alert('ไม่พบข้อสอบในวิชานี้');
     return;
   }
+  
+  answers = {};
+  examEndTime = Date.now() + (originalExamTime * 1000);
+  saveExamState(); 
 
-  document.getElementById('hdr-sub').textContent = subject;
+  finishStartExam();
+}
+
+function finishStartExam() {
+  document.getElementById('hdr-sub').textContent = selectedSubject;
   buildDots();
   renderQuestion(0);
-  startTimer(EXAM_TIME);
+  startTimer();
 
-  // เปลี่ยนหน้าแบบทันที
   document.getElementById('subject-ov').classList.add('hidden');
   document.getElementById('exam-ui').classList.remove('hidden');
+}
+
+// 💾 บันทึกสถานะลงเครื่อง
+function saveExamState() {
+  const state = {
+    subject: selectedSubject,
+    questions: questions,
+    answers: answers,
+    endTime: examEndTime
+  };
+  localStorage.setItem(examStateKey, JSON.stringify(state));
 }
 
 // ==============================================
 // TIMER
 // ==============================================
-function startTimer(seconds) {
-  timeLeft = seconds;
+function startTimer() {
+  timeLeft = Math.floor((examEndTime - Date.now()) / 1000);
+  if(timeLeft < 0) timeLeft = 0;
   updateTimerDisplay();
+
   timerInterval = setInterval(() => {
-    timeLeft--;
+    timeLeft = Math.floor((examEndTime - Date.now()) / 1000);
+    if(timeLeft < 0) timeLeft = 0;
+    
     updateTimerDisplay();
 
-    // แจ้งเตือนเมื่อเหลือ 10 นาที (600 วินาที)
-    if (timeLeft === 600 && EXAM_TIME > 600 && !tenMinWarningShown) {
+    if (timeLeft <= 600 && timeLeft > 0 && !tenMinWarningShown && originalExamTime > 600) {
       tenMinWarningShown = true;
       document.getElementById('ov-warning').classList.remove('hidden');
     }
@@ -457,11 +526,9 @@ function renderQuestion(idx) {
   document.getElementById('q-count').textContent = `ข้อ ${idx+1} จาก ${questions.length}`;
   document.getElementById('q-text').textContent  = q.questionText;
 
-  // Progress bar
   const pct = ((idx + 1) / questions.length) * 100;
   document.getElementById('prog-bar').style.width = pct + '%';
 
-  // Choices
   const container = document.getElementById('choices');
   container.innerHTML = '';
 
@@ -478,7 +545,6 @@ function renderQuestion(idx) {
     container.appendChild(div);
   });
 
-  // NAV buttons
   document.getElementById('btn-prev').style.display = idx === 0 ? 'none' : 'flex';
   const isLast = idx === questions.length - 1;
   const btnNext = document.getElementById('btn-next');
@@ -502,6 +568,7 @@ function selectAnswer(key) {
     c.classList.toggle('selected', k === key);
   });
   updateDots();
+  saveExamState(); // 💾 บันทึกอัตโนมัติ
 }
 
 function nextQ() { if (currentQ < questions.length - 1) renderQuestion(currentQ + 1); }
@@ -530,16 +597,20 @@ async function submitExam(timeout) {
   document.getElementById('ov-load').classList.remove('hidden');
   document.getElementById('load-txt').textContent = '⏳ กำลังตรวจข้อสอบ...';
 
-  // แปลง answers index → questionId
   const answerMap = {};
   questions.forEach((q, i) => { answerMap[q.questionId] = answers[i] || ''; });
 
   try {
     const res = await callAPI('POST', { action:'submit_exam', userId, answers: answerMap, subject: selectedSubject });
     if (!res || res.status === 'error') throw new Error(res ? res.message : 'ส่งข้อสอบล้มเหลว');
+    
+    // 🧹 ล้างหน่วยความจำเมื่อส่งสำเร็จ
+    localStorage.removeItem(examStateKey);
+    
     showResult(res);
   } catch(e) {
     document.getElementById('load-txt').textContent = '❌ ' + e.message;
+    submitted = false;
   }
 }
 
@@ -566,7 +637,6 @@ function showResult(res) {
   gradeEl.textContent = grade.text;
   gradeEl.className   = 'grade-badge ' + grade.cls;
 
-  // Review
   const list = document.getElementById('review-list');
   list.innerHTML = '';
   (res.results || []).forEach((r, i) => {
