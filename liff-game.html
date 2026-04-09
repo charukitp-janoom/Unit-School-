@@ -81,7 +81,7 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: v
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
   <h2 style="color:var(--gold);">เตรียมคำถาม...</h2>
-  <p style="color:#aaa; margin-top:10px;">กำลังรวบรวมข้อสอบจากทุกหมวดหมู่</p>
+  <p style="color:#aaa; margin-top:10px;" id="load-msg">กำลังรวบรวมข้อสอบจากทุกหมวดหมู่</p>
 </div>
 
 <!-- Main Game -->
@@ -125,8 +125,8 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: v
 // ==============================================
 // CONFIG
 // ==============================================
-const LIFF_ID = '2009717287-qTXoc8Mw';   // << ใส่ LIFF ID (สร้างใหม่สำหรับเกม)
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec'; 
+const LIFF_ID = '2009717287-qTXoc8Mw';   // << LIFF ID ของเกมเศรษฐี
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';    // << Web App URL
 
 // Game State
 const PRIZES = ['1,000', '2,000', '3,000', '5,000', '10,000', '20,000', '40,000', '80,000', '150,000', '300,000', '500,000', '1,000,000'];
@@ -141,18 +141,20 @@ async function init() {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
     
-    // ดึงข้อสอบทั้งหมดแบบไม่แยกหมวด
     const profile = await liff.getProfile();
-    const res = await fetch(`${GAS_URL}?action=get_questions&userId=${profile.userId}`);
-    const data = await res.json();
+    
+    const data = await callAPI('GET', { action:'get_questions', userId: profile.userId });
 
     if (data.status === 'error') throw new Error(data.message);
 
-    // สุ่มข้อสอบมาแค่เท่ากับจำนวนขั้นบันไดรางวัล (12 ข้อ)
     let allQs = data.questions || [];
-    if (allQs.length < PRIZES.length) throw new Error(`ข้อสอบในระบบมีน้อยกว่า ${PRIZES.length} ข้อ`);
+    if (allQs.length < PRIZES.length) throw new Error(`ข้อสอบในระบบมีน้อยกว่า ${PRIZES.length} ข้อ (ปัจจุบันมี ${allQs.length} ข้อ)`);
     
     questions = allQs.sort(() => Math.random() - 0.5).slice(0, PRIZES.length);
+
+    if (!questions[0].correctAnswer) {
+       throw new Error("⚠️ ไม่พบข้อมูลเฉลย! กรุณาไปที่ Google Apps Script แล้วกด Deploy -> New version อีกครั้งครับ");
+    }
 
     document.getElementById('ov-load').style.display = 'none';
     document.getElementById('game-ui').style.display = 'flex';
@@ -161,7 +163,7 @@ async function init() {
     loadQuestion(0);
 
   } catch(e) {
-    document.getElementById('ov-load').innerHTML = `<h2 style="color:red">ผิดพลาด</h2><p>${e.message}</p><button class="quit-btn" style="margin-top:20px" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>`;
+    document.getElementById('ov-load').innerHTML = `<h2 style="color:var(--gold);font-size:24px;margin-bottom:10px">พบข้อผิดพลาด</h2><p style="color:#ff5252;padding:0 20px;line-height:1.6">${e.message}</p><button class="action-btn" style="margin-top:30px; font-size: 16px" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>`;
   }
 }
 
@@ -169,7 +171,7 @@ function buildLadder() {
   const ladder = document.getElementById('ladder');
   ladder.innerHTML = '';
   PRIZES.forEach((prize, idx) => {
-    const isSafe = (idx + 1) % 4 === 0 || idx === PRIZES.length - 1; // ทุกๆ 4 ข้อเป็นจุด Save
+    const isSafe = (idx + 1) % 4 === 0 || idx === PRIZES.length - 1;
     const div = document.createElement('div');
     div.className = `ladder-step ${isSafe ? 'safe' : ''}`;
     div.id = `step-${idx}`;
@@ -192,21 +194,21 @@ function loadQuestion(level) {
   currentLevel = level;
   updateLadder();
 
-  // รีเซ็ตปุ่ม
-  ['A','B','C','D'].forEach(k => {
-    const btn = document.getElementById(`btn-${k}`);
+  const displayLetters = ['A', 'B', 'C', 'D'];
+
+  displayLetters.forEach(l => {
+    const btn = document.getElementById(`btn-${l}`);
     btn.className = 'choice-btn';
+    btn.style.display = 'none'; 
+    document.getElementById(`txt-${l}`).textContent = '-';
   });
 
   const q = questions[level];
   document.getElementById('q-text').textContent = q.questionText;
   
-  // สลับตำแหน่ง ก ข ค ง แบบสุ่ม เพื่อให้เกมตื่นเต้น
-  currentShuffledKeys = ['A','B','C','D'].filter(k => q.choices[k]).sort(() => Math.random() - 0.5);
-  currentCorrectAnswer = q.correctAnswer.toUpperCase();
+  currentCorrectAnswer = (q.correctAnswer || '').toUpperCase();
+  currentShuffledKeys = displayLetters.filter(k => q.choices && q.choices[k]).sort(() => Math.random() - 0.5);
 
-  // ใส่ข้อมูลลงปุ่ม
-  const displayLetters = ['A', 'B', 'C', 'D'];
   currentShuffledKeys.forEach((key, index) => {
     const letter = displayLetters[index];
     const btn = document.getElementById(`btn-${letter}`);
@@ -214,11 +216,6 @@ function loadQuestion(level) {
     document.getElementById(`txt-${letter}`).textContent = q.choices[key];
     btn.setAttribute('data-real-key', key);
   });
-
-  // ซ่อนปุ่มที่ไม่มีข้อความ (กรณีโจทย์มีแค่ 2-3 ช้อยส์)
-  for (let i = currentShuffledKeys.length; i < 4; i++) {
-    document.getElementById(`btn-${displayLetters[i]}`).style.display = 'none';
-  }
 }
 
 function selectAnswer(displayLetter) {
@@ -229,31 +226,28 @@ function selectAnswer(displayLetter) {
   const realKey = btn.getAttribute('data-real-key');
   btn.classList.add('selected');
 
-  // ลุ้นคำตอบ 2 วินาที
   setTimeout(() => {
     btn.classList.remove('selected');
     
-    // หาปุ่มที่ถูกต้อง
     const correctDisplayLetter = ['A','B','C','D'].find(l => {
       const b = document.getElementById(`btn-${l}`);
-      return b.getAttribute('data-real-key') === currentCorrectAnswer;
+      return b && b.getAttribute('data-real-key') === currentCorrectAnswer;
     });
 
     if (realKey === currentCorrectAnswer) {
-      // ตอบถูก
       btn.classList.add('correct');
       setTimeout(() => {
         if (currentLevel === PRIZES.length - 1) {
-          endGame(true); // ชนะเลิศ
+          endGame(true);
         } else {
-          loadQuestion(currentLevel + 1); // ไปข้อถัดไป
+          loadQuestion(currentLevel + 1);
         }
       }, 1500);
     } else {
-      // ตอบผิด
       btn.classList.add('wrong');
-      if(correctDisplayLetter) document.getElementById(`btn-${correctDisplayLetter}`).classList.add('correct');
-      
+      if(correctDisplayLetter) {
+         document.getElementById(`btn-${correctDisplayLetter}`).classList.add('correct');
+      }
       setTimeout(() => { endGame(false); }, 2000);
     }
   }, 2000);
@@ -269,7 +263,6 @@ function useFiftyFifty() {
   const displayLetters = ['A','B','C','D'].filter(l => document.getElementById(`btn-${l}`).style.display !== 'none');
   const wrongLetters = displayLetters.filter(l => document.getElementById(`btn-${l}`).getAttribute('data-real-key') !== currentCorrectAnswer);
   
-  // สุ่มซ่อน 2 ข้อที่ผิด
   wrongLetters.sort(() => Math.random() - 0.5).slice(0, 2).forEach(l => {
     document.getElementById(`btn-${l}`).classList.add('hidden-choice');
   });
@@ -301,7 +294,6 @@ function endGame(isWin, isQuit = false) {
   } else {
     title = 'ตอบผิด!';
     icon = '💀';
-    // หาจุด Save ล่าสุด
     let safeLevel = -1;
     for (let i = currentLevel - 1; i >= 0; i--) {
       if ((i + 1) % 4 === 0) { safeLevel = i; break; }
@@ -312,6 +304,30 @@ function endGame(isWin, isQuit = false) {
   document.getElementById('end-title').textContent = title;
   document.getElementById('end-icon').textContent = icon;
   document.getElementById('end-prize').textContent = `฿${finalPrize}`;
+}
+
+async function callAPI(method, params, timeoutMs=30000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
+    const resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ โปรดลองใหม่');
+    throw e;
+  }
 }
 
 init();
