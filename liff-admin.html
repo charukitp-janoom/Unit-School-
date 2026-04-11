@@ -43,6 +43,14 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .tab-content{display:none;padding:16px 16px 80px;max-width:600px;margin:0 auto}
 .tab-content.active{display:block}
 
+/* Q-TABS (เพิ่มสไตล์สำหรับแท็บย่อยข้อสอบ) */
+.q-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; }
+.q-tabs::-webkit-scrollbar { display: none; }
+.q-tab { flex: none; padding: 6px 12px; background: var(--surf2); border: 1px solid var(--border); border-radius: 14px; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; transition: 0.2s; }
+.q-tab.active { background: rgba(255,215,0,0.15); border-color: var(--gold); color: var(--gold); }
+.q-content { display: none; flex-direction: column; gap: 10px; }
+.q-content.active { display: flex; }
+
 /* GRIDS & CARDS */
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
@@ -340,30 +348,53 @@ function renderAll() {
   `).join('');
   document.getElementById('members-container').innerHTML = mHtml;
 
-  // Questions
+  // Questions (ปรับปรุงให้รองรับแท็บรายวิชา)
   window._qMap = {};
-  const qHtml = (adminData.questions || []).map((q, i) => {
+  const qGroups = {};
+  (adminData.questions || []).forEach(q => {
     window._qMap[q.questionId] = q;
-    return `
-    <div class="data-card">
-      <div class="data-hdr">
-        <span class="badge" style="background:var(--surf2); color:var(--text);">${q.category}</span>
-        <div style="font-size:11px; font-family:monospace; color:var(--muted);">${q.questionId}</div>
-      </div>
-      <div style="font-size:14px; font-weight:600; margin:10px 0;">${q.questionText}</div>
-      <div style="font-size:12px; color:var(--muted);">
-        A: ${q.choiceA} ${q.correctAnswer==='A'?'✅':''}<br>
-        B: ${q.choiceB} ${q.correctAnswer==='B'?'✅':''}<br>
-        C: ${q.choiceC} ${q.correctAnswer==='C'?'✅':''}<br>
-        D: ${q.choiceD} ${q.correctAnswer==='D'?'✅':''}
-      </div>
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openEditQuestion('${q.questionId}')">✏️ แก้ไข</button>
-        <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteQuestion('${q.questionId}')">🗑️ ลบ</button>
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('q-container').innerHTML = qHtml || '<div style="text-align:center; color:var(--muted);">ยังไม่มีข้อสอบ</div>';
+    const cat = q.category || 'ทั่วไป';
+    if (!qGroups[cat]) qGroups[cat] = [];
+    qGroups[cat].push(q);
+  });
+
+  const cats = Object.keys(qGroups).sort();
+  if (cats.length === 0) {
+    document.getElementById('q-container').innerHTML = '<div style="text-align:center; color:var(--muted);">ยังไม่มีข้อสอบ</div>';
+  } else {
+    if (!window._activeQTab || !cats.includes(window._activeQTab)) window._activeQTab = cats[0];
+    
+    let tabsHtml = '<div class="q-tabs">';
+    let contentsHtml = '';
+    
+    cats.forEach(cat => {
+      const isActive = cat === window._activeQTab ? 'active' : '';
+      tabsHtml += `<div class="q-tab ${isActive}" onclick="showQTab('${cat}')" id="q-tab-btn-${cat}">${cat} (${qGroups[cat].length})</div>`;
+      
+      contentsHtml += `<div class="q-content ${isActive}" id="q-content-${cat}">`;
+      contentsHtml += qGroups[cat].map(q => `
+        <div class="data-card" style="margin-bottom:0;">
+          <div class="data-hdr">
+            <span class="badge" style="background:var(--surf2); color:var(--text);">${q.category}</span>
+            <div style="font-size:11px; font-family:monospace; color:var(--muted);">${q.questionId}</div>
+          </div>
+          <div style="font-size:14px; font-weight:600; margin:10px 0;">${q.questionText}</div>
+          <div style="font-size:12px; color:var(--muted);">
+            A: ${q.choiceA} ${q.correctAnswer==='A'?'✅':''}<br>
+            B: ${q.choiceB} ${q.correctAnswer==='B'?'✅':''}<br>
+            C: ${q.choiceC} ${q.correctAnswer==='C'?'✅':''}<br>
+            D: ${q.choiceD} ${q.correctAnswer==='D'?'✅':''}
+          </div>
+          <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openEditQuestion('${q.questionId}')">✏️ แก้ไข</button>
+            <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteQuestion('${q.questionId}')">🗑️ ลบ</button>
+          </div>
+        </div>`).join('');
+      contentsHtml += `</div>`;
+    });
+    tabsHtml += '</div>';
+    document.getElementById('q-container').innerHTML = tabsHtml + contentsHtml;
+  }
 
   // Library
   window._libMap = {};
@@ -399,6 +430,15 @@ function showTab(name) {
   });
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
+}
+
+// เพิ่มฟังก์ชันสลับแท็บรายวิชา
+function showQTab(cat) {
+  window._activeQTab = cat;
+  document.querySelectorAll('.q-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.q-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('q-tab-btn-' + cat).classList.add('active');
+  document.getElementById('q-content-' + cat).classList.add('active');
 }
 
 // --- QUESTIONS ---
