@@ -8,20 +8,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy:   #1a237e;
-  --navy2:  #283593;
-  --gold:   #ffd700;
-  --gold2:  #ffb300;
-  --bg:     #0f1322;
-  --surface:#161c36;
-  --surf2:  #1e2647;
-  --border: #2a3558;
-  --text:   #e8ecf8;
-  --muted:  #6e7aa0;
-  --green:  #00c853;
-  --red:    #ff5252;
-  --blue:   #4fc3f7;
-  --purple: #ce93d8;
+  --navy:   #1a237e; --navy2:  #283593;
+  --gold:   #ffd700; --gold2:  #ffb300;
+  --bg:     #0f1322; --surface:#161c36; --surf2:  #1e2647;
+  --border: #2a3558; --text:   #e8ecf8; --muted:  #6e7aa0;
+  --green:  #00c853; --red:    #ff5252; --blue:   #4fc3f7; --purple: #ce93d8;
   --shadow: 0 4px 24px rgba(0,0,0,0.5);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -35,22 +26,16 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 
 /* LOGIN SCREEN */
 .login-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 28px;width:100%;max-width:340px;text-align:center}
-.login-icon{font-size:56px;margin-bottom:12px}
-.login-title{font-size:20px;font-weight:800;color:var(--gold);margin-bottom:4px}
-.login-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6}
-.pin-input{width:100%;background:var(--surf2);border:2px solid var(--border);border-radius:12px;padding:15px;font-size:20px;font-family:'IBM Plex Mono',monospace;color:var(--text);outline:none;text-align:center;letter-spacing:4px;margin-bottom:16px}
-.pin-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,0.1)}
+.pin-input{width:100%;background:var(--surf2);border:2px solid var(--border);border-radius:12px;padding:15px;font-size:20px;font-family:'IBM Plex Mono',monospace;color:var(--text);outline:none;text-align:center;letter-spacing:4px;margin:16px 0}
+.pin-input:focus{border-color:var(--gold);}
 .err-msg{font-size:13px;color:var(--red);margin-bottom:12px;min-height:20px}
 
 /* HEADER */
 .hdr{background:linear-gradient(135deg,var(--navy),var(--navy2));padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
-.hdr-left{display:flex;align-items:center;gap:12px}
-.hdr-badge{width:36px;height:36px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.hdr-title{font-size:15px;font-weight:800;color:var(--gold)}
-.hdr-sub{font-size:11px;color:rgba(255,255,255,0.55)}
 
 /* TABS */
 .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
+.tabs::-webkit-scrollbar { display:none; }
 .tab{flex:none;padding:12px 20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s}
 .tab.active{color:var(--gold);border-bottom-color:var(--gold)}
 
@@ -58,93 +43,42 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min
 .tab-content{display:none;padding:16px 16px 80px;max-width:600px;margin:0 auto}
 .tab-content.active{display:block}
 
-/* STATS GRID */
+/* GRIDS & CARDS */
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
 .stat-val{font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--gold)}
 .stat-label{font-size:12px;color:var(--muted);margin-top:4px}
-.stat-card.green .stat-val{color:var(--green)}
-.stat-card.red .stat-val{color:var(--red)}
-.stat-card.blue .stat-val{color:var(--blue)}
 
-/* LEADERBOARD TABLE */
-.lb-table{width:100%;border-collapse:collapse}
-.lb-hdr th{padding:10px 12px;text-align:left;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--surf2)}
-.lb-row td{padding:12px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle}
-.lb-row:hover td{background:rgba(255,215,0,0.03)}
-.lb-row.top1 td{background:rgba(255,215,0,0.06)}
-.lb-row.top2 td{background:rgba(192,192,192,0.04)}
-.lb-row.top3 td{background:rgba(205,127,50,0.04)}
-.rank-badge{width:28px;height:28px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-family:'IBM Plex Mono',monospace}
-.r1{background:rgba(255,215,0,0.15);color:var(--gold)}
-.r2{background:rgba(192,192,192,0.15);color:#ccc}
-.r3{background:rgba(205,127,50,0.15);color:#cd7f32}
-.r-other{background:var(--surf2);color:var(--muted)}
-.pct-bar{height:6px;background:var(--surf2);border-radius:3px;margin-top:4px;overflow:hidden}
-.pct-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px}
+.data-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px; animation:fadeUp .3s ease; display: flex; flex-direction: column; gap: 10px;}
+.data-hdr { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+.badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; font-family:'IBM Plex Mono',monospace;}
+.badge.pdf { background: rgba(248,81,73,0.15); color: #f85149; }
+.badge.video { background: rgba(255,152,0,0.15); color: #ff9800; }
+.badge.link { background: rgba(46,160,67,0.15); color: #2ea043; }
+.badge.active { background: rgba(0,200,83,0.15); color: var(--green); border: 1px solid var(--green);}
+.badge.inactive { background: rgba(255,82,82,0.15); color: var(--red); border: 1px solid var(--red);}
 
-/* MEMBER TABLE */
-.table-wrap{overflow-x:auto}
-.data-table{width:100%;border-collapse:collapse;min-width:400px}
-.data-table th{padding:10px 12px;text-align:left;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--surf2);white-space:nowrap}
-.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;white-space:nowrap}
-.data-table tr:hover td{background:rgba(255,255,255,0.02)}
-.badge-done{background:rgba(0,200,83,0.12);color:var(--green);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
-.badge-none{background:rgba(255,82,82,0.12);color:var(--red);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
-
-/* QUESTION EDITOR */
-.q-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
-.q-card-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
-.q-id{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--muted)}
-.q-text-preview{font-size:13px;padding:12px 16px;line-height:1.7;color:var(--text)}
-.q-choices-preview{padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:6px}
-.q-choice-tag{font-size:11px;background:var(--surf2);border:1px solid var(--border);padding:4px 10px;border-radius:6px;font-family:'IBM Plex Mono',monospace}
-.q-choice-tag.correct{background:rgba(0,200,83,0.12);border-color:rgba(0,200,83,0.3);color:var(--green)}
-.q-actions{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
-
-/* FORM */
+/* FORM & MODAL */
 .form-group{margin-bottom:16px}
-.form-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:block}
+.form-label{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;display:block}
 input[type=text],input[type=number],textarea,select{width:100%;background:var(--surf2);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-family:'Sarabun',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
-input[type=text]:focus,input[type=number]:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,0.08)}
-input[type=text]::placeholder,input[type=number]::placeholder,textarea::placeholder{color:var(--muted)}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);}
 textarea{resize:vertical;min-height:80px}
 select option{background:var(--surf2);color:var(--text)}
 
-/* MODAL */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:flex;align-items:flex-end}
 .modal-backdrop.hidden{display:none!important}
 .modal{background:var(--surface);border-top-left-radius:20px;border-top-right-radius:20px;padding:24px 20px;width:100%;max-height:90vh;overflow-y:auto;border:1px solid var(--border)}
-.modal-title{font-size:17px;font-weight:800;color:var(--gold);margin-bottom:20px}
 
 /* BUTTONS */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;-webkit-appearance:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
 .btn:active{transform:scale(.97)}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .btn-primary{background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold)}
 .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a}
 .btn-red{background:rgba(255,82,82,0.15);color:var(--red);border:1px solid rgba(255,82,82,0.3)}
 .btn-secondary{background:var(--surf2);color:var(--text);border:1px solid var(--border)}
 .btn-sm{padding:8px 14px;font-size:13px}
 .btn-full{width:100%}
-
-.section-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;margin-top:4px}
-.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
-.empty-state-icon{font-size:48px;margin-bottom:12px}
-.alert-msg{border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:12px}
-.alert-msg.success{background:rgba(0,200,83,0.1);border:1px solid rgba(0,200,83,0.3);color:var(--green)}
-.alert-msg.error{background:rgba(255,82,82,0.1);border:1px solid rgba(255,82,82,0.3);color:var(--red)}
-.alert-msg.hidden{display:none!important}
-
-/* SUB-TABS สำหรับข้อสอบ */
-.sub-tabs { display:flex; gap:8px; overflow-x:auto; margin-bottom:16px; padding-bottom:4px; }
-.sub-tabs::-webkit-scrollbar { height:4px; }
-.sub-tabs::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
-.sub-tab { flex:none; padding:8px 16px; font-size:13px; font-weight:700; color:var(--muted); background:var(--surface); border:1px solid var(--border); border-radius:20px; cursor:pointer; transition:all .2s; }
-.sub-tab:hover { border-color:var(--gold); color:var(--text); }
-.sub-tab.active { color:#1a1a1a; background:linear-gradient(135deg,var(--gold),var(--gold2)); border-color:var(--gold); }
-.sub-content { display:none; }
-.sub-content.active { display:block; }
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .hidden{display:none!important}
@@ -160,9 +94,9 @@ select option{background:var(--surf2);color:var(--text)}
 
 <div id="ov-login" class="ov hidden">
   <div class="login-box">
-    <div class="login-icon">🔐</div>
-    <div class="login-title">Admin Dashboard</div>
-    <div class="login-sub">Unit School ห้องเรียนอัจฉริยะ<br>กรอกรหัสผ่านสำหรับผู้ดูแลระบบ</div>
+    <div style="font-size:56px;margin-bottom:12px">🔐</div>
+    <div style="font-size:20px;font-weight:800;color:var(--gold);">Admin Dashboard</div>
+    <div style="font-size:13px;color:var(--muted);">กรอกรหัสผ่านผู้ดูแลระบบ</div>
     <input type="password" class="pin-input" id="pin-input" placeholder="••••••" maxlength="20">
     <div class="err-msg" id="err-msg"></div>
     <button class="btn btn-gold btn-full" onclick="doLogin()">🔓 เข้าสู่ระบบ</button>
@@ -170,13 +104,12 @@ select option{background:var(--surf2);color:var(--text)}
 </div>
 
 <div id="app" class="hidden">
-
   <div class="hdr">
-    <div class="hdr-left">
-      <div class="hdr-badge">🎖️</div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div style="width:36px;height:36px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🎖️</div>
       <div>
-        <div class="hdr-title">Admin Dashboard</div>
-        <div class="hdr-sub">Unit School — ห้องเรียนอัจฉริยะ</div>
+        <div style="font-size:15px;font-weight:800;color:var(--gold)">Admin Dashboard</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.55)">Unit School</div>
       </div>
     </div>
     <button class="btn btn-secondary btn-sm" onclick="loadData()">🔄</button>
@@ -187,176 +120,150 @@ select option{background:var(--surf2);color:var(--text)}
     <div class="tab" onclick="showTab('leaderboard')">🏆 อันดับ</div>
     <div class="tab" onclick="showTab('members')">👤 กำลังพล</div>
     <div class="tab" onclick="showTab('questions')">📝 ข้อสอบ</div>
+    <div class="tab" onclick="showTab('library')">📚 คลังความรู้</div>
   </div>
 
+  <!-- TAB OVERVIEW -->
   <div id="tab-overview" class="tab-content active">
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-val" id="s-members">—</div><div class="stat-label">กำลังพลลงทะเบียน</div></div>
-      <div class="stat-card green"><div class="stat-val" id="s-examed">—</div><div class="stat-label">ทำข้อสอบแล้ว</div></div>
-      <div class="stat-card red"><div class="stat-val" id="s-not">—</div><div class="stat-label">ยังไม่ได้สอบ</div></div>
-      <div class="stat-card blue"><div class="stat-val" id="s-avg">—%</div><div class="stat-label">คะแนนเฉลี่ย</div></div>
-    </div>
-    <div class="stat-card" style="margin-bottom:16px">
-      <div class="stat-val" id="s-qcount" style="color:var(--purple)">—</div>
-      <div class="stat-label">จำนวนข้อสอบที่ใช้งาน</div>
+      <div class="stat-card" style="color:var(--green)"><div class="stat-val" id="s-examed" style="color:var(--green)">—</div><div class="stat-label" style="color:var(--green)">ทำข้อสอบแล้ว</div></div>
+      <div class="stat-card" style="color:var(--red)"><div class="stat-val" id="s-not" style="color:var(--red)">—</div><div class="stat-label" style="color:var(--red)">ยังไม่ได้สอบ</div></div>
+      <div class="stat-card"><div class="stat-val" id="s-avg" style="color:var(--blue)">—%</div><div class="stat-label">คะแนนเฉลี่ย</div></div>
     </div>
 
-    <div class="section-title">🏅 อันดับ TOP 3 (คะแนนสะสม)</div>
-    <div id="top3-list"></div>
-
-    <div class="section-title" style="margin-top:20px">⚙️ ตั้งค่าระบบ</div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px">
-      <div class="form-group" style="margin-bottom:12px">
+    <div style="font-weight:700; color:var(--muted); margin:20px 0 10px;">⚙️ ตั้งค่าระบบ</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;">
+      <div class="form-group">
         <label class="form-label">เวลาในการทำข้อสอบ (นาที)</label>
-        <input type="number" id="inp-exam-time" placeholder="เช่น 20" style="width:100%">
+        <input type="number" id="inp-exam-time" placeholder="เช่น 20">
       </div>
       <button class="btn btn-gold btn-full" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
     </div>
-
-    <div class="section-title" style="margin-top:20px">⚙️ การจัดการ</div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <button class="btn btn-red btn-full" onclick="confirmResetAll()">🗑️ รีเซ็ตผลสอบทั้งหมด</button>
-      <button class="btn btn-primary btn-full" onclick="loadData()">🔄 รีเฟรชข้อมูล</button>
-    </div>
   </div>
 
+  <!-- TAB LEADERBOARD -->
   <div id="tab-leaderboard" class="tab-content">
-    <div class="section-title">🏆 ตารางอันดับคะแนน (สะสมรวม)</div>
-    <div id="alert-lb" class="alert-msg hidden"></div>
-    <div style="overflow-x:auto">
-      <table class="lb-table" id="lb-table">
-        <thead class="lb-hdr"><tr>
-          <th>#</th><th>ชื่อ-ยศ</th><th>ตำแหน่ง</th><th>คะแนนรวม</th><th></th>
-        </tr></thead>
-        <tbody id="lb-body"></tbody>
-      </table>
-    </div>
-    <div id="lb-empty" class="empty-state hidden">
-      <div class="empty-state-icon">🎓</div>
-      <div>ยังไม่มีผลการสอบ</div>
-    </div>
+    <div style="font-weight:700; color:var(--muted); margin-bottom:12px;">🏆 ตารางอันดับคะแนนรวม</div>
+    <div id="lb-container" style="display:flex; flex-direction:column; gap:10px;"></div>
   </div>
 
+  <!-- TAB MEMBERS -->
   <div id="tab-members" class="tab-content">
-    <div class="section-title">👤 รายชื่อกำลังพลทั้งหมด</div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr>
-          <th>#</th><th>ยศ-ชื่อ</th><th>ตำแหน่ง</th><th>ผลสอบ (สะสม)</th><th>จัดการ</th>
-        </tr></thead>
-        <tbody id="members-body"></tbody>
-      </table>
-    </div>
-    <div id="members-empty" class="empty-state hidden">
-      <div class="empty-state-icon">👤</div>
-      <div>ยังไม่มีกำลังพลลงทะเบียน</div>
-    </div>
+    <div style="font-weight:700; color:var(--muted); margin-bottom:12px;">👤 รายชื่อกำลังพลทั้งหมด</div>
+    <div id="members-container" style="display:flex; flex-direction:column; gap:10px;"></div>
   </div>
 
+  <!-- TAB QUESTIONS -->
   <div id="tab-questions" class="tab-content">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div class="section-title" style="margin:0">📝 ชุดข้อสอบ</div>
-      <button class="btn btn-gold btn-sm" onclick="openAddModal()">+ เพิ่มข้อสอบ</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div style="font-weight:700; color:var(--muted);">📝 คลังข้อสอบ</div>
+      <button class="btn btn-gold btn-sm" onclick="openAddQuestion()">+ เพิ่มข้อสอบ</button>
     </div>
-    <div id="alert-q" class="alert-msg hidden"></div>
-    <div id="q-list"></div>
-    <div id="q-empty" class="empty-state hidden">
-      <div class="empty-state-icon">📝</div>
-      <div>ยังไม่มีข้อสอบ<br><small>กดปุ่ม + เพิ่มข้อสอบเพื่อเริ่มต้น</small></div>
-    </div>
+    <div id="q-container"></div>
   </div>
 
+  <!-- TAB LIBRARY -->
+  <div id="tab-library" class="tab-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div style="font-weight:700; color:var(--muted);">📚 จัดการคลังความรู้</div>
+      <button class="btn btn-gold btn-sm" onclick="openAddLibrary()">+ เพิ่มสื่อการสอน</button>
+    </div>
+    <div id="lib-container"></div>
+  </div>
 </div>
 
+<!-- MODAL: QUESTION -->
 <div id="modal-q" class="modal-backdrop hidden" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-title" id="modal-title">➕ เพิ่มข้อสอบใหม่</div>
-    <input type="hidden" id="m-qid">
-    <div class="form-group">
-      <label class="form-label">คำถาม *</label>
-      <textarea id="m-qtext" placeholder="พิมพ์คำถาม..."></textarea>
+    <div style="font-size:18px; font-weight:800; color:var(--gold); margin-bottom:20px;" id="mq-title">เพิ่มข้อสอบ</div>
+    <input type="hidden" id="mq-id">
+    <div class="form-group"><label class="form-label">คำถาม</label><textarea id="mq-text"></textarea></div>
+    <div class="form-group"><label class="form-label">ตัวเลือก A</label><input type="text" id="mq-a"></div>
+    <div class="form-group"><label class="form-label">ตัวเลือก B</label><input type="text" id="mq-b"></div>
+    <div class="form-group"><label class="form-label">ตัวเลือก C</label><input type="text" id="mq-c"></div>
+    <div class="form-group"><label class="form-label">ตัวเลือก D</label><input type="text" id="mq-d"></div>
+    <div class="form-group"><label class="form-label">เฉลย</label>
+      <select id="mq-ans"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
     </div>
-    <div class="form-group">
-      <label class="form-label">ตัวเลือก A *</label>
-      <input type="text" id="m-a" placeholder="ตัวเลือก A">
-    </div>
-    <div class="form-group">
-      <label class="form-label">ตัวเลือก B *</label>
-      <input type="text" id="m-b" placeholder="ตัวเลือก B">
-    </div>
-    <div class="form-group">
-      <label class="form-label">ตัวเลือก C *</label>
-      <input type="text" id="m-c" placeholder="ตัวเลือก C">
-    </div>
-    <div class="form-group">
-      <label class="form-label">ตัวเลือก D *</label>
-      <input type="text" id="m-d" placeholder="ตัวเลือก D">
-    </div>
-    <div class="form-group">
-      <label class="form-label">คำตอบที่ถูกต้อง *</label>
-      <select id="m-answer">
-        <option value="">เลือกคำตอบ</option>
-        <option value="A">A</option><option value="B">B</option>
-        <option value="C">C</option><option value="D">D</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">หมวดหมู่ / รายวิชา *</label>
-      <select id="m-cat-select" onchange="toggleNewCat()">
-        <option value="">-- เลือกวิชา --</option>
-      </select>
-      <input type="text" id="m-cat-new" placeholder="พิมพ์ชื่อวิชาใหม่..." class="hidden" style="margin-top:8px;">
-    </div>
-    <div id="modal-err" class="alert-msg hidden"></div>
-    <div style="display:flex;gap:10px">
+    <div class="form-group"><label class="form-label">หมวดหมู่/รายวิชา</label><input type="text" id="mq-cat"></div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
       <button class="btn btn-secondary" style="flex:1" onclick="closeAllModal()">ยกเลิก</button>
-      <button class="btn btn-gold" style="flex:2" onclick="saveQuestion()">💾 บันทึกข้อสอบ</button>
+      <button class="btn btn-gold" style="flex:2" onclick="saveQuestion()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: LIBRARY -->
+<div id="modal-lib" class="modal-backdrop hidden" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div style="font-size:18px; font-weight:800; color:var(--gold); margin-bottom:20px;" id="ml-title">เพิ่มสื่อการสอน</div>
+    <input type="hidden" id="ml-id">
+    
+    <div class="form-group">
+      <label class="form-label">ชื่อสื่อการสอน / บทเรียน</label>
+      <input type="text" id="ml-title-inp" placeholder="เช่น คู่มือการปฐมพยาบาล">
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">ประเภท (Type)</label>
+      <select id="ml-type">
+        <option value="PDF">📄 เอกสาร (PDF)</option>
+        <option value="VIDEO">🎥 วิดีโอ (YouTube/MP4)</option>
+        <option value="LINK">🔗 เว็บไซต์ (Link)</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">URL (ลิงก์ไปยังไฟล์หรือเว็บ)</label>
+      <textarea id="ml-url" placeholder="https://..." style="min-height: 60px;"></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label class="form-label">หมวดหมู่รายวิชา</label>
+      <input type="text" id="ml-cat" placeholder="เช่น วิชาอาวุธ">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">สถานะการแสดงผล</label>
+      <select id="ml-active">
+        <option value="YES">เปิดให้กำลังพลเข้าดูได้ (Active)</option>
+        <option value="NO">ซ่อนไว้ก่อน (Inactive)</option>
+      </select>
+    </div>
+    
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeAllModal()">ยกเลิก</button>
+      <button class="btn btn-gold" style="flex:2" onclick="saveLibrary()">💾 บันทึกข้อมูล</button>
     </div>
   </div>
 </div>
 
 <script>
-// ==============================================
-// CONFIG — เปลี่ยน LIFF_ID และ GAS_URL
-// ==============================================
-const LIFF_ID  = '2009717287-baGusOWI';  
+const LIFF_ID  = '2009717287-baGusOWI'; // LIFF ID Admin
 const GAS_URL  = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let adminSecret = '';
-let adminData   = null;
-let userId      = '';
+let adminSecret = '', adminData = null, userId = '';
 
-// ==============================================
-// INIT
-// ==============================================
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
-    const profile = await liff.getProfile();
-    userId = profile.userId;
+    userId = (await liff.getProfile()).userId;
     document.getElementById('ov-load').classList.add('hidden');
     document.getElementById('ov-login').classList.remove('hidden');
-    document.getElementById('pin-input').focus();
-  } catch(e) {
-    document.getElementById('load-txt').textContent = '❌ ' + e.message;
-  }
+  } catch(e) { document.getElementById('load-txt').textContent = '❌ ' + e.message; }
 }
 
-// ==============================================
-// LOGIN
-// ==============================================
 async function doLogin() {
   const secret = document.getElementById('pin-input').value.trim();
   if (!secret) return;
-  document.getElementById('err-msg').textContent = '';
   document.getElementById('ov-login').classList.add('hidden');
   document.getElementById('ov-load').classList.remove('hidden');
-  document.getElementById('load-txt').textContent = 'กำลังตรวจสอบ...';
 
   try {
     const res = await callAPI('POST', { action:'admin_login', userId, secret });
-    if (res.status !== 'ok') throw new Error(res.message || 'รหัสไม่ถูกต้อง');
+    if (res.status !== 'ok') throw new Error(res.message);
     adminSecret = secret;
     await loadData();
     document.getElementById('ov-load').classList.add('hidden');
@@ -365,17 +272,9 @@ async function doLogin() {
     document.getElementById('ov-load').classList.add('hidden');
     document.getElementById('ov-login').classList.remove('hidden');
     document.getElementById('err-msg').textContent = '❌ ' + e.message;
-    document.getElementById('pin-input').value = '';
   }
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !document.getElementById('ov-login').classList.contains('hidden')) doLogin();
-});
-
-// ==============================================
-// LOAD DATA
-// ==============================================
 async function loadData() {
   try {
     const res = await callAPI('GET', { action:'admin_data', secret: adminSecret });
@@ -386,413 +285,209 @@ async function loadData() {
 }
 
 function renderAll() {
-  renderOverview();
-  renderLeaderboard();
-  renderMembers();
-  renderQuestions();
-}
-
-// ==============================================
-// OVERVIEW & SETTINGS
-// ==============================================
-function renderOverview() {
+  // Overview
   const s = adminData.stats;
   document.getElementById('s-members').textContent = s.totalMembers;
-  document.getElementById('s-examed').textContent  = s.totalExamed;
-  document.getElementById('s-not').textContent     = s.notExamed;
-  document.getElementById('s-avg').textContent     = s.avgScore + '%';
-  document.getElementById('s-qcount').textContent  = s.totalQuestions;
+  document.getElementById('s-examed').textContent = s.totalExamed;
+  document.getElementById('s-not').textContent = s.notExamed;
+  document.getElementById('s-avg').textContent = s.avgScore + '%';
+  if(adminData.settings) document.getElementById('inp-exam-time').value = adminData.settings.examTimeMinutes;
 
-  if(adminData.settings) {
-    document.getElementById('inp-exam-time').value = adminData.settings.examTimeMinutes || 20;
-  }
-
-  // Top 3
-  const top3 = (adminData.leaderboard || []).slice(0, 3);
-  const medals = ['🥇','🥈','🥉'];
-  document.getElementById('top3-list').innerHTML = top3.length === 0
-    ? '<div class="empty-state" style="padding:20px"><div class="empty-state-icon">🎓</div><div>ยังไม่มีผลสอบ</div></div>'
-    : top3.map((e, i) => `
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;animation:fadeUp .3s ease">
-        <div style="font-size:28px">${medals[i]}</div>
-        <div style="flex:1">
-          <div style="font-weight:700;font-size:15px">${e.fullName}</div>
-          <div style="font-size:12px;color:var(--muted)">${e.position || '—'}</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:20px;font-weight:800;color:var(--gold);font-family:'IBM Plex Mono',monospace">${e.totalScore}/${e.maxScore}</div>
-          <div style="font-size:12px;color:var(--muted)">${Math.round(e.percentage)}%</div>
-        </div>
+  // Leaderboard
+  const lbHtml = (adminData.leaderboard || []).map((e, i) => `
+    <div class="data-card" style="flex-direction:row; align-items:center;">
+      <div style="font-size:24px; font-weight:800; color:var(--gold); width:30px;">${i+1}</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;">${e.fullName}</div>
+        <div style="font-size:11px; color:var(--muted);">${e.position || '-'}</div>
       </div>
-    `).join('');
-}
+      <div style="text-align:right;">
+        <div style="font-weight:800; color:var(--gold); font-family:monospace;">${e.totalScore}/${e.maxScore}</div>
+        <div style="font-size:11px;">${Math.round(e.percentage)}%</div>
+      </div>
+      <button class="btn btn-red btn-sm" style="margin-left:10px;" onclick="resetUser('${e.userId}')">รีเซ็ต</button>
+    </div>
+  `).join('');
+  document.getElementById('lb-container').innerHTML = lbHtml || '<div style="text-align:center; color:var(--muted);">ไม่มีข้อมูล</div>';
 
-async function saveSettings() {
-  const t = document.getElementById('inp-exam-time').value;
-  if (!t || isNaN(t) || Number(t) <= 0) return alert('กรุณาระบุเวลาเป็นตัวเลขให้ถูกต้อง');
-  try {
-    const res = await callAPI('POST', { action:'save_settings', secret:adminSecret, examTimeMinutes: Number(t) });
-    if (res.status !== 'ok') throw new Error(res.message);
-    alert('✅ ' + res.message);
-    await loadData();
-  } catch(e) { alert('บันทึกล้มเหลว: ' + e.message); }
-}
+  // Members
+  const mHtml = (adminData.members || []).map(m => `
+    <div class="data-card">
+      <div style="font-weight:700;">${m.fullName} <span style="font-size:11px; color:var(--muted); font-weight:normal;">(${m.rank})</span></div>
+      <div style="font-size:12px; color:var(--muted);">ตำแหน่ง: ${m.position}</div>
+    </div>
+  `).join('');
+  document.getElementById('members-container').innerHTML = mHtml;
 
-// ==============================================
-// LEADERBOARD
-// ==============================================
-function renderLeaderboard() {
-  const board = adminData.leaderboard || [];
-  const tbody = document.getElementById('lb-body');
-  document.getElementById('lb-empty').classList.toggle('hidden', board.length > 0);
-  tbody.innerHTML = board.map((e, i) => {
-    const rcls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
-    const bcls = i === 0 ? 'r1'    : i === 1 ? 'r2'    : i === 2 ? 'r3' : 'r-other';
-    const pct  = Math.round(e.percentage);
+  // Questions
+  window._qMap = {};
+  const qHtml = (adminData.questions || []).map((q, i) => {
+    window._qMap[q.questionId] = q;
     return `
-      <tr class="lb-row ${rcls}">
-        <td><div class="rank-badge ${bcls}">${i+1}</div></td>
-        <td>
-          <div style="font-weight:700;font-size:14px">${e.fullName}</div>
-          <div style="font-size:11px;color:var(--muted)">${e.rank||'—'}</div>
-        </td>
-        <td style="color:var(--muted);font-size:13px">${e.position||'—'}</td>
-        <td>
-          <div style="font-weight:800;font-size:15px;font-family:'IBM Plex Mono',monospace;color:var(--gold)">${e.totalScore}/${e.maxScore}</div>
-          <div class="pct-bar"><div class="pct-fill" style="width:${pct}%"></div></div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">${pct}%</div>
-        </td>
-        <td>
-          <button class="btn btn-red btn-sm" onclick="confirmResetOne('${e.userId}','${e.fullName}')">รีเซ็ต</button>
-        </td>
-      </tr>
-    `;
+    <div class="data-card">
+      <div class="data-hdr">
+        <span class="badge" style="background:var(--surf2); color:var(--text);">${q.category}</span>
+        <div style="font-size:11px; font-family:monospace; color:var(--muted);">${q.questionId}</div>
+      </div>
+      <div style="font-size:14px; font-weight:600; margin:10px 0;">${q.questionText}</div>
+      <div style="font-size:12px; color:var(--muted);">
+        A: ${q.choiceA} ${q.correctAnswer==='A'?'✅':''}<br>
+        B: ${q.choiceB} ${q.correctAnswer==='B'?'✅':''}<br>
+        C: ${q.choiceC} ${q.correctAnswer==='C'?'✅':''}<br>
+        D: ${q.choiceD} ${q.correctAnswer==='D'?'✅':''}
+      </div>
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openEditQuestion('${q.questionId}')">✏️ แก้ไข</button>
+        <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteQuestion('${q.questionId}')">🗑️ ลบ</button>
+      </div>
+    </div>`;
   }).join('');
-}
+  document.getElementById('q-container').innerHTML = qHtml || '<div style="text-align:center; color:var(--muted);">ยังไม่มีข้อสอบ</div>';
 
-// ==============================================
-// MEMBERS
-// ==============================================
-function renderMembers() {
-  const members = adminData.members || [];
-  const scores  = adminData.scores  || [];
-  
-  const userScores = {};
-  scores.forEach(s => { 
-    if (!userScores[s.userId]) userScores[s.userId] = [];
-    userScores[s.userId].push(s);
-  });
-
-  const lbMap = {};
-  (adminData.leaderboard || []).forEach(l => { lbMap[l.userId] = l; });
-
-  document.getElementById('members-empty').classList.toggle('hidden', members.length > 0);
-  document.getElementById('members-body').innerHTML = members.map((m, i) => {
-    const lb   = lbMap[m.userId];
-    const us   = userScores[m.userId] || [];
-    const done = !!lb;
-    const subjectsTaken = us.map(x => x.subject || 'ทั่วไป').join(', ');
-
+  // Library
+  window._libMap = {};
+  const libHtml = (adminData.library || []).map(l => {
+    window._libMap[l.id] = l;
+    const tClass = l.type === 'PDF' ? 'pdf' : l.type === 'VIDEO' ? 'video' : 'link';
+    const activeClass = l.active === 'YES' ? 'active' : 'inactive';
+    const activeText = l.active === 'YES' ? 'ออนไลน์' : 'ซ่อน';
     return `
-      <tr>
-        <td style="color:var(--muted);font-family:'IBM Plex Mono',monospace">${i+1}</td>
-        <td>
-          <div style="font-weight:700">${m.fullName}</div>
-          <div style="font-size:11px;color:var(--muted)">${m.rank||'—'}</div>
-        </td>
-        <td style="color:var(--muted)">${m.position||'—'}</td>
-        <td>${done
-          ? `<div class="badge-done" style="display:inline-block;margin-bottom:4px">${lb.totalScore}/${lb.maxScore} (${Math.round(lb.percentage)}%)</div>
-             <div style="font-size:10px;color:var(--muted);white-space:normal;line-height:1.4">📚 วิชาที่สอบ: <br>${subjectsTaken}</div>`
-          : '<span class="badge-none">ยังไม่ได้สอบ</span>'
-        }</td>
-        <td>
-          ${done ? `<button class="btn btn-red btn-sm" onclick="confirmResetOne('${m.userId}','${m.fullName}')">รีเซ็ต</button>` : '—'}
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// ==============================================
-// QUESTIONS (With Sub-Tabs)
-// ==============================================
-const _qMap = {}; 
-let currentSubTab = ''; 
-
-function renderQuestions() {
-  const qs = adminData.questions || [];
-  document.getElementById('q-empty').classList.toggle('hidden', qs.length > 0);
-  
-  if (qs.length === 0) {
-    document.getElementById('q-list').innerHTML = '';
-    return;
-  }
-
-  const groups = {};
-  qs.forEach(q => {
-    const cat = q.category || 'ทั่วไป';
-    if (!groups[cat]) groups[cat] = [];
-    groups[cat].push(q);
-  });
-
-  const sortedCats = Object.keys(groups).sort();
-
-  if (!currentSubTab || !sortedCats.includes(currentSubTab)) {
-    currentSubTab = sortedCats[0];
-  }
-
-  let tabsHtml = '<div class="sub-tabs">';
-  let contentHtml = '';
-  let globalIdx = 0;
-
-  sortedCats.forEach(cat => {
-    const isActive = cat === currentSubTab ? 'active' : '';
-    
-    tabsHtml += `<div class="sub-tab ${isActive}" onclick="showSubTab('${cat}')" id="subtab-btn-${cat}">📚 ${cat} (${groups[cat].length})</div>`;
-    
-    contentHtml += `<div class="sub-content ${isActive}" id="subtab-content-${cat}">`;
-    groups[cat].forEach(q => {
-      _qMap[globalIdx] = q; 
-      const choices = ['A','B','C','D'].map(k => {
-        const val = q['choice'+k];
-        const isCorrect = q.correctAnswer.toUpperCase() === k;
-        return val ? `<span class="q-choice-tag ${isCorrect?'correct':''}">${k}: ${val}</span>` : '';
-      }).join('');
-      
-      contentHtml += `
-        <div class="q-card" style="animation:fadeUp .3s ease">
-          <div class="q-card-hdr">
-            <div>
-              <div class="q-id">${q.questionId}</div>
-            </div>
-          </div>
-          <div class="q-text-preview">${q.questionText}</div>
-          <div class="q-choices-preview">${choices}</div>
-          <div class="q-actions">
-            <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openEditModal(_qMap[${globalIdx}])">✏️ แก้ไข</button>
-            <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteQuestion('${q.questionId}')">🗑️ ลบ</button>
-          </div>
+    <div class="data-card">
+      <div class="data-hdr">
+        <div style="display:flex; gap:6px;">
+          <span class="badge ${tClass}">${l.type}</span>
+          <span class="badge" style="background:var(--surf2); color:var(--text);">${l.category}</span>
         </div>
-      `;
-      globalIdx++;
-    });
-    contentHtml += `</div>`; 
-  });
-
-  tabsHtml += '</div>'; 
-  document.getElementById('q-list').innerHTML = tabsHtml + contentHtml;
+        <span class="badge ${activeClass}">${activeText}</span>
+      </div>
+      <div style="font-size:15px; font-weight:700; margin:10px 0;">${l.title}</div>
+      <div style="font-size:11px; color:var(--primary); word-break:break-all; margin-bottom:10px;">${l.url}</div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openEditLibrary('${l.id}')">✏️ แก้ไข</button>
+        <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteLibrary('${l.id}')">🗑️ ลบ</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('lib-container').innerHTML = libHtml || '<div style="text-align:center; color:var(--muted);">ยังไม่มีสื่อการสอน</div>';
 }
 
-function showSubTab(catName) {
-  currentSubTab = catName;
-  document.querySelectorAll('.sub-tab').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.sub-content').forEach(content => content.classList.remove('active'));
-  document.getElementById(`subtab-btn-${catName}`).classList.add('active');
-  document.getElementById(`subtab-content-${catName}`).classList.add('active');
-}
-
-// ==============================================
-// QUESTION CRUD
-// ==============================================
-function populateCategoryDropdown(selectedValue = '') {
-  const select = document.getElementById('m-cat-select');
-  const newCatInput = document.getElementById('m-cat-new');
-  const qs = adminData.questions || [];
-  
-  const cats = [...new Set(qs.map(q => q.category || 'ทั่วไป'))].sort();
-
-  let options = '';
-  cats.forEach(c => {
-    options += `<option value="${c}">${c}</option>`;
-  });
-  options += `<option value="NEW" style="color:var(--gold)">+ เพิ่มวิชาใหม่...</option>`;
-  select.innerHTML = options;
-
-  if (selectedValue && cats.includes(selectedValue)) {
-    select.value = selectedValue;
-    newCatInput.classList.add('hidden');
-    newCatInput.value = '';
-  } else if (selectedValue) {
-    select.value = 'NEW';
-    newCatInput.classList.remove('hidden');
-    newCatInput.value = selectedValue;
-  } else {
-    select.value = cats.length > 0 ? cats[0] : 'NEW';
-    if (select.value === 'NEW') newCatInput.classList.remove('hidden');
-    else newCatInput.classList.add('hidden');
-  }
-}
-
-function toggleNewCat() {
-  const select = document.getElementById('m-cat-select');
-  const input = document.getElementById('m-cat-new');
-  if (select.value === 'NEW') {
-    input.classList.remove('hidden');
-    input.focus();
-  } else {
-    input.classList.add('hidden');
-  }
-}
-
-function openAddModal() {
-  document.getElementById('modal-title').textContent = '➕ เพิ่มข้อสอบใหม่';
-  document.getElementById('m-qid').value   = '';
-  document.getElementById('m-qtext').value = '';
-  document.getElementById('m-a').value     = '';
-  document.getElementById('m-b').value     = '';
-  document.getElementById('m-c').value     = '';
-  document.getElementById('m-d').value     = '';
-  document.getElementById('m-answer').value= '';
-  
-  populateCategoryDropdown(); 
-  
-  document.getElementById('modal-err').className = 'alert-msg hidden';
-  document.getElementById('modal-q').classList.remove('hidden');
-}
-
-function openEditModal(q) {
-  document.getElementById('modal-title').textContent = '✏️ แก้ไขข้อสอบ';
-  document.getElementById('m-qid').value    = q.questionId;
-  document.getElementById('m-qtext').value  = q.questionText;
-  document.getElementById('m-a').value      = q.choiceA;
-  document.getElementById('m-b').value      = q.choiceB;
-  document.getElementById('m-c').value      = q.choiceC;
-  document.getElementById('m-d').value      = q.choiceD;
-  document.getElementById('m-answer').value = q.correctAnswer;
-  
-  populateCategoryDropdown(q.category || 'ทั่วไป'); 
-  
-  document.getElementById('modal-err').className = 'alert-msg hidden';
-  document.getElementById('modal-q').classList.remove('hidden');
-}
-
-async function saveQuestion() {
-  const qtext  = document.getElementById('m-qtext').value.trim();
-  const a = document.getElementById('m-a').value.trim();
-  const b = document.getElementById('m-b').value.trim();
-  const c = document.getElementById('m-c').value.trim();
-  const d = document.getElementById('m-d').value.trim();
-  const ans = document.getElementById('m-answer').value;
-  
-  let cat = document.getElementById('m-cat-select').value;
-  if (cat === 'NEW') {
-    cat = document.getElementById('m-cat-new').value.trim();
-  }
-  
-  const qid = document.getElementById('m-qid').value;
-
-  if (!qtext||!a||!b||!c||!d||!ans||!cat) {
-    const el = document.getElementById('modal-err');
-    el.textContent = '❌ กรุณากรอกข้อมูลให้ครบทุกช่อง (รวมถึงหมวดหมู่วิชา)';
-    el.className = 'alert-msg error';
-    return;
-  }
-
-  try {
-    const res = await callAPI('POST', {
-      action:'save_question', secret:adminSecret,
-      questionId:qid||undefined, questionText:qtext,
-      choiceA:a, choiceB:b, choiceC:c, choiceD:d,
-      correctAnswer:ans, category:cat
-    });
-    if (res.status !== 'ok') throw new Error(res.message);
-    currentSubTab = cat; 
-    closeAllModal();
-    await loadData();
-    showTabAlert('alert-q', 'success', '✅ ' + (res.message || 'บันทึกสำเร็จ'));
-    showTab('questions');
-  } catch(e) {
-    const el = document.getElementById('modal-err');
-    el.textContent = '❌ ' + e.message;
-    el.className = 'alert-msg error';
-  }
-}
-
-async function deleteQuestion(qid) {
-  if (!confirm('ยืนยันลบข้อสอบนี้?')) return;
-  try {
-    const res = await callAPI('POST', { action:'delete_question', secret:adminSecret, questionId:qid });
-    if (res.status !== 'ok') throw new Error(res.message);
-    await loadData();
-    showTabAlert('alert-q', 'success', '✅ ลบข้อสอบสำเร็จ');
-  } catch(e) { alert('ลบล้มเหลว: ' + e.message); }
-}
-
-// ==============================================
-// RESET
-// ==============================================
-async function confirmResetOne(uid, name) {
-  if (!confirm(`ยืนยันรีเซ็ตผลสอบทั้งหมดของ "${name}"?\n(รวมถึงผลคะแนนในทุกๆ รายวิชา)`)) return;
-  try {
-    const res = await callAPI('POST', { action:'reset_exam', secret:adminSecret, userId:uid });
-    if (res.status !== 'ok') throw new Error(res.message);
-    await loadData();
-    alert('✅ รีเซ็ตสำเร็จ');
-  } catch(e) { alert('ล้มเหลว: ' + e.message); }
-}
-
-async function confirmResetAll() {
-  if (!confirm('⚠️ ยืนยันรีเซ็ตผลสอบ "ทั้งหมด"?\nการกระทำนี้ไม่สามารถย้อนกลับได้')) return;
-  if (!confirm('ยืนยันอีกครั้ง — รีเซ็ตผลสอบทุกคน?')) return;
-  try {
-    const res = await callAPI('POST', { action:'reset_exam', secret:adminSecret });
-    if (res.status !== 'ok') throw new Error(res.message);
-    await loadData();
-    alert('✅ รีเซ็ตทั้งหมดสำเร็จ');
-  } catch(e) { alert('ล้มเหลว: ' + e.message); }
-}
-
-// ==============================================
-// UI HELPERS
-// ==============================================
 function showTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => {
-    const names = ['overview','leaderboard','members','questions'];
+    const names = ['overview','leaderboard','members','questions', 'library'];
     t.classList.toggle('active', names[i] === name);
   });
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
 }
 
-function showTabAlert(id, type, msg) {
-  const el = document.getElementById(id);
-  el.textContent  = msg;
-  el.className    = 'alert-msg ' + type;
-  setTimeout(() => { el.className = 'alert-msg hidden'; }, 4000);
+// --- QUESTIONS ---
+function openAddQuestion() {
+  document.getElementById('mq-title').textContent = '➕ เพิ่มข้อสอบ';
+  document.getElementById('mq-id').value = '';
+  ['text','a','b','c','d','cat'].forEach(k => document.getElementById('mq-'+k).value = '');
+  document.getElementById('mq-ans').value = 'A';
+  document.getElementById('modal-q').classList.remove('hidden');
+}
+function openEditQuestion(id) {
+  const q = window._qMap[id];
+  document.getElementById('mq-title').textContent = '✏️ แก้ไขข้อสอบ';
+  document.getElementById('mq-id').value = q.questionId;
+  document.getElementById('mq-text').value = q.questionText;
+  document.getElementById('mq-a').value = q.choiceA;
+  document.getElementById('mq-b').value = q.choiceB;
+  document.getElementById('mq-c').value = q.choiceC;
+  document.getElementById('mq-d').value = q.choiceD;
+  document.getElementById('mq-ans').value = q.correctAnswer;
+  document.getElementById('mq-cat').value = q.category;
+  document.getElementById('modal-q').classList.remove('hidden');
+}
+async function saveQuestion() {
+  const data = {
+    action: 'save_question', secret: adminSecret,
+    questionId: document.getElementById('mq-id').value || undefined,
+    questionText: document.getElementById('mq-text').value,
+    choiceA: document.getElementById('mq-a').value, choiceB: document.getElementById('mq-b').value,
+    choiceC: document.getElementById('mq-c').value, choiceD: document.getElementById('mq-d').value,
+    correctAnswer: document.getElementById('mq-ans').value, category: document.getElementById('mq-cat').value
+  };
+  try {
+    await callAPI('POST', data);
+    closeAllModal(); await loadData(); alert('✅ บันทึกข้อสอบสำเร็จ');
+  } catch(e) { alert(e.message); }
+}
+async function deleteQuestion(id) {
+  if(!confirm('ยืนยันลบข้อสอบ?')) return;
+  try { await callAPI('POST', {action:'delete_question', secret:adminSecret, questionId:id}); await loadData(); } catch(e) { alert(e.message); }
 }
 
-function closeModal(e) { if (e.target === document.getElementById('modal-q')) closeAllModal(); }
-function closeAllModal() { document.getElementById('modal-q').classList.add('hidden'); }
+// --- LIBRARY ---
+function openAddLibrary() {
+  document.getElementById('ml-title').textContent = '➕ เพิ่มสื่อการสอน';
+  document.getElementById('ml-id').value = '';
+  document.getElementById('ml-title-inp').value = '';
+  document.getElementById('ml-url').value = '';
+  document.getElementById('ml-cat').value = 'ทั่วไป';
+  document.getElementById('ml-type').value = 'PDF';
+  document.getElementById('ml-active').value = 'YES';
+  document.getElementById('modal-lib').classList.remove('hidden');
+}
+function openEditLibrary(id) {
+  const l = window._libMap[id];
+  document.getElementById('ml-title').textContent = '✏️ แก้ไขสื่อการสอน';
+  document.getElementById('ml-id').value = l.id;
+  document.getElementById('ml-title-inp').value = l.title;
+  document.getElementById('ml-url').value = l.url;
+  document.getElementById('ml-cat').value = l.category;
+  document.getElementById('ml-type').value = l.type;
+  document.getElementById('ml-active').value = l.active;
+  document.getElementById('modal-lib').classList.remove('hidden');
+}
+async function saveLibrary() {
+  const data = {
+    action: 'save_library', secret: adminSecret,
+    id: document.getElementById('ml-id').value || undefined,
+    title: document.getElementById('ml-title-inp').value,
+    type: document.getElementById('ml-type').value,
+    url: document.getElementById('ml-url').value,
+    category: document.getElementById('ml-cat').value,
+    active: document.getElementById('ml-active').value
+  };
+  try {
+    await callAPI('POST', data);
+    closeAllModal(); await loadData(); alert('✅ บันทึกสื่อการสอนสำเร็จ');
+  } catch(e) { alert(e.message); }
+}
+async function deleteLibrary(id) {
+  if(!confirm('ยืนยันลบสื่อการสอน?')) return;
+  try { await callAPI('POST', {action:'delete_library', secret:adminSecret, id:id}); await loadData(); } catch(e) { alert(e.message); }
+}
 
-// ==============================================
-// API HELPER
-// ==============================================
+async function saveSettings() {
+  const t = document.getElementById('inp-exam-time').value;
+  try { await callAPI('POST', {action:'save_settings', secret:adminSecret, examTimeMinutes:Number(t)}); alert('✅ บันทึกเวลาแล้ว'); } catch(e) { alert(e.message); }
+}
+async function resetUser(uid) {
+  if(!confirm('รีเซ็ตผลสอบของคนนี้?')) return;
+  try { await callAPI('POST', {action:'reset_exam', secret:adminSecret, userId:uid}); await loadData(); } catch(e) { alert(e.message); }
+}
+
+function closeModal(e) { if(e.target.classList.contains('modal-backdrop')) closeAllModal(); }
+function closeAllModal() { document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.add('hidden')); }
+
 async function callAPI(method, params, timeoutMs=30000) {
-  const ctrl = new AbortController();
-  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  const ctrl = new AbortController(); const tid = setTimeout(()=>ctrl.abort(), timeoutMs);
   try {
     let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') {
-      url += '?' + new URLSearchParams(params).toString();
-      opts.method = 'GET';
-    } else {
-      opts.method  = 'POST';
-      opts.headers = { 'Content-Type':'text/plain' };
-      opts.body    = JSON.stringify(params);
-    }
-    const resp = await fetch(url, opts);
-    clearTimeout(tid);
+    if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; }
+    else { opts.method = 'POST'; opts.headers = {'Content-Type':'text/plain'}; opts.body = JSON.stringify(params); }
+    const resp = await fetch(url, opts); clearTimeout(tid);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return await resp.json();
-  } catch(e) {
-    clearTimeout(tid);
-    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ');
-    throw e;
-  }
+    const data = await resp.json();
+    if(data.status === 'error') throw new Error(data.message);
+    return data;
+  } catch(e) { clearTimeout(tid); throw e; }
 }
 
-window.onerror = (msg) => { document.getElementById('load-txt').textContent = '❌ ' + msg; };
 init();
 </script>
 </body>
