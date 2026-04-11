@@ -158,7 +158,10 @@ select option{background:var(--surf2);color:var(--text)}
   <div id="tab-questions" class="tab-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <div style="font-weight:700; color:var(--muted);">📝 คลังข้อสอบ</div>
-      <button class="btn btn-gold btn-sm" onclick="openAddQuestion()">+ เพิ่มข้อสอบ</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="openImportModal()">📥 นำเข้าข้อสอบ</button>
+        <button class="btn btn-gold btn-sm" onclick="openAddQuestion()">+ เพิ่มข้อสอบ</button>
+      </div>
     </div>
     <div id="q-container"></div>
   </div>
@@ -190,6 +193,24 @@ select option{background:var(--surf2);color:var(--text)}
     <div style="display:flex; gap:10px; margin-top:20px;">
       <button class="btn btn-secondary" style="flex:1" onclick="closeAllModal()">ยกเลิก</button>
       <button class="btn btn-gold" style="flex:2" onclick="saveQuestion()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: IMPORT QUESTIONS -->
+<div id="modal-import" class="modal-backdrop hidden" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div style="font-size:18px; font-weight:800; color:var(--gold); margin-bottom:10px;">📥 นำเข้าข้อสอบจาก Excel</div>
+    <div style="font-size:12px; color:var(--muted); margin-bottom:15px; line-height:1.5;">
+      ให้ Copy ข้อมูลจากตาราง Excel มาวางในกล่องด้านล่างนี้ โดยเรียงคอลัมน์ดังนี้:<br>
+      <b style="color:var(--text)">คำถาม | ตัวเลือก A | B | C | D | เฉลย | รายวิชา</b>
+    </div>
+    <div class="form-group">
+      <textarea id="mi-text" placeholder="วางข้อมูลจาก Excel ลงที่นี่..." style="min-height: 150px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: pre; overflow-x: auto;"></textarea>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeAllModal()">ยกเลิก</button>
+      <button class="btn btn-gold" style="flex:2" onclick="processImport()" id="btn-import-submit">🚀 นำเข้าข้อมูล</button>
     </div>
   </div>
 </div>
@@ -418,6 +439,65 @@ async function saveQuestion() {
 async function deleteQuestion(id) {
   if(!confirm('ยืนยันลบข้อสอบ?')) return;
   try { await callAPI('POST', {action:'delete_question', secret:adminSecret, questionId:id}); await loadData(); } catch(e) { alert(e.message); }
+}
+
+// --- IMPORT QUESTIONS ---
+function openImportModal() {
+  document.getElementById('mi-text').value = '';
+  document.getElementById('modal-import').classList.remove('hidden');
+}
+
+async function processImport() {
+  const text = document.getElementById('mi-text').value.trim();
+  if (!text) return alert('กรุณาวางข้อมูลก่อน');
+  
+  const lines = text.split('\n');
+  const qList = [];
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    
+    // เวลาเรา Copy จาก Excel แต่ละคอลัมน์จะถูกคั่นด้วยปุ่ม Tab (\t) อัตโนมัติ
+    const cols = line.split('\t');
+    if (cols.length >= 6) {
+      qList.push({
+        q: cols[0].trim(),
+        a: cols[1].trim(),
+        b: cols[2].trim(),
+        c: cols[3].trim(),
+        d: cols[4].trim(),
+        ans: cols[5].trim().toUpperCase(),
+        cat: cols[6] ? cols[6].trim() : 'ทั่วไป'
+      });
+    }
+  }
+
+  if (qList.length === 0) {
+    return alert('ไม่พบข้อมูลที่ถูกต้อง กรุณาตรวจสอบการเรียงคอลัมน์ (ต้องมีอย่างน้อย 6 คอลัมน์)');
+  }
+
+  if (!confirm(`ตรวจสอบพบข้อสอบ ${qList.length} ข้อ ยืนยันการนำเข้าหรือไม่?`)) return;
+
+  const btn = document.getElementById('btn-import-submit');
+  btn.disabled = true;
+  btn.textContent = '⏳ กำลังนำเข้า...';
+
+  try {
+    const res = await callAPI('POST', {
+      action: 'import_questions', 
+      secret: adminSecret, 
+      questions: qList
+    });
+    closeAllModal();
+    await loadData();
+    alert('✅ ' + res.message);
+  } catch(e) {
+    alert('เกิดข้อผิดพลาด: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🚀 นำเข้าข้อมูล';
+  }
 }
 
 // --- LIBRARY ---
