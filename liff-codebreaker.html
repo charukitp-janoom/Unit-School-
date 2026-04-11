@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Unit School — กู้ระเบิด</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a; --panel: #1a1a1a;
+  --red: #ff3333; --green: #33cc33; --blue: #3388ff; --yellow: #ffcc00;
+  --text: #eee; --muted: #777;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+.screen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 500px; margin: 0 auto; height: 100%; flex: 1; padding: 20px; text-align: center; }
+.hidden { display: none !important; }
+
+/* Effects */
+.bg-pulse { position: fixed; inset: 0; background: radial-gradient(circle, rgba(255,0,0,0.1) 0%, rgba(0,0,0,0) 70%); z-index: -1; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+.flash { position: fixed; inset: 0; background: #fff; z-index: 9999; animation: flashAnim 1.5s forwards; pointer-events: none; }
+@keyframes flashAnim { 0% { opacity: 1; } 20% { background: var(--red); opacity: 1; } 100% { background: var(--red); opacity: 0; } }
+
+/* UI Elements */
+.title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 5px; text-shadow: 0 0 10px var(--red); }
+.subtitle { font-size: 14px; color: var(--muted); margin-bottom: 30px; line-height: 1.6; }
+.btn { background: #333; color: #fff; border: 2px solid #555; padding: 14px 24px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; font-family: 'Sarabun', sans-serif; transition: 0.2s; margin-bottom: 12px; }
+.btn:active { transform: scale(0.96); }
+.btn-red { background: linear-gradient(180deg, var(--red) 0%, #aa0000 100%); border-color: #ff8888; box-shadow: 0 4px 15px rgba(255,0,0,0.4); }
+
+/* Game Area */
+.bomb-header { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 10px 20px; border-radius: 12px; border: 1px solid #333; }
+.bomb-icon { font-size: 24px; animation: tick 1s infinite alternate; }
+@keyframes tick { from { transform: scale(1); } to { transform: scale(1.1); } }
+.timer { font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 800; color: var(--red); text-shadow: 0 0 10px var(--red); }
+.defused-count { font-weight: 800; font-size: 16px; color: var(--green); }
+
+.q-box { background: #222; border: 1px solid #444; border-radius: 12px; padding: 20px; width: 100%; font-size: 17px; font-weight: 600; margin-bottom: 24px; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+
+/* Wires */
+.wires-container { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+.wire-row { display: flex; align-items: center; gap: 12px; width: 100%; position: relative; }
+.wire-btn { flex: 1; background: var(--panel); border: 1px solid #444; border-radius: 8px; padding: 12px 16px; color: #fff; font-size: 14px; text-align: left; cursor: pointer; position: relative; overflow: hidden; transition: 0.3s; z-index: 2;}
+.wire-color { width: 12px; height: 40px; border-radius: 6px; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); flex-shrink: 0; z-index: 2; transition: 0.3s; cursor: pointer;}
+.wire-cut-effect { position: absolute; left: -10px; right: -10px; top: 50%; height: 4px; background: #000; transform: translateY(-50%); z-index: 3; display: none; }
+
+/* Wire States */
+.cut .wire-btn { opacity: 0.3; background: #111; border-color: #222; pointer-events: none; }
+.cut .wire-color { opacity: 0.3; }
+.cut .wire-cut-effect { display: block; }
+.wire-red { background: var(--red); }
+.wire-blue { background: var(--blue); }
+.wire-green { background: var(--green); }
+.wire-yellow { background: var(--yellow); }
+
+/* End Screen */
+.end-score { font-size: 60px; font-weight: 800; color: var(--green); font-family: 'IBM Plex Mono', monospace; margin: 10px 0; text-shadow: 0 0 20px var(--green); }
+
+/* Leaderboard */
+.lb-container { background: var(--panel); border: 1px solid #333; border-radius: 12px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; margin-bottom: 20px; text-align: left; }
+.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px solid #222; }
+.lb-item:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+<div class="bg-pulse"></div>
+
+<!-- Loading -->
+<div id="ov-load" class="screen">
+  <div style="font-size:40px; margin-bottom:10px;">💣</div>
+  <div style="color:var(--red); font-weight:800;">กำลังวางระเบิด...</div>
+</div>
+
+<!-- Start -->
+<div id="start-ui" class="screen hidden">
+  <div style="font-size: 80px; margin-bottom: 10px; filter: drop-shadow(0 0 20px red);">💣</div>
+  <div class="title">กู้ระเบิด</div>
+  <div class="subtitle">ระวัง! ตัดสายที่ <b>"ผิด"</b> ทิ้ง 3 สายเพื่อกู้ระเบิด<br>หากเผลอตัดสายที่เป็น "คำตอบที่ถูก" ระเบิดจะทำงานทันที!</div>
+  
+  <button class="btn btn-red" onclick="startGame()">✂️ เข้าสู่ภารกิจกู้ระเบิด</button>
+  <button class="btn" onclick="showLeaderboard()">🏆 ทำเนียบหน่วย EOD</button>
+  <button class="btn" style="background:transparent; border:none; font-size:14px; color:#888;" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>
+</div>
+
+<!-- Game -->
+<div id="game-ui" class="screen hidden" style="justify-content: flex-start;">
+  <div class="bomb-header">
+    <div class="bomb-icon">💣</div>
+    <div class="timer" id="timer">30.0</div>
+    <div class="defused-count">กู้สำเร็จ: <span id="score">0</span></div>
+  </div>
+
+  <div class="q-box" id="q-text">คำถามจะแสดงที่นี่</div>
+
+  <div class="wires-container">
+    <div class="wire-row" id="row-0">
+      <div class="wire-color wire-red" onclick="cutWire(0)"></div>
+      <button class="wire-btn" id="btn-0" onclick="cutWire(0)">-</button>
+      <div class="wire-cut-effect"></div>
+    </div>
+    <div class="wire-row" id="row-1">
+      <div class="wire-color wire-blue" onclick="cutWire(1)"></div>
+      <button class="wire-btn" id="btn-1" onclick="cutWire(1)">-</button>
+      <div class="wire-cut-effect"></div>
+    </div>
+    <div class="wire-row" id="row-2">
+      <div class="wire-color wire-green" onclick="cutWire(2)"></div>
+      <button class="wire-btn" id="btn-2" onclick="cutWire(2)">-</button>
+      <div class="wire-cut-effect"></div>
+    </div>
+    <div class="wire-row" id="row-3">
+      <div class="wire-color wire-yellow" onclick="cutWire(3)"></div>
+      <button class="wire-btn" id="btn-3" onclick="cutWire(3)">-</button>
+      <div class="wire-cut-effect"></div>
+    </div>
+  </div>
+</div>
+
+<!-- End -->
+<div id="end-ui" class="screen hidden">
+  <div style="font-size: 60px; margin-bottom: 10px;">💥</div>
+  <div class="title" style="color:var(--red);">ระเบิดทำงาน!</div>
+  <div style="color:var(--muted); margin-bottom:10px;" id="fail-reason">คุณเผลอตัดสายที่ถูกต้องไป!</div>
+  
+  <div style="margin-top:20px;">กู้ระเบิดสำเร็จ</div>
+  <div class="end-score" id="end-score">0</div>
+  <div style="font-size: 14px; color:var(--muted); margin-bottom: 30px;">ลูก</div>
+  
+  <button class="btn btn-red" onclick="startGame()">🔄 ทำภารกิจใหม่</button>
+  <button class="btn" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบ EOD</button>
+</div>
+
+<!-- Leaderboard -->
+<div id="lb-ui" class="screen hidden" style="justify-content: flex-start;">
+  <div class="title" style="font-size:24px;">ทำเนียบหน่วย EOD</div>
+  <div class="subtitle" style="margin-bottom: 16px;">จัดอันดับจากจำนวนระเบิดที่กู้สำเร็จ</div>
+  
+  <div id="lb-loading" style="color:var(--red); margin: 20px 0;">กำลังตรวจสอบข้อมูล...</div>
+  <div class="lb-container" id="lb-list" style="display:none;"></div>
+  
+  <button class="btn" style="margin-top: auto;" onclick="closeLeaderboard()">← ย้อนกลับ</button>
+</div>
+
+<script>
+// ==============================================
+// CONFIG
+// ==============================================
+const LIFF_ID = 'YOUR-LIFF-CODEBREAKER-ID'; // << [ใส่ LIFF ID ของหน้ากู้ระเบิด]
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
+
+let allQs = [];
+let gamePool = [];
+let currentQIndex = 0;
+let score = 0;
+let wiresCutCount = 0;
+let isLocked = false;
+let currentCorrectAnswer = '';
+let userId = '';
+
+// Timer (30 Seconds per bomb)
+const TIME_LIMIT = 30;
+let timeLeft = 30.0;
+let timerInterval = null;
+
+async function init() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
+    
+    userId = (await liff.getProfile()).userId;
+    const data = await callAPI('GET', { action:'get_questions', userId: userId });
+    if (data.status === 'error') throw new Error(data.message);
+
+    allQs = data.questions || [];
+    if (allQs.length === 0) throw new Error(`ไม่พบข้อสอบในระบบ`);
+    if (!allQs[0].correctAnswer) throw new Error("ไม่พบเฉลย! กรุณาอัปเดต Code.gs เป็นเวอร์ชันล่าสุด");
+
+    document.getElementById('ov-load').classList.add('hidden');
+    document.getElementById('start-ui').classList.remove('hidden');
+  } catch(e) {
+    document.getElementById('ov-load').innerHTML = `<h2 style="color:var(--red);">ผิดพลาด</h2><p style="color:#aaa;">${e.message}</p>`;
+  }
+}
+
+function shuffleArray(array) {
+  let arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startGame() {
+  document.getElementById('start-ui').classList.add('hidden');
+  document.getElementById('end-ui').classList.add('hidden');
+  document.getElementById('game-ui').classList.remove('hidden');
+  
+  score = 0;
+  document.getElementById('score').textContent = '0';
+  gamePool = shuffleArray(allQs);
+  currentQIndex = 0;
+  
+  loadNextBomb();
+}
+
+function loadNextBomb() {
+  isLocked = false;
+  wiresCutCount = 0;
+
+  if (currentQIndex >= gamePool.length) {
+    gamePool = gamePool.concat(shuffleArray(allQs));
+  }
+
+  const q = gamePool[currentQIndex];
+  document.getElementById('q-text').textContent = q.questionText;
+  currentCorrectAnswer = (q.correctAnswer || '').toUpperCase();
+
+  const displayLetters = ['A', 'B', 'C', 'D'];
+  const shuffledKeys = displayLetters.filter(k => q.choices && q.choices[k]).sort(() => Math.random() - 0.5);
+
+  for(let i=0; i<4; i++) {
+    const row = document.getElementById(`row-${i}`);
+    const btn = document.getElementById(`btn-${i}`);
+    row.classList.remove('cut');
+    
+    if (i < shuffledKeys.length) {
+      row.style.display = 'flex';
+      const key = shuffledKeys[i];
+      btn.textContent = q.choices[key];
+      btn.setAttribute('data-real-key', key);
+    } else {
+      row.style.display = 'none'; // ซ่อนสายชนวนที่ไม่มีข้อมูล (กรณีโจทย์มี 3 ช้อยส์)
+    }
+  }
+
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = TIME_LIMIT;
+  document.getElementById('timer').style.color = 'var(--red)';
+  updateTimerUI();
+  
+  timerInterval = setInterval(() => {
+    timeLeft -= 0.1;
+    if (timeLeft <= 0) {
+      timeLeft = 0;
+      updateTimerUI();
+      explodeBomb("เวลาหมด! ระเบิดทำงาน");
+    } else {
+      updateTimerUI();
+    }
+  }, 100);
+}
+
+function updateTimerUI() {
+  document.getElementById('timer').textContent = timeLeft.toFixed(1);
+}
+
+function cutWire(index) {
+  if (isLocked) return;
+  
+  const row = document.getElementById(`row-${index}`);
+  if (row.classList.contains('cut')) return; // ตัดไปแล้ว
+
+  const btn = document.getElementById(`btn-${index}`);
+  const realKey = btn.getAttribute('data-real-key');
+  
+  if (realKey === currentCorrectAnswer) {
+    // 💥 ตัดโดนสายที่ถูก (ระเบิดทำงาน)
+    row.classList.add('cut');
+    explodeBomb("คุณเผลอตัดสายที่ถูกต้องไป!");
+  } else {
+    // ✅ ตัดสายลวงสำเร็จ
+    row.classList.add('cut');
+    wiresCutCount++;
+    
+    // เช็กว่าตัดสายลวงครบ 3 สาย (หรือครบจำนวนตัวเลือกที่ผิด) หรือยัง
+    const totalWrongWires = Array.from(document.querySelectorAll('.wire-row')).filter(r => r.style.display !== 'none').length - 1;
+    
+    if (wiresCutCount >= totalWrongWires) {
+      // กู้ระเบิดสำเร็จ!
+      isLocked = true;
+      clearInterval(timerInterval);
+      document.getElementById('timer').style.color = 'var(--green)';
+      score++;
+      document.getElementById('score').textContent = score;
+      
+      setTimeout(() => {
+        currentQIndex++;
+        loadNextBomb();
+      }, 1000);
+    }
+  }
+}
+
+function explodeBomb(reason) {
+  isLocked = true;
+  clearInterval(timerInterval);
+  
+  // Flash Effect
+  const flash = document.createElement('div');
+  flash.className = 'flash';
+  document.body.appendChild(flash);
+  setTimeout(() => flash.remove(), 1500);
+
+  document.getElementById('fail-reason').textContent = reason;
+  
+  setTimeout(() => {
+    document.getElementById('game-ui').classList.add('hidden');
+    document.getElementById('end-ui').classList.remove('hidden');
+    document.getElementById('end-score').textContent = score;
+    
+    if (score > 0) {
+      callAPI('POST', { action: 'submit_codebreaker_score', userId: userId, defusedCount: score })
+        .catch(e => console.error(e));
+    }
+  }, 1500);
+}
+
+async function showLeaderboard() {
+  document.getElementById('start-ui').classList.add('hidden');
+  document.getElementById('lb-ui').classList.remove('hidden');
+  loadLeaderboardData();
+}
+
+function showLeaderboardFromEnd() {
+  document.getElementById('end-ui').classList.add('hidden');
+  document.getElementById('lb-ui').classList.remove('hidden');
+  loadLeaderboardData();
+}
+
+function closeLeaderboard() {
+  document.getElementById('lb-ui').classList.add('hidden');
+  document.getElementById('start-ui').classList.remove('hidden');
+}
+
+async function loadLeaderboardData() {
+  document.getElementById('lb-loading').style.display = 'block';
+  document.getElementById('lb-list').style.display = 'none';
+
+  try {
+    const res = await callAPI('GET', { action:'get_codebreaker_leaderboard' });
+    if (res.status === 'error') throw new Error(res.message);
+
+    const list = document.getElementById('lb-list');
+    list.innerHTML = '';
+    
+    if (res.leaderboard.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding:20px; color:#777;">ยังไม่มีใครกู้ระเบิดได้สำเร็จ</div>';
+    } else {
+      res.leaderboard.forEach((e, i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+        const isMe = e.userId === userId ? 'color:var(--red); font-weight:800;' : '';
+        
+        list.innerHTML += `
+          <div class="lb-item">
+            <div style="font-size:16px; font-weight:800; width:30px; color:#aaa;">${medal}</div>
+            <div style="flex:1; ${isMe}">
+              <div>${e.fullName}</div>
+              <div style="font-size:11px; color:#666;">${e.rank} ${e.position}</div>
+            </div>
+            <div style="font-size:18px; font-weight:800; color:var(--green); font-family:monospace;">${e.defusedCount}</div>
+          </div>
+        `;
+      });
+    }
+    document.getElementById('lb-loading').style.display = 'none';
+    list.style.display = 'block';
+  } catch(e) {
+    document.getElementById('lb-loading').textContent = '❌ โหลดข้อมูลล้มเหลว';
+  }
+}
+
+async function callAPI(method, params, timeoutMs=20000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
+    const resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
