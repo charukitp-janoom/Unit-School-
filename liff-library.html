@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Unit School — คลังความรู้</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0c10; --surface: #1f2833; --border: #30363d;
+  --primary: #4fc3f7; --primary-dark: #0288d1;
+  --text: #e6edf3; --muted: #8b949e;
+  --pdf: #f85149; --video: #ff9800; --link: #2ea043;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+/* Overlays */
+.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 20px; text-align: center; }
+.hidden { display: none !important; }
+.spinner { width: 50px; height: 50px; border: 3px solid rgba(79,195,247,0.1); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Header */
+.header { background: linear-gradient(135deg, #0d47a1, #1565c0); padding: 20px; text-align: center; border-bottom: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.header-title { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 5px; }
+.header-sub { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+/* Search & Filter */
+.toolbar { padding: 16px; background: var(--surface); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+.search-box { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; color: var(--text); font-family: 'Sarabun', sans-serif; font-size: 15px; outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
+.search-box:focus { border-color: var(--primary); }
+
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: 0 0 auto; padding: 8px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--muted); cursor: pointer; transition: 0.2s; }
+.tab.active { background: rgba(79,195,247,0.15); border-color: var(--primary); color: var(--primary); }
+
+/* Content List */
+.content-area { padding: 16px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: center; cursor: pointer; transition: 0.2s; }
+.card:active { transform: scale(0.98); background: rgba(255,255,255,0.05); }
+
+.card-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+.card.t-pdf .card-icon { background: rgba(248,81,73,0.15); color: var(--pdf); }
+.card.t-video .card-icon { background: rgba(255,152,0,0.15); color: var(--video); }
+.card.t-link .card-icon { background: rgba(46,160,67,0.15); color: var(--link); }
+
+.card-info { flex: 1; overflow: hidden; }
+.card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; background: var(--bg); border: 1px solid var(--border); }
+
+.empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div id="ov-load" class="ov">
+  <div class="spinner"></div>
+  <div style="font-weight:800; color:var(--text);">กำลังดึงคลังความรู้...</div>
+</div>
+
+<div class="header">
+  <div class="header-title">📚 คลังความรู้ดิจิทัล</div>
+  <div class="header-sub">Unit School — ศูนย์รวมคู่มือ วิดีโอ และสื่อการสอน</div>
+</div>
+
+<div class="toolbar">
+  <input type="text" class="search-box" id="search-inp" placeholder="🔍 ค้นหาหัวข้อ หรือ รายวิชา..." onkeyup="filterData()">
+  <div class="tabs" id="category-tabs">
+    <!-- Categories inserted here -->
+  </div>
+</div>
+
+<div class="content-area" id="material-list">
+  <!-- Items inserted here -->
+</div>
+
+<script>
+const LIFF_ID = '2009717287-o7MWqsbp'; // << [ใส่ LIFF ID ของหน้า Library]
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
+
+let allMaterials = [];
+let activeCategory = 'ALL';
+
+async function init() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
+    
+    await fetchData();
+  } catch(e) {
+    showError(e.message);
+  }
+}
+
+async function fetchData() {
+  try {
+    const data = await callAPI('GET', { action: 'get_library_data' });
+    if (data.status === 'error') throw new Error(data.message);
+    
+    allMaterials = data.materials || [];
+    renderCategories();
+    filterData();
+    document.getElementById('ov-load').classList.add('hidden');
+  } catch(e) {
+    showError('ไม่สามารถเชื่อมต่อฐานข้อมูลได้: ' + e.message);
+  }
+}
+
+function renderCategories() {
+  const tabsContainer = document.getElementById('category-tabs');
+  const categories = [...new Set(allMaterials.map(m => m.category))];
+  
+  let html = `<div class="tab active" onclick="setCategory('ALL', this)">🏷️ ทั้งหมด</div>`;
+  categories.forEach(cat => {
+    html += `<div class="tab" onclick="setCategory('${cat}', this)">${cat}</div>`;
+  });
+  tabsContainer.innerHTML = html;
+}
+
+function setCategory(cat, el) {
+  activeCategory = cat;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  filterData();
+}
+
+function filterData() {
+  const query = document.getElementById('search-inp').value.toLowerCase();
+  const listContainer = document.getElementById('material-list');
+  
+  const filtered = allMaterials.filter(m => {
+    const matchCat = activeCategory === 'ALL' || m.category === activeCategory;
+    const matchSearch = m.title.toLowerCase().includes(query) || m.category.toLowerCase().includes(query);
+    return matchCat && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    listContainer.innerHTML = `<div class="empty-state">❌ ไม่พบข้อมูลที่ค้นหา</div>`;
+    return;
+  }
+
+  listContainer.innerHTML = filtered.map(m => {
+    const typeClass = m.type.toUpperCase() === 'PDF' ? 't-pdf' : m.type.toUpperCase() === 'VIDEO' ? 't-video' : 't-link';
+    const icon = m.type.toUpperCase() === 'PDF' ? '📄' : m.type.toUpperCase() === 'VIDEO' ? '🎥' : '🔗';
+    
+    return `
+      <div class="card ${typeClass}" onclick="openMaterial('${m.url}')">
+        <div class="card-icon">${icon}</div>
+        <div class="card-info">
+          <div class="card-title">${m.title}</div>
+          <div class="card-meta">
+            <span class="badge">${m.type.toUpperCase()}</span>
+            <span>${m.category}</span>
+          </div>
+        </div>
+        <div style="color:var(--muted); font-size:18px;">›</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openMaterial(url) {
+  // เปิดลิงก์โดยใช้ LIFF Browser เพื่อความไร้รอยต่อ
+  liff.openWindow({
+    url: url,
+    external: true
+  });
+}
+
+function showError(msg) {
+  const el = document.getElementById('ov-load');
+  el.innerHTML = `<div style="font-size:40px; margin-bottom:10px;">⚠️</div><p style="color:#f85149;">${msg}</p><button onclick="liff.closeWindow()" style="margin-top:20px; padding:10px 20px; background:#1f2833; border:1px solid #30363d; color:#fff; border-radius:8px;">ปิดหน้าต่าง</button>`;
+}
+
+async function callAPI(method, params, timeoutMs=20000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + newSearchParams(params);
+      opts.method = 'GET';
+    }
+    const resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+function newSearchParams(params) {
+  const p = new URLSearchParams();
+  for (const key in params) p.append(key, params[key]);
+  return p.toString();
+}
+
+init();
+</script>
+</body>
+</html>
