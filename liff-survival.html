@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Unit School — Survival Mode</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-color: #120909;
+  --panel-bg: #1c1111;
+  --fire: #ff3d00;
+  --orange: #ff9100;
+  --yellow: #ffea00;
+  --btn-grad: linear-gradient(180deg, #ff5252 0%, #d50000 100%);
+  --border: #5c1818;
+  --text: #ffffff;
+  --correct: #00e676;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: var(--text); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* Background effect */
+.bg-glow { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100vw; height: 40vh; background: radial-gradient(ellipse at top, rgba(213,0,0,0.25) 0%, rgba(18,9,9,0) 70%); z-index: -1; pointer-events: none; }
+
+/* Overlays */
+.ov { position: fixed; inset: 0; background: rgba(18,9,9,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 20px; text-align: center; }
+.ov.hidden { display: none !important; }
+.spinner { width: 60px; height: 60px; border: 4px solid rgba(255,61,0,0.1); border-top: 4px solid var(--fire); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Screens */
+.screen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 500px; margin: 0 auto; height: 100%; flex: 1; padding: 20px 16px; }
+.start-logo { font-size: 80px; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(255,61,0,0.6)); animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.title { font-size: 36px; font-weight: 800; color: var(--fire); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px;}
+.subtitle { font-size: 14px; color: #ffab91; margin-bottom: 40px; line-height: 1.6; }
+
+/* Buttons */
+.btn { background: var(--btn-grad); color: #fff; border: 2px solid #ff8a80; padding: 16px 32px; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; width: 100%; font-family: 'Sarabun', sans-serif; transition: 0.2s; box-shadow: 0 4px 15px rgba(213,0,0,0.5); margin-bottom: 12px; }
+.btn:active { transform: scale(0.96); }
+.btn-outline { background: transparent; border: 2px solid var(--orange); color: var(--orange); box-shadow: none; }
+.btn-outline:active { background: rgba(255,145,0,0.1); }
+.btn-close { background: transparent; border: none; color: #888; text-decoration: underline; box-shadow: none; font-size: 14px; margin-top: 20px;}
+
+/* Game Header */
+.game-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.streak-box { background: rgba(255,61,0,0.15); border: 1px solid var(--fire); padding: 8px 16px; border-radius: 20px; font-size: 20px; font-weight: 800; color: var(--orange); display: flex; align-items: center; gap: 8px; font-family: 'IBM Plex Mono', monospace; }
+.life-box { font-size: 24px; filter: drop-shadow(0 0 5px red); }
+
+/* Timer Bar */
+.timer-container { width: 100%; background: var(--panel-bg); border: 1px solid var(--border); border-radius: 10px; height: 16px; overflow: hidden; margin-bottom: 20px; position: relative; }
+.timer-bar { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--orange), var(--fire)); width: 100%; border-radius: 10px; }
+
+/* Question Box */
+.q-card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px 20px; text-align: center; font-size: 18px; font-weight: 600; line-height: 1.6; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+
+/* Choices */
+.choices { display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%; }
+.choice-btn { background: rgba(255,255,255,0.03); border: 2px solid var(--border); border-radius: 12px; padding: 16px; color: var(--text); font-size: 16px; font-family: 'Sarabun', sans-serif; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; overflow: hidden; }
+.choice-btn.selected { border-color: var(--yellow); background: rgba(255,234,0,0.1); }
+.choice-btn.correct { background: var(--correct); border-color: #fff; color: #000; box-shadow: 0 0 15px rgba(0,230,118,0.5); font-weight: 700; }
+.choice-btn.wrong { background: var(--fire); border-color: #fff; color: #fff; box-shadow: 0 0 15px rgba(255,61,0,0.5); font-weight: 700; }
+
+/* Leaderboard */
+.lb-container { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; margin-bottom: 20px; text-align: left; }
+.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.lb-item:last-child { border-bottom: none; }
+.lb-rank { font-size: 16px; font-weight: 800; color: var(--orange); width: 30px; }
+.lb-name { flex: 1; font-size: 15px; color: var(--text); }
+.lb-score { font-size: 18px; font-weight: 800; color: var(--yellow); font-family: 'IBM Plex Mono', monospace; }
+
+/* End Screen */
+.end-score { font-size: 80px; font-weight: 800; color: var(--yellow); font-family: 'IBM Plex Mono', monospace; line-height: 1; margin: 10px 0; text-shadow: 0 0 30px var(--fire); }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<!-- Loading -->
+<div id="ov-load" class="ov">
+  <div class="spinner"></div>
+  <h2 style="color:var(--fire);">โหลดกระสุน...</h2>
+  <p style="color:#ffab91; margin-top:10px;" id="load-msg">กำลังดึงคลังข้อสอบทั้งหมด</p>
+</div>
+
+<!-- Start Screen -->
+<div id="start-ui" class="screen" style="display:none;">
+  <div class="start-logo">💀</div>
+  <div class="title">Survival</div>
+  <div class="subtitle">โหมดเอาชีวิตรอด<br>ข้อละ 10 วินาที พลาด 1 ครั้งจบเกม!<br>ทำสถิติให้ได้มากที่สุด!</div>
+  
+  <button class="btn" onclick="startGame()">🔥 เริ่มเอาชีวิตรอด</button>
+  <button class="btn btn-outline" onclick="showLeaderboard()">🏆 ทำเนียบผู้รอดชีวิต</button>
+  <button class="btn btn-close" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>
+</div>
+
+<!-- Leaderboard UI -->
+<div id="lb-ui" class="screen" style="display:none; justify-content: flex-start; padding-top: 40px;">
+  <div class="title" style="font-size: 28px;">ทำเนียบผู้รอดชีวิต</div>
+  <div class="subtitle" style="margin-bottom: 16px;">จัดอันดับจากสถิติ Streak (ตอบถูกต่อเนื่อง)</div>
+  
+  <div id="lb-loading" style="color:var(--orange); margin: 20px 0;">กำลังค้นหาข้อมูล...</div>
+  <div class="lb-container" id="lb-list" style="display:none;"></div>
+  
+  <button class="btn btn-outline" style="margin-top: auto;" onclick="closeLeaderboard()">← ย้อนกลับ</button>
+</div>
+
+<!-- Game UI -->
+<div id="game-ui" class="screen" style="display:none; justify-content: flex-start;">
+  <div class="game-header">
+    <div class="streak-box">🔥 <span id="streak-count">0</span></div>
+    <div class="life-box" id="life-icon">❤️</div>
+  </div>
+
+  <div class="timer-container">
+    <div class="timer-bar" id="timer-bar"></div>
+  </div>
+
+  <div class="q-card" id="q-text">
+    คำถาม?
+  </div>
+
+  <div class="choices">
+    <button class="choice-btn" id="btn-A" onclick="selectAnswer('A')">-</button>
+    <button class="choice-btn" id="btn-B" onclick="selectAnswer('B')">-</button>
+    <button class="choice-btn" id="btn-C" onclick="selectAnswer('C')">-</button>
+    <button class="choice-btn" id="btn-D" onclick="selectAnswer('D')">-</button>
+  </div>
+</div>
+
+<!-- End Screen -->
+<div id="end-ui" class="ov hidden">
+  <div class="screen">
+    <div style="font-size: 60px; margin-bottom: 10px;">💀</div>
+    <div class="title" style="color:#fff;">GAME OVER</div>
+    <div style="color:#ffab91;">คุณเอาชีวิตรอดไปได้</div>
+    <div class="end-score" id="end-streak">0</div>
+    <div style="font-size: 14px; color:#aaa; margin-bottom: 30px;">ข้อ</div>
+    
+    <button class="btn" onclick="startGame()">🔄 ลองใหม่อีกครั้ง</button>
+    <button class="btn btn-outline" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบ</button>
+    <button class="btn btn-close" onclick="liff.closeWindow()">กลับสู่หน้าหลัก LINE</button>
+  </div>
+</div>
+
+<script>
+// ==============================================
+// CONFIG
+// ==============================================
+const LIFF_ID = 'YOUR-LIFF-SURVIVAL-ID';   // << [ใส่ LIFF ID ของหน้า Survival]
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
+
+let allQs = [];
+let gamePool = [];
+let currentQIndex = 0;
+let currentStreak = 0;
+let isLocked = false;
+let currentCorrectAnswer = '';
+let userId = '';
+
+// Timer (10 Seconds)
+const TIME_LIMIT_MS = 10000;
+let timerTimeout = null;
+
+async function init() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
+    
+    const profile = await liff.getProfile();
+    userId = profile.userId;
+    
+    // ดึงข้อสอบทั้งหมด
+    const data = await callAPI('GET', { action:'get_questions', userId: userId });
+    if (data.status === 'error') throw new Error(data.message);
+
+    allQs = data.questions || [];
+    if (allQs.length === 0) throw new Error(`ไม่พบข้อสอบในระบบเลย`);
+    
+    if (!allQs[0].correctAnswer) {
+       throw new Error("⚠️ ไม่พบข้อมูลเฉลย! กรุณาไปที่ Google Apps Script แล้วกด Deploy -> New version");
+    }
+
+    document.getElementById('ov-load').classList.add('hidden');
+    document.getElementById('start-ui').style.display = 'flex';
+  } catch(e) {
+    document.getElementById('ov-load').innerHTML = `<h2 style="color:var(--fire);font-size:24px;">เกิดข้อผิดพลาด</h2><p style="color:#ffab91;">${e.message}</p><button class="btn btn-outline" style="margin-top:20px;" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>`;
+  }
+}
+
+// ผสมข้อสอบ
+function shuffleArray(array) {
+  let arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startGame() {
+  document.getElementById('start-ui').style.display = 'none';
+  document.getElementById('end-ui').classList.add('hidden');
+  document.getElementById('game-ui').style.display = 'flex';
+  
+  currentStreak = 0;
+  document.getElementById('streak-count').textContent = '0';
+  document.getElementById('life-icon').textContent = '❤️';
+  
+  // สุ่มข้อสอบเข้า Pool ถ้าหมดก็สุ่มเติมใหม่เรื่อยๆ
+  gamePool = shuffleArray(allQs);
+  currentQIndex = 0;
+  
+  loadNextQuestion();
+}
+
+function loadNextQuestion() {
+  isLocked = false;
+
+  // ถ้าคำถามใน Pool กำลังจะหมด ให้เติมเข้าไปอีก (Endless Mode)
+  if (currentQIndex >= gamePool.length) {
+    gamePool = gamePool.concat(shuffleArray(allQs));
+  }
+
+  const q = gamePool[currentQIndex];
+  document.getElementById('q-text').textContent = q.questionText;
+  currentCorrectAnswer = (q.correctAnswer || '').toUpperCase();
+
+  const displayLetters = ['A', 'B', 'C', 'D'];
+  const shuffledKeys = displayLetters.filter(k => q.choices && q.choices[k]).sort(() => Math.random() - 0.5);
+
+  // รีเซ็ตและซ่อนปุ่ม
+  displayLetters.forEach(l => {
+    const btn = document.getElementById(`btn-${l}`);
+    btn.className = 'choice-btn';
+    btn.style.display = 'none'; 
+  });
+
+  shuffledKeys.forEach((key, index) => {
+    const letter = displayLetters[index];
+    const btn = document.getElementById(`btn-${letter}`);
+    btn.style.display = 'block'; 
+    btn.textContent = q.choices[key];
+    btn.setAttribute('data-real-key', key);
+  });
+
+  startTimerBar();
+}
+
+function startTimerBar() {
+  clearTimeout(timerTimeout);
+  const bar = document.getElementById('timer-bar');
+  
+  // รีเซ็ตหลอดเวลาทันที
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+  
+  // ปล่อยให้เบราว์เซอร์เรนเดอร์ width 100% ก่อนเริ่ม transition
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      bar.style.transition = `width ${TIME_LIMIT_MS}ms linear`;
+      bar.style.width = '0%';
+    });
+  });
+
+  // ตั้งเวลาตาย (Game Over)
+  timerTimeout = setTimeout(() => {
+    if (!isLocked) {
+      handleWrongAnswer(null, true);
+    }
+  }, TIME_LIMIT_MS);
+}
+
+function selectAnswer(displayLetter) {
+  if (isLocked) return;
+  isLocked = true;
+  
+  // หยุดหลอดเวลา
+  clearTimeout(timerTimeout);
+  const bar = document.getElementById('timer-bar');
+  bar.style.width = bar.offsetWidth + 'px'; // ค้างความยาวหลอดไว้ที่เดิม
+  bar.style.transition = 'none';
+
+  const btn = document.getElementById(`btn-${displayLetter}`);
+  const realKey = btn.getAttribute('data-real-key');
+  
+  if (realKey === currentCorrectAnswer) {
+    // ตอบถูก!
+    btn.classList.add('correct');
+    currentStreak++;
+    document.getElementById('streak-count').textContent = currentStreak;
+    
+    setTimeout(() => {
+      currentQIndex++;
+      loadNextQuestion();
+    }, 600); // ดีเลย์แปบนึงให้รู้ว่าตอบถูก
+  } else {
+    // ตอบผิด 💀
+    handleWrongAnswer(btn, false);
+  }
+}
+
+function handleWrongAnswer(wrongBtn, isTimeout) {
+  isLocked = true;
+  document.getElementById('life-icon').textContent = '💔';
+  
+  if (isTimeout) {
+    document.getElementById('q-text').innerHTML = `<span style="color:var(--fire); font-size:24px;">⏰ หมดเวลา!</span><br>` + document.getElementById('q-text').innerHTML;
+  } else if (wrongBtn) {
+    wrongBtn.classList.add('wrong');
+  }
+
+  // เฉลยข้อที่ถูกต้อง
+  ['A','B','C','D'].forEach(l => {
+    const b = document.getElementById(`btn-${l}`);
+    if (b.getAttribute('data-real-key') === currentCorrectAnswer) {
+      b.classList.add('correct');
+    }
+  });
+
+  setTimeout(() => { endGame(); }, 2000);
+}
+
+function endGame() {
+  document.getElementById('game-ui').style.display = 'none';
+  const endUI = document.getElementById('end-ui');
+  endUI.classList.remove('hidden');
+  
+  document.getElementById('end-streak').textContent = currentStreak;
+
+  // ส่งคะแนนไปเซิร์ฟเวอร์
+  if (currentStreak > 0) {
+    callAPI('POST', { 
+      action: 'submit_survival_score', 
+      userId: userId,
+      streak: currentStreak
+    }).catch(e => console.error("Error saving score:", e));
+  }
+}
+
+// ==============================================
+// LEADERBOARD
+// ==============================================
+async function showLeaderboard() {
+  document.getElementById('start-ui').style.display = 'none';
+  document.getElementById('lb-ui').style.display = 'flex';
+  loadLeaderboardData();
+}
+
+function showLeaderboardFromEnd() {
+  document.getElementById('end-ui').classList.add('hidden');
+  document.getElementById('lb-ui').style.display = 'flex';
+  loadLeaderboardData();
+}
+
+function closeLeaderboard() {
+  document.getElementById('lb-ui').style.display = 'none';
+  document.getElementById('start-ui').style.display = 'flex';
+}
+
+async function loadLeaderboardData() {
+  document.getElementById('lb-loading').style.display = 'block';
+  document.getElementById('lb-list').style.display = 'none';
+
+  try {
+    const res = await callAPI('GET', { action:'get_survival_leaderboard' });
+    if (res.status === 'error') throw new Error(res.message);
+
+    const list = document.getElementById('lb-list');
+    list.innerHTML = '';
+    
+    if (res.leaderboard.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">ยังไม่มีผู้รอดชีวิต<br><br>มาทำสถิติเป็นคนแรกเลย!</div>';
+    } else {
+      res.leaderboard.forEach((e, i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+        const isMe = e.userId === userId ? 'color:var(--orange);' : '';
+        
+        list.innerHTML += `
+          <div class="lb-item">
+            <div class="lb-rank">${medal}</div>
+            <div class="lb-name" style="${isMe}">
+              <div style="font-weight:700">${e.fullName}</div>
+              <div style="font-size:11px; color:#888;">${e.rank} ${e.position}</div>
+            </div>
+            <div class="lb-score">${e.streak} 🔥</div>
+          </div>
+        `;
+      });
+    }
+    document.getElementById('lb-loading').style.display = 'none';
+    list.style.display = 'block';
+
+  } catch(e) {
+    document.getElementById('lb-loading').innerHTML = '<span style="color:var(--fire)">❌ โหลดข้อมูลล้มเหลว</span>';
+  }
+}
+
+// API Helper
+async function callAPI(method, params, timeoutMs=20000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
+    const resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
