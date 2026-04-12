@@ -13,6 +13,7 @@
   --shape-blue: #1368ce;
   --shape-yellow: #d89e00;
   --shape-green: #26890c;
+  --gold: #ffc107;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Sarabun', sans-serif; background: var(--bg); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
@@ -27,6 +28,8 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); overflow: hidd
 .status-sub { font-size: 16px; opacity: 0.8; }
 .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse-opacity { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+.pulse-anim { animation: pulse-opacity 1.5s infinite; }
 
 /* Joystick Buttons */
 .game-screen { background: #f2f2f2; padding: 10px; }
@@ -58,9 +61,20 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); overflow: hidd
 </div>
 
 <div id="screen-lobby" class="screen status-screen hidden">
-  <div class="status-title" style="font-size: 40px; margin-bottom: 20px;">คุณอยู่ในห้องแล้ว!</div>
-  <div class="status-sub">รหัสประจำตัว: <span id="u-name" style="font-weight:800;">-</span></div>
-  <div class="status-sub" style="margin-top:40px; font-size:20px;">👀 มองที่หน้าจอโปรเจคเตอร์เลยครับ</div>
+  <div style="font-size: 50px; margin-bottom: 10px;">🎮</div>
+  <div class="status-title" style="font-size: 26px; margin-bottom: 10px;">คุณอยู่ในห้องสอบแล้ว!</div>
+  <div class="status-sub" style="margin-bottom:20px;">รหัสประจำตัว: <span id="u-name" style="font-weight:800; color:var(--gold);">-</span></div>
+  
+  <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 20px; text-align: left; width: 100%; max-width: 400px; margin-top: 10px;">
+    <div style="font-size: 16px; font-weight: 800; color: var(--gold); margin-bottom: 12px; text-align: center;">📖 กติกาและวิธีการเล่น</div>
+    <div style="font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; gap: 8px; color: #ddd;">
+      <div>1️⃣ <b style="color:#fff;">อ่านคำถามและตัวเลือก</b> ที่หน้าจอโปรเจคเตอร์ด้านหน้าห้องเรียน</div>
+      <div>2️⃣ <b style="color:#fff;">กดปุ่มสีบนมือถือ</b> ให้ตรงกับคำตอบที่คุณคิดว่าถูกต้อง</div>
+      <div>3️⃣ <b style="color:#fff;">ตอบให้ไวที่สุด!</b> ยิ่งตอบเร็ว ยิ่งได้คะแนนโบนัสเยอะ (คะแนนลดหลั่นตามเวลา)</div>
+    </div>
+  </div>
+
+  <div class="status-sub pulse-anim" style="margin-top:30px; font-size:16px;">⏳ รอครูฝึกกดเริ่มข้อสอบ...</div>
 </div>
 
 <div id="screen-game" class="screen game-screen hidden">
