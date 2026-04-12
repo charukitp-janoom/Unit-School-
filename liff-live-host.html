@@ -30,7 +30,6 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 /* Login & Setup */
 .setup-box { background: var(--panel); padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 400px; }
 input, select { width: 100%; padding: 16px; margin: 10px 0 20px; font-size: 20px; border-radius: 8px; border: 2px solid #ccc; text-align: center; font-family: inherit;}
-select { cursor: pointer; background: #f8f9fa; }
 
 /* Lobby */
 .lobby-screen { background: #46178f; color: #fff; }
@@ -55,6 +54,12 @@ select { cursor: pointer; background: #f8f9fa; }
 .shape-green { border-radius: 8px; }
 .dimmed { opacity: 0.3; }
 
+/* เพิ่ม CSS สีพื้นหลังตรงนี้ครับ */
+.bg-red { background: var(--shape-red); }
+.bg-blue { background: var(--shape-blue); }
+.bg-yellow { background: var(--shape-yellow); }
+.bg-green { background: var(--shape-green); }
+
 /* Chart */
 .chart-container { display: flex; align-items: flex-end; justify-content: center; gap: 40px; height: 250px; margin-top: 40px; width: 100%;}
 .bar-wrap { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; width: 120px; }
@@ -65,7 +70,7 @@ select { cursor: pointer; background: #f8f9fa; }
 .sb-screen { background: #46178f; color: #fff; }
 .podium { display: flex; align-items: flex-end; justify-content: center; gap: 20px; height: 400px; margin-top: 50px; }
 .podium-place { display: flex; flex-direction: column; align-items: center; width: 200px; }
-.p-name { font-size: 24px; font-weight: 800; margin-bottom: 10px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.p-name { font-size: 24px; font-weight: 800; margin-bottom: 10px; text-align: center; white-space: nowrap; }
 .p-score { font-size: 20px; font-family: monospace; margin-bottom: 20px; }
 .p-block { width: 100%; background: #864cbf; border-top-left-radius: 16px; border-top-right-radius: 16px; display: flex; align-items: flex-start; justify-content: center; padding-top: 20px; font-size: 64px; font-weight: 800; color: rgba(255,255,255,0.5);}
 .p-1 .p-block { height: 300px; background: #ffd700; color: #b8860b; }
@@ -83,16 +88,14 @@ select { cursor: pointer; background: #f8f9fa; }
     <div style="font-size: 60px; margin-bottom: 10px;">🎮</div>
     <h2>ระบบควบคุมห้องสอบสด</h2>
     <input type="password" id="admin-pin" placeholder="รหัสผ่าน Admin">
-    <button class="btn btn-primary" style="width: 100%" id="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <button class="btn btn-primary" style="width: 100%" onclick="doLogin()">เข้าสู่ระบบ</button>
   </div>
 </div>
 
 <div id="screen-setup" class="screen hidden">
   <div class="setup-box">
     <h2>📚 เลือกวิชาที่จะเปิดสอบ</h2>
-    <select id="sel-subject">
-      <option value="">กำลังโหลดวิชา...</option>
-    </select>
+    <select id="sel-subject"></select>
     <button class="btn btn-primary" style="width: 100%" onclick="startRoom()" id="btn-start">เปิดห้องเรียน</button>
   </div>
 </div>
@@ -115,6 +118,7 @@ select { cursor: pointer; background: #f8f9fa; }
         </div>
       </div>
       
+      <!-- Chart (Hidden initially) -->
       <div class="chart-container hidden" id="h-chart">
         <div class="bar-wrap"><div class="bar-count" id="c-A">0</div><div class="bar bg-red" id="b-A" style="height:0%"></div></div>
         <div class="bar-wrap"><div class="bar-count" id="c-B">0</div><div class="bar bg-blue" id="b-B" style="height:0%"></div></div>
@@ -135,7 +139,8 @@ select { cursor: pointer; background: #f8f9fa; }
 <div id="screen-scoreboard" class="screen sb-screen hidden">
   <h1 style="font-size: 64px; margin-top: 40px;">🏆 อันดับคะแนน</h1>
   <div class="podium" id="podium-wrap">
-    </div>
+    <!-- Rendered via JS -->
+  </div>
 </div>
 
 <div class="top-controls hidden" id="top-ctrl">
@@ -144,9 +149,7 @@ select { cursor: pointer; background: #f8f9fa; }
 </div>
 
 <script>
-// >>> ใส่ URL ของเว็บแอป (GAS_URL) ของคุณที่นี่ <<<
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
-
 let adminSecret = '';
 let pollInterval = null;
 let countdownInterval = null;
@@ -162,80 +165,41 @@ function showScreen(id) {
   document.getElementById('top-ctrl').classList.toggle('hidden', id === 'screen-login' || id === 'screen-setup');
 }
 
-// 💡 แก้ไขการดึงรายวิชาให้ใช้สิทธิ์ Admin แทน เพื่อไม่ให้ติดปัญหา User HOST ไม่ได้ลงทะเบียน
 async function doLogin() {
   const secret = document.getElementById('admin-pin').value;
   if(!secret) return;
-
-  const btn = document.getElementById('btn-login');
-  btn.textContent = 'กำลังตรวจสอบ...';
-  btn.disabled = true;
-
-  try {
-    const res = await callAPI('POST', { action:'admin_login', userId:'HOST', secret });
-    if(res.status === 'ok') {
-      adminSecret = secret;
-      
-      // โหลดข้อมูลข้อสอบทั้งหมดผ่าน admin_data แล้วนำมาแยกเฉพาะหมวดหมู่ (รายวิชา)
-      const adminRes = await callAPI('GET', { action:'admin_data', secret: adminSecret });
-      
-      if(adminRes.status === 'ok' && adminRes.questions) {
-        // กรองหมวดหมู่วิชาที่ไม่ซ้ำกัน
-        const categories = [...new Set(adminRes.questions.map(q => q.category || 'ทั่วไป'))];
-        
-        if (categories.length > 0) {
-          document.getElementById('sel-subject').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
-        } else {
-          document.getElementById('sel-subject').innerHTML = `<option value="">ยังไม่มีข้อสอบในระบบ</option>`;
-        }
-      }
-      showScreen('screen-setup');
-    } else {
-      alert('รหัสผ่านไม่ถูกต้อง');
+  const res = await callAPI('POST', { action:'admin_login', userId:'HOST', secret });
+  if(res.status === 'ok') {
+    adminSecret = secret;
+    const subRes = await callAPI('GET', { action:'get_subjects', userId:'HOST' });
+    if(subRes.subjects) {
+      document.getElementById('sel-subject').innerHTML = subRes.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
     }
-  } catch (e) {
-    alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + e.message);
-  } finally {
-    btn.textContent = 'เข้าสู่ระบบ';
-    btn.disabled = false;
-  }
+    showScreen('screen-setup');
+  } else alert('รหัสผิดพลาด');
 }
 
 async function startRoom() {
   const subj = document.getElementById('sel-subject').value;
-  if (!subj) return alert('กรุณาเลือกวิชาที่จะเปิดสอบ');
-
   document.getElementById('btn-start').textContent = 'กำลังเปิดห้อง...';
-  document.getElementById('btn-start').disabled = true;
-
-  try {
-    const res = await callAPI('POST', { action:'live_host_action', secret:adminSecret, command:'START', subject:subj });
-    if(res.status === 'ok') {
-      currentState = res.state;
-      showScreen('screen-lobby');
-      startPolling();
-    } else {
-      alert(res.message);
-    }
-  } catch (e) {
-    alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
-  } finally {
-    document.getElementById('btn-start').textContent = 'เปิดห้องเรียน';
-    document.getElementById('btn-start').disabled = false;
-  }
+  const res = await callAPI('POST', { action:'live_host_action', secret:adminSecret, command:'START', subject:subj });
+  if(res.status === 'ok') {
+    currentState = res.state;
+    showScreen('screen-lobby');
+    startPolling();
+  } else alert(res.message);
+  document.getElementById('btn-start').textContent = 'เปิดห้องเรียน';
 }
 
 function startPolling() {
   clearInterval(pollInterval);
   pollInterval = setInterval(async () => {
-    try {
-      const res = await callAPI('GET', { action:'live_get_state', isHost:'true' });
-      if(res.status === 'ok') {
-        currentState = res.state;
-        currentAnswers = res.answers || [];
-        updateHostUI();
-      }
-    } catch(e) {}
+    const res = await callAPI('GET', { action:'live_get_state', isHost:'true' });
+    if(res.status === 'ok') {
+      currentState = res.state;
+      currentAnswers = res.answers || [];
+      updateHostUI();
+    }
   }, 1500); // Host polls fast
 }
 
@@ -252,7 +216,7 @@ async function nextState(newStatus) {
   if(newStatus === 'QUESTION' && currentState.status === 'SCOREBOARD') {
     nextQIdx++; // ขยับไปข้อถัดไป
     if(nextQIdx >= currentState.questions.length) {
-      alert('ทำข้อสอบครบทุกข้อแล้ว! จบเกม!');
+      alert('จบเกมแล้ว!');
       closeRoom(); return;
     }
   }
