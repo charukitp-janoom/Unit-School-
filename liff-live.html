@@ -86,7 +86,8 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); overflow: hidd
 </div>
 
 <script>
-const LIFF_ID = '2009717287-H2IUHwxQ'; // << ใส่ LIFF ID สำหรับมือถือ
+// >>> ใส่ LIFF ID สำหรับมือถือ และ GAS URL ของคุณที่นี่ <<<
+const LIFF_ID = '2009717287-H2IUHwxQ';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
 let userId = '';
@@ -132,7 +133,7 @@ function startPolling() {
         showScreen('screen-loading');
       }
     } catch(e) {}
-  }, 2000); // ผู้เล่นเช็คทุกๆ 2 วิก็พอ ไม่ให้เซิร์ฟเวอร์หนักไป
+  }, 2000); 
 }
 
 function handleStateUpdate(state) {
@@ -144,7 +145,6 @@ function handleStateUpdate(state) {
   } 
   else if(state.status === 'QUESTION') {
     if(currentQIndex !== state.currentQIndex) {
-       // ข้อใหม่มาแล้ว!
        currentQIndex = state.currentQIndex;
        isAnswered = false;
        questionStartTime = Date.now();
@@ -159,7 +159,6 @@ function handleStateUpdate(state) {
   else if(state.status === 'REVEAL') {
     const scr = document.getElementById('screen-reveal');
     if(!isAnswered) {
-       // หมดเวลา ตอบไม่ทัน
        scr.className = 'screen reveal-wrong';
        document.getElementById('r-icon').textContent = '⏰';
        document.getElementById('r-title').textContent = 'หมดเวลา!';
@@ -186,10 +185,16 @@ async function submitAnswer(colorIndex) {
   
   const timeTaken = Date.now() - questionStartTime;
   
-  // แปลงสีกลับเป็น Key (A,B,C,D) จาก State ที่ Host จัดเรียงไว้ให้
   const q = currentState.question;
-  const choiceKeys = Object.keys(q.choices); // [A, B, C, D]
-  const selectedKey = choiceKeys[colorIndex];
+  let selectedKey = '';
+  
+  // แปลงสีที่กดให้ตรงกับลำดับตัวเลือกที่ Host ได้ทำการสุ่มเอาไว้
+  if (q.shuffledKeys && q.shuffledKeys.length > colorIndex) {
+    selectedKey = q.shuffledKeys[colorIndex];
+  } else {
+    const choiceKeys = Object.keys(q.choices);
+    selectedKey = choiceKeys[colorIndex];
+  }
   
   try {
     const res = await callAPI('POST', {
@@ -204,7 +209,6 @@ async function submitAnswer(colorIndex) {
        lastCorrect = res.isCorrect;
        lastScore = res.score;
     } else {
-       // เผื่อมีปัญหา
        isAnswered = false;
        showScreen('screen-game');
        alert(res.message);
