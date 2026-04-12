@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit School — Host Live Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f2f2f2;
+  --panel: #ffffff;
+  --text: #333333;
+  --shape-red: #e21b3c;
+  --shape-blue: #1368ce;
+  --shape-yellow: #d89e00;
+  --shape-green: #26890c;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+/* Utils */
+.hidden { display: none !important; }
+.btn { padding: 16px 32px; border: none; border-radius: 8px; font-size: 24px; font-weight: 800; cursor: pointer; font-family: 'Sarabun'; transition: 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+.btn:active { transform: translateY(4px); box-shadow: none; }
+.btn-primary { background: #46178f; color: #fff; }
+
+/* Screens */
+.screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; position: absolute; inset: 0; background: var(--bg); z-index: 10;}
+
+/* Login & Setup */
+.setup-box { background: var(--panel); padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 400px; }
+input, select { width: 100%; padding: 16px; margin: 10px 0 20px; font-size: 20px; border-radius: 8px; border: 2px solid #ccc; text-align: center; font-family: inherit;}
+
+/* Lobby */
+.lobby-screen { background: #46178f; color: #fff; }
+.join-info { font-size: 48px; font-weight: 800; margin-bottom: 20px; }
+.join-pin { font-size: 80px; font-weight: 800; font-family: monospace; background: #fff; color: #000; padding: 10px 40px; border-radius: 16px; display: inline-block; margin-bottom: 40px;}
+
+/* Question Screen */
+.q-container { width: 90%; max-width: 1200px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; padding: 40px 0; }
+.q-title { font-size: 48px; font-weight: 800; text-align: center; background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 40px;}
+.q-layout { display: flex; flex: 1; gap: 40px; }
+.q-media { flex: 1; display: flex; align-items: center; justify-content: center; }
+.q-timer-circle { width: 150px; height: 150px; background: #864cbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: 800; color: #fff; font-family: monospace;}
+.ans-count { font-size: 32px; font-weight: 800; margin-top: 20px; text-align: center;}
+
+/* Answers Grid */
+.answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: auto; }
+.ans-box { display: flex; align-items: center; padding: 20px 30px; border-radius: 12px; color: #fff; font-size: 32px; font-weight: 800; box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: 0.3s;}
+.ans-box .shape { width: 40px; height: 40px; background: #fff; margin-right: 20px; }
+.shape-red { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+.shape-blue { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+.shape-yellow { border-radius: 50%; }
+.shape-green { border-radius: 8px; }
+.dimmed { opacity: 0.3; }
+
+/* Chart */
+.chart-container { display: flex; align-items: flex-end; justify-content: center; gap: 40px; height: 250px; margin-top: 40px; width: 100%;}
+.bar-wrap { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; width: 120px; }
+.bar { width: 100%; background: #ccc; transition: height 0.5s ease; border-top-left-radius: 8px; border-top-right-radius: 8px;}
+.bar-count { font-size: 28px; font-weight: 800; margin-bottom: 10px; }
+
+/* Scoreboard */
+.sb-screen { background: #46178f; color: #fff; }
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 20px; height: 400px; margin-top: 50px; }
+.podium-place { display: flex; flex-direction: column; align-items: center; width: 200px; }
+.p-name { font-size: 24px; font-weight: 800; margin-bottom: 10px; text-align: center; white-space: nowrap; }
+.p-score { font-size: 20px; font-family: monospace; margin-bottom: 20px; }
+.p-block { width: 100%; background: #864cbf; border-top-left-radius: 16px; border-top-right-radius: 16px; display: flex; align-items: flex-start; justify-content: center; padding-top: 20px; font-size: 64px; font-weight: 800; color: rgba(255,255,255,0.5);}
+.p-1 .p-block { height: 300px; background: #ffd700; color: #b8860b; }
+.p-2 .p-block { height: 220px; background: #c0c0c0; color: #808080; }
+.p-3 .p-block { height: 150px; background: #cd7f32; color: #8b4513; }
+
+/* Top controls */
+.top-controls { position: fixed; top: 20px; right: 20px; z-index: 100; }
+</style>
+</head>
+<body>
+
+<div id="screen-login" class="screen">
+  <div class="setup-box">
+    <div style="font-size: 60px; margin-bottom: 10px;">🎮</div>
+    <h2>ระบบควบคุมห้องสอบสด</h2>
+    <input type="password" id="admin-pin" placeholder="รหัสผ่าน Admin">
+    <button class="btn btn-primary" style="width: 100%" onclick="doLogin()">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<div id="screen-setup" class="screen hidden">
+  <div class="setup-box">
+    <h2>📚 เลือกวิชาที่จะเปิดสอบ</h2>
+    <select id="sel-subject"></select>
+    <button class="btn btn-primary" style="width: 100%" onclick="startRoom()" id="btn-start">เปิดห้องเรียน</button>
+  </div>
+</div>
+
+<div id="screen-lobby" class="screen lobby-screen hidden">
+  <div class="join-info">ให้กำลังพลเข้าแอป Unit School แล้วกดเมนู</div>
+  <div class="join-pin">"🎮 สอบสด"</div>
+  <div style="font-size: 24px; margin-bottom: 40px; color: #d89e00;">(ใช้มือถือเป็นจอยสติ๊กตอบคำถาม)</div>
+  <button class="btn btn-primary" style="background:#fff; color:#46178f; padding: 20px 60px;" onclick="nextState('QUESTION')">เริ่มข้อที่ 1</button>
+</div>
+
+<div id="screen-game" class="screen hidden">
+  <div class="q-container">
+    <div class="q-title" id="h-q-text">คำถาม?</div>
+    <div class="q-layout">
+      <div class="q-media">
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div class="q-timer-circle" id="h-timer">20</div>
+          <div class="ans-count">ตอบแล้ว: <span id="h-ans-count">0</span></div>
+        </div>
+      </div>
+      
+      <!-- Chart (Hidden initially) -->
+      <div class="chart-container hidden" id="h-chart">
+        <div class="bar-wrap"><div class="bar-count" id="c-A">0</div><div class="bar bg-red" id="b-A" style="height:0%"></div></div>
+        <div class="bar-wrap"><div class="bar-count" id="c-B">0</div><div class="bar bg-blue" id="b-B" style="height:0%"></div></div>
+        <div class="bar-wrap"><div class="bar-count" id="c-C">0</div><div class="bar bg-yellow" id="b-C" style="height:0%"></div></div>
+        <div class="bar-wrap"><div class="bar-count" id="c-D">0</div><div class="bar bg-green" id="b-D" style="height:0%"></div></div>
+      </div>
+    </div>
+    
+    <div class="answers-grid">
+      <div class="ans-box bg-red" id="box-A"><div class="shape shape-red"></div><span id="h-txt-A">-</span></div>
+      <div class="ans-box bg-blue" id="box-B"><div class="shape shape-blue"></div><span id="h-txt-B">-</span></div>
+      <div class="ans-box bg-yellow" id="box-C"><div class="shape shape-yellow"></div><span id="h-txt-C">-</span></div>
+      <div class="ans-box bg-green" id="box-D"><div class="shape shape-green"></div><span id="h-txt-D">-</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-scoreboard" class="screen sb-screen hidden">
+  <h1 style="font-size: 64px; margin-top: 40px;">🏆 อันดับคะแนน</h1>
+  <div class="podium" id="podium-wrap">
+    <!-- Rendered via JS -->
+  </div>
+</div>
+
+<div class="top-controls hidden" id="top-ctrl">
+  <button class="btn" style="background:#fff; color:#000; padding:10px 20px; font-size:18px;" id="btn-next-step" onclick="handleNextStep()">ข้าม / ถัดไป</button>
+  <button class="btn" style="background:#e21b3c; color:#fff; padding:10px 20px; font-size:18px; margin-left:10px;" onclick="closeRoom()">ปิดห้อง</button>
+</div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
+let adminSecret = '';
+let pollInterval = null;
+let countdownInterval = null;
+
+let currentState = {};
+let currentAnswers = [];
+
+let qTimeLeft = 20;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.getElementById('top-ctrl').classList.toggle('hidden', id === 'screen-login' || id === 'screen-setup');
+}
+
+async function doLogin() {
+  const secret = document.getElementById('admin-pin').value;
+  if(!secret) return;
+  const res = await callAPI('POST', { action:'admin_login', userId:'HOST', secret });
+  if(res.status === 'ok') {
+    adminSecret = secret;
+    const subRes = await callAPI('GET', { action:'get_subjects', userId:'HOST' });
+    if(subRes.subjects) {
+      document.getElementById('sel-subject').innerHTML = subRes.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    }
+    showScreen('screen-setup');
+  } else alert('รหัสผิดพลาด');
+}
+
+async function startRoom() {
+  const subj = document.getElementById('sel-subject').value;
+  document.getElementById('btn-start').textContent = 'กำลังเปิดห้อง...';
+  const res = await callAPI('POST', { action:'live_host_action', secret:adminSecret, command:'START', subject:subj });
+  if(res.status === 'ok') {
+    currentState = res.state;
+    showScreen('screen-lobby');
+    startPolling();
+  } else alert(res.message);
+  document.getElementById('btn-start').textContent = 'เปิดห้องเรียน';
+}
+
+function startPolling() {
+  clearInterval(pollInterval);
+  pollInterval = setInterval(async () => {
+    const res = await callAPI('GET', { action:'live_get_state', isHost:'true' });
+    if(res.status === 'ok') {
+      currentState = res.state;
+      currentAnswers = res.answers || [];
+      updateHostUI();
+    }
+  }, 1500); // Host polls fast
+}
+
+function updateHostUI() {
+  if(currentState.status === 'QUESTION' || currentState.status === 'REVEAL') {
+    // นับจำนวนคนที่ตอบข้อปัจจุบันแล้ว
+    const ansCount = currentAnswers.filter(a => a.qIndex === currentState.currentQIndex).length;
+    document.getElementById('h-ans-count').textContent = ansCount;
+  }
+}
+
+async function nextState(newStatus) {
+  let nextQIdx = currentState.currentQIndex;
+  if(newStatus === 'QUESTION' && currentState.status === 'SCOREBOARD') {
+    nextQIdx++; // ขยับไปข้อถัดไป
+    if(nextQIdx >= currentState.questions.length) {
+      alert('จบเกมแล้ว!');
+      closeRoom(); return;
+    }
+  }
+  
+  await callAPI('POST', { action:'live_host_action', secret:adminSecret, command:'UPDATE', status:newStatus, qIndex:nextQIdx });
+  currentState.status = newStatus;
+  currentState.currentQIndex = nextQIdx;
+  
+  renderState();
+}
+
+function renderState() {
+  if(currentState.status === 'QUESTION') {
+    showScreen('screen-game');
+    document.querySelector('.q-media').classList.remove('hidden');
+    document.getElementById('h-chart').classList.add('hidden');
+    document.querySelectorAll('.ans-box').forEach(b => {
+      b.classList.remove('dimmed', 'hidden');
+      b.querySelector('span').textContent = '';
+    });
+    
+    const q = currentState.questions[currentState.currentQIndex];
+    document.getElementById('h-q-text').textContent = q.questionText;
+    
+    q.shuffledKeys.forEach((k, idx) => {
+       const colors = ['A','B','C','D'];
+       const bId = colors[idx];
+       document.getElementById(`box-${bId}`).setAttribute('data-key', k);
+       document.getElementById(`h-txt-${bId}`).textContent = q.choices[k];
+    });
+
+    // เริ่มนับเวลา 20 วิ
+    qTimeLeft = 20;
+    clearInterval(countdownInterval);
+    document.getElementById('h-timer').textContent = qTimeLeft;
+    countdownInterval = setInterval(() => {
+      qTimeLeft--;
+      document.getElementById('h-timer').textContent = qTimeLeft;
+      if(qTimeLeft <= 0) {
+        clearInterval(countdownInterval);
+        nextState('REVEAL'); // หมดเวลา โชว์เฉลยอัตโนมัติ
+      }
+    }, 1000);
+    
+    document.getElementById('btn-next-step').textContent = 'ข้ามเวลา (โชว์เฉลย)';
+  }
+  else if(currentState.status === 'REVEAL') {
+    clearInterval(countdownInterval);
+    document.querySelector('.q-media').classList.add('hidden');
+    document.getElementById('h-chart').classList.remove('hidden');
+    
+    const q = currentState.questions[currentState.currentQIndex];
+    const correctKey = q.correctAnswer;
+    
+    // ดิมข้อที่ผิด
+    ['A','B','C','D'].forEach(c => {
+      const box = document.getElementById(`box-${c}`);
+      const k = box.getAttribute('data-key');
+      if(k !== correctKey) box.classList.add('dimmed');
+    });
+
+    // แสดงกราฟ
+    const counts = { A:0, B:0, C:0, D:0 };
+    let maxCount = 1;
+    currentAnswers.filter(a => a.qIndex === currentState.currentQIndex).forEach(a => {
+       // a.answer คือ A,B,C,D ของ choice
+       // ต้องหาว่า choice นี้อยู่สีไหน
+       ['A','B','C','D'].forEach(c => {
+         if(document.getElementById(`box-${c}`).getAttribute('data-key') === a.answer) {
+           counts[c]++;
+           if(counts[c] > maxCount) maxCount = counts[c];
+         }
+       });
+    });
+
+    ['A','B','C','D'].forEach(c => {
+       document.getElementById(`c-${c}`).textContent = counts[c];
+       document.getElementById(`b-${c}`).style.height = `${(counts[c]/maxCount)*100}%`;
+    });
+
+    document.getElementById('btn-next-step').textContent = 'ดูอันดับคะแนน';
+  }
+  else if(currentState.status === 'SCOREBOARD') {
+    showScreen('screen-scoreboard');
+    
+    // รวมคะแนนทั้งหมด
+    const scores = {};
+    currentAnswers.forEach(a => {
+      if(!scores[a.userId]) scores[a.userId] = { name: a.fullName, score: 0 };
+      scores[a.userId].score += a.score;
+    });
+    
+    const sorted = Object.values(scores).sort((a,b) => b.score - a.score).slice(0, 3);
+    
+    let html = '';
+    // จัดตำแหน่งแท่น (ที่ 2, 1, 3)
+    const displayOrder = [1, 0, 2]; 
+    displayOrder.forEach(idx => {
+       if(sorted[idx]) {
+          const p = sorted[idx];
+          html += `
+            <div class="podium-place p-${idx+1}">
+              <div class="p-name">${p.name}</div>
+              <div class="p-score">${p.score}</div>
+              <div class="p-block">${idx+1}</div>
+            </div>
+          `;
+       } else {
+          html += `<div class="podium-place p-${idx+1}"></div>`;
+       }
+    });
+    document.getElementById('podium-wrap').innerHTML = html;
+    
+    const isLast = currentState.currentQIndex >= currentState.questions.length - 1;
+    document.getElementById('btn-next-step').textContent = isLast ? 'จบการสอน' : 'ข้อถัดไป';
+  }
+}
+
+function handleNextStep() {
+  if(currentState.status === 'QUESTION') nextState('REVEAL');
+  else if(currentState.status === 'REVEAL') nextState('SCOREBOARD');
+  else if(currentState.status === 'SCOREBOARD') {
+    if(currentState.currentQIndex >= currentState.questions.length - 1) closeRoom();
+    else nextState('QUESTION');
+  }
+}
+
+async function closeRoom() {
+  clearInterval(pollInterval);
+  clearInterval(countdownInterval);
+  await callAPI('POST', { action:'live_host_action', secret:adminSecret, command:'END' });
+  showScreen('screen-setup');
+}
+
+async function callAPI(method, params) {
+  let url = GAS_URL, opts = { method: 'POST', headers: {'Content-Type':'text/plain'}, body: JSON.stringify(params) };
+  if(method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts = {method:'GET'}; }
+  const resp = await fetch(url, opts);
+  return await resp.json();
+}
+</script>
+</body>
+</html>
