@@ -180,7 +180,7 @@ function handleStateUpdate(state) {
     } else {
        scr.className = `screen ${lastCorrect ? 'reveal-correct' : 'reveal-wrong'}`;
        document.getElementById('r-icon').textContent = lastCorrect ? '✔️' : '❌';
-       document.getElementById('r-title').textContent = lastCorrect ? 'อัจฉริยะ!' : 'ผิดพลาด!';
+       document.getElementById('r-title').textContent = lastCorrect ? 'อัจฉริยะ!' : 'ตอบผิด!';
        if(lastCorrect) {
          document.getElementById('r-points').textContent = `+${lastScore}`;
          document.getElementById('r-points').classList.remove('hidden');
