@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Unit School — ภารกิจประจำวัน</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0c10; --surface: #1f2833; --border: #30363d;
+  --primary: #ffd700; --primary-dark: #ffb300;
+  --text: #e6edf3; --muted: #8b949e;
+  --success: #00e676; --danger: #ff5252;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+/* Overlays */
+.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 20px; text-align: center; }
+.hidden { display: none !important; }
+.spinner { width: 50px; height: 50px; border: 3px solid rgba(255,215,0,0.1); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Header & Wallet */
+.header-card { background: linear-gradient(135deg, #1f2833, #161c24); padding: 24px 20px 30px; text-align: center; border-bottom: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.4); position: relative; overflow: hidden; }
+.header-card::before { content: '🎯'; position: absolute; top: -10px; right: -10px; font-size: 100px; opacity: 0.05; }
+.wallet-box { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 15px; }
+.wallet-title { font-size: 12px; color: var(--muted); }
+.wallet-balance { font-size: 18px; font-weight: 800; color: var(--primary); font-family: 'IBM Plex Mono', monospace; }
+
+.main-title { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 5px; }
+.main-sub { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* Quests List */
+.quest-container { padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+.quest-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden; transition: 0.2s; }
+.quest-card.completed { border-color: rgba(0,230,118,0.5); background: linear-gradient(to right, var(--surface), rgba(0,230,118,0.05)); }
+.quest-card.claimed { border-color: var(--border); opacity: 0.7; }
+
+.q-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.q-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.q-reward { background: rgba(255,215,0,0.15); color: var(--primary); font-weight: 800; font-size: 14px; padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,215,0,0.3); display: flex; align-items: center; gap: 4px; }
+
+.q-progress-wrap { display: flex; align-items: center; gap: 12px; }
+.q-bar-bg { flex: 1; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; }
+.q-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.5s ease; }
+.q-progress-text { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; color: var(--muted); width: 40px; text-align: right; }
+
+.btn-claim { background: var(--surface); color: var(--muted); border: 1px solid var(--border); padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun', sans-serif; cursor: not-allowed; transition: 0.2s; text-align: center; }
+.btn-claim.ready { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #000; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(255,215,0,0.3); animation: pulse 1.5s infinite alternate; }
+.btn-claim.claimed { background: rgba(0,230,118,0.1); color: var(--success); border: 1px solid rgba(0,230,118,0.3); cursor: not-allowed; }
+
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.02); } }
+</style>
+</head>
+<body>
+
+<div id="ov-load" class="ov">
+  <div class="spinner"></div>
+  <div style="font-weight:800; color:var(--text);">กำลังเช็กภารกิจ...</div>
+</div>
+
+<div class="header-card">
+  <div class="wallet-box">
+    <span class="wallet-title">เหรียญสะสม:</span>
+    <span class="wallet-balance" id="ui-balance">0</span><span style="font-size: 14px;">🪙</span>
+  </div>
+  <div class="main-title">🎯 ภารกิจประจำวัน</div>
+  <div class="main-sub">ทำภารกิจให้สำเร็จเพื่อรับเหรียญ PX ฟรีทุกวัน<br>ระบบจะรีเซ็ตภารกิจใหม่เวลาเที่ยงคืน</div>
+</div>
+
+<div class="quest-container" id="quest-list">
+  <!-- Quests injected here -->
+</div>
+
+<script>
+const LIFF_ID = '2009717287-htEMqY79'; // << [ใส่ LIFF ID ของหน้าภารกิจ]
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
+
+let userId = '';
+
+async function init() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
+    
+    userId = (await liff.getProfile()).userId;
+    await fetchQuests();
+  } catch(e) {
+    showError(e.message);
+  }
+}
+
+async function fetchQuests() {
+  try {
+    const data = await callAPI('GET', { action: 'get_quests', userId: userId });
+    if (data.status === 'error') throw new Error(data.message);
+    
+    document.getElementById('ui-balance').textContent = data.balance || 0;
+    renderQuests(data.quests || []);
+    
+    document.getElementById('ov-load').classList.add('hidden');
+  } catch(e) {
+    showError('โหลดข้อมูลล้มเหลว: ' + e.message);
+  }
+}
+
+function renderQuests(quests) {
+  const container = document.getElementById('quest-list');
+  if (quests.length === 0) {
+    container.innerHTML = '<div style="text-align:center; color:var(--muted); margin-top: 40px;">ไม่มีภารกิจในขณะนี้</div>';
+    return;
+  }
+
+  container.innerHTML = quests.map(q => {
+    let cardClass = 'quest-card';
+    if (q.isClaimed) cardClass += ' claimed';
+    else if (q.isCompleted) cardClass += ' completed';
+
+    let btnHtml = `<div class="btn-claim">ยังไม่สำเร็จ</div>`;
+    if (q.isClaimed) {
+      btnHtml = `<div class="btn-claim claimed">✅ รับรางวัลแล้ว</div>`;
+    } else if (q.isCompleted) {
+      btnHtml = `<button class="btn-claim ready" onclick="claimReward('${q.id}')">🎁 กดรับรางวัล</button>`;
+    }
+
+    const pct = Math.min((q.current / q.target) * 100, 100);
+
+    return `
+      <div class="${cardClass}">
+        <div class="q-header">
+          <div class="q-title">${q.title}</div>
+          <div class="q-reward">+${q.reward} 🪙</div>
+        </div>
+        <div class="q-progress-wrap">
+          <div class="q-bar-bg">
+            <div class="q-bar-fill" style="width: ${pct}%; background: ${q.isCompleted ? 'var(--success)' : 'var(--primary)'}"></div>
+          </div>
+          <div class="q-progress-text" style="color: ${q.isCompleted ? 'var(--success)' : 'var(--muted)'}">${q.current}/${q.target}</div>
+        </div>
+        ${btnHtml}
+      </div>
+    `;
+  }).join('');
+}
+
+async function claimReward(questId) {
+  document.getElementById('ov-load').classList.remove('hidden');
+  try {
+    const res = await callAPI('POST', {
+      action: 'claim_quest',
+      userId: userId,
+      questId: questId
+    });
+    
+    if (res.status === 'error') throw new Error(res.message);
+    
+    // Refresh list and balance
+    await fetchQuests();
+    alert('✅ ' + res.message);
+  } catch(e) {
+    document.getElementById('ov-load').classList.add('hidden');
+    alert('❌ ผิดพลาด: ' + e.message);
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('ov-load');
+  el.innerHTML = `<div style="font-size:40px; margin-bottom:10px;">⚠️</div><p style="color:#ff5252;">${msg}</p><button onclick="liff.closeWindow()" style="margin-top:20px; padding:10px 20px; background:#1f2833; border:1px solid #30363d; color:#fff; border-radius:8px;">ปิดหน้าต่าง</button>`;
+  el.classList.remove('hidden');
+}
+
+async function callAPI(method, params, timeoutMs=20000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
+    const resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
