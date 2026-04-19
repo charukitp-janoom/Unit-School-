@@ -124,6 +124,7 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2
 
 let userId = '';
 let currentBalance = 0;
+let isSubmitting = false; // [FIX] ป้องกัน double-submit ในการแลกเหรียญ
 
 async function init() {
   try {
@@ -238,8 +239,11 @@ function closeModal(e) { if(e.target.classList.contains('modal-backdrop')) close
 function closeAllModal() { document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.add('hidden')); }
 
 async function submitRedeem() {
+  // [FIX] ป้องกันกดซ้ำก่อน response แรกกลับมา
+  if (isSubmitting) return;
   const rId = document.getElementById('m-product-id').value;
   if(!rId) return;
+  isSubmitting = true;
 
   const btn = document.getElementById('btn-submit-redeem');
   btn.disabled = true;
@@ -266,6 +270,7 @@ async function submitRedeem() {
   } finally {
     btn.disabled = false;
     btn.textContent = 'แลกเลย!';
+    isSubmitting = false; // [FIX] reset flag
   }
 }
 
