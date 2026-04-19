@@ -71,14 +71,15 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 </div>
 
 <div class="quest-container" id="quest-list">
-  </div>
+  <!-- Quests injected here -->
+</div>
 
 <script>
-// >>> ตรวจสอบบรรทัดนี้ ใส่ URL Web App ของคุณให้ตรง และเปลี่ยน LIFF_ID ด้วยนะครับ <<<
 const LIFF_ID = '2009717287-htEMqY79'; // << [ใส่ LIFF ID ของหน้าภารกิจ]
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
 let userId = '';
+let isClaiming = false; // [FIX] ป้องกัน double-claim quest reward
 
 async function init() {
   try {
@@ -146,6 +147,10 @@ function renderQuests(quests) {
 }
 
 async function claimReward(questId) {
+  // [FIX] ป้องกันกดซ้ำก่อน response แรกกลับมา
+  if (isClaiming) return;
+  isClaiming = true;
+  
   document.getElementById('ov-load').classList.remove('hidden');
   try {
     const res = await callAPI('POST', {
@@ -162,6 +167,8 @@ async function claimReward(questId) {
   } catch(e) {
     document.getElementById('ov-load').classList.add('hidden');
     alert('❌ ผิดพลาด: ' + e.message);
+  } finally {
+    isClaiming = false; // [FIX] reset flag
   }
 }
 
