@@ -84,6 +84,7 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2
 
 let allMaterials = [];
 let activeCategory = 'ALL';
+const _mMap = {}; // [FIX] เก็บ material object เพื่อหลีกเลี่ยงการ inject URL ใน onclick
 
 async function init() {
   try {
@@ -143,24 +144,36 @@ function filterData() {
     return;
   }
 
-  listContainer.innerHTML = filtered.map(m => {
+  // [FIX] clear _mMap เก่าก่อน populate ใหม่
+  Object.keys(_mMap).forEach(k => delete _mMap[k]);
+
+  listContainer.innerHTML = filtered.map((m, idx) => {
+    _mMap[idx] = m; // [FIX] เก็บ object จริงไว้ใน map
     const typeClass = m.type.toUpperCase() === 'PDF' ? 't-pdf' : m.type.toUpperCase() === 'VIDEO' ? 't-video' : 't-link';
     const icon = m.type.toUpperCase() === 'PDF' ? '📄' : m.type.toUpperCase() === 'VIDEO' ? '🎥' : '🔗';
     
     return `
-      <div class="card ${typeClass}" onclick="openMaterial('${m.url}')">
+      <div class="card ${typeClass}" onclick="openMaterial(_mMap[${idx}].url)">
         <div class="card-icon">${icon}</div>
         <div class="card-info">
-          <div class="card-title">${m.title}</div>
+          <div class="card-title">${escapeHtml(m.title)}</div>
           <div class="card-meta">
-            <span class="badge">${m.type.toUpperCase()}</span>
-            <span>${m.category}</span>
+            <span class="badge">${escapeHtml(m.type.toUpperCase())}</span>
+            <span>${escapeHtml(m.category)}</span>
           </div>
         </div>
         <div style="color:var(--muted); font-size:18px;">›</div>
       </div>
     `;
   }).join('');
+}
+
+// [FIX] escape HTML ป้องกัน XSS ถ้า title หรือ category มี tag/<script>
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
 }
 
 function openMaterial(url) {
@@ -182,8 +195,12 @@ async function callAPI(method, params, timeoutMs=20000) {
   try {
     let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
     if (method === 'GET') {
-      url += '?' + newSearchParams(params);
+      url += '?' + new URLSearchParams(params).toString();
       opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
     }
     const resp = await fetch(url, opts);
     clearTimeout(tid);
@@ -191,13 +208,9 @@ async function callAPI(method, params, timeoutMs=20000) {
     return await resp.json();
   } catch(e) {
     clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ');
     throw e;
   }
-}
-function newSearchParams(params) {
-  const p = new URLSearchParams();
-  for (const key in params) p.append(key, params[key]);
-  return p.toString();
 }
 
 init();
