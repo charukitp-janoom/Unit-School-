@@ -3,152 +3,175 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Unit School — Flashcard</title>
+<title>แฟลชการ์ดฝึกทบทวน</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #090e17; --panel: #151b29;
-  --primary: #00d2ff; --primary-glow: rgba(0, 210, 255, 0.5);
-  --success: #00e676; --danger: #ff3d00;
-  --text: #ffffff; --muted: #8892b0;
+  /* Tactical Theme */
+  --primary: #2e7d32; 
+  --secondary: #ffca28;
+  --bg: #0a0a0a; --surface: #121212; --surf2: #1e1e1e;
+  --border: #333333; --text: #e0e0e0; --muted: #888888;
+  --success: #4caf50; --danger: #ff5252;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-/* Background effect */
-.bg-glow { position: fixed; inset: 0; background: radial-gradient(circle at 50% -20%, rgba(0,210,255,0.15) 0%, rgba(9,14,23,0) 70%); z-index: -1; }
+/* Radar Background */
+.bg-radar { position: fixed; inset: 0; background: radial-gradient(circle at center, rgba(46, 125, 50, 0.15) 0%, rgba(0,0,0,0) 70%); z-index: -1; }
+.bg-radar::after { content:''; position:absolute; inset:0; background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(46, 125, 50, 0.05) 1px, rgba(46, 125, 50, 0.05) 2px); background-size: 100% 4px; z-index:-1;}
 
-.screen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 500px; margin: 0 auto; height: 100%; flex: 1; padding: 20px; text-align: center; }
-.hidden { display: none !important; }
+.screen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100vh; position: absolute; inset: 0; padding: 20px; transition: 0.3s; }
+.hidden { display: none !important; opacity: 0; pointer-events: none; }
 
-/* UI Elements */
-.title { font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 5px; text-shadow: 0 0 10px var(--primary-glow); letter-spacing: 1px;}
-.subtitle { font-size: 14px; color: var(--muted); margin-bottom: 30px; line-height: 1.6; }
-.btn { background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc); color: #fff; border: none; padding: 16px 24px; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; width: 100%; font-family: 'Sarabun', sans-serif; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,82,212,0.4); margin-bottom: 12px; }
-.btn:active { transform: scale(0.96); }
-.btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); box-shadow: none; }
-.btn-outline:active { background: rgba(0,210,255,0.1); }
-.btn-close { background: transparent; border: none; color: var(--muted); text-decoration: underline; font-size: 14px; margin-top: 10px; box-shadow: none;}
+/* Setup & End Screen */
+.panel-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 30px 24px; text-align: center; width: 100%; max-width: 340px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; overflow: hidden;}
+.panel-box::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--primary); }
+.app-icon { font-size: 60px; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(46,125,50,0.5));}
+.title { font-size: 26px; font-weight: 800; margin-bottom: 5px; color: var(--text); text-transform: uppercase; letter-spacing: 1px;}
+.subtitle { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
 
-/* Top Bar */
-.game-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px;}
-.stat-box { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 800; font-family: 'IBM Plex Mono', monospace; }
-.score-text { color: var(--success); text-shadow: 0 0 10px rgba(0,230,118,0.5); }
-.timer-text { color: var(--primary); background: rgba(0,210,255,0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--primary); }
+.btn { width: 100%; padding: 14px 16px; border-radius: 10px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.btn-primary { background: linear-gradient(135deg, var(--primary), #1b5e20); color: #fff; }
+.btn-outline { background: var(--surf2); border: 1px solid var(--border); color: var(--text); box-shadow: none;}
+.btn:active { transform: scale(0.96); box-shadow: none;}
 
-/* Swipe Area */
-.card-container { position: relative; width: 100%; height: 350px; margin-bottom: 30px; perspective: 1000px; display: flex; align-items: center; justify-content: center;}
-.swipe-card { position: absolute; width: 100%; height: 100%; background: var(--panel); border: 2px solid #2a3558; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform-origin: 50% 100%; transition: transform 0.3s ease; cursor: grab; user-select: none; }
-.swipe-card:active { cursor: grabbing; }
-.card-q { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 20px; line-height: 1.5; }
-.card-divider { width: 40px; height: 3px; background: var(--primary); margin-bottom: 20px; border-radius: 2px; }
-.card-ans { font-size: 20px; font-weight: 800; color: var(--gold); line-height: 1.4; }
+/* Game UI */
+.top-hud { position: absolute; top: 0; left: 0; right: 0; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);}
+.hud-score { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 800; color: var(--secondary); text-shadow: 0 0 10px rgba(255,202,40,0.4);}
+.hud-count { font-size: 14px; color: var(--muted); font-weight: 700; }
 
-/* Swipe Labels Overlay */
-.stamp { position: absolute; top: 30px; font-size: 32px; font-weight: 900; border: 4px solid; padding: 5px 15px; border-radius: 10px; opacity: 0; text-transform: uppercase; transform: rotate(-15deg); z-index: 10; pointer-events: none;}
-.stamp.nope { right: 20px; color: var(--danger); border-color: var(--danger); transform: rotate(15deg); }
-.stamp.yep { left: 20px; color: var(--success); border-color: var(--success); }
+.card-container { position: relative; width: 100%; max-width: 320px; height: 400px; perspective: 1000px; margin-top: 20px;}
+.flashcard { position: absolute; width: 100%; height: 100%; background: var(--surface); border: 2px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); cursor: grab; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-origin: 50% 100%; user-select: none; }
+.flashcard:active { cursor: grabbing; }
 
-/* Controls */
-.controls { display: flex; gap: 20px; width: 100%; justify-content: center; margin-bottom: 20px;}
-.ctrl-btn { width: 70px; height: 70px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-.ctrl-btn:active { transform: scale(0.9); }
-.btn-nope { background: var(--panel); border: 3px solid var(--danger); color: var(--danger); }
-.btn-yep { background: var(--panel); border: 3px solid var(--success); color: var(--success); }
+.fc-category { position: absolute; top: 16px; left: 16px; font-size: 11px; font-weight: 800; color: var(--secondary); background: rgba(255,202,40,0.1); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,202,40,0.3);}
+.fc-hint { position: absolute; bottom: 16px; font-size: 12px; color: var(--muted); animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-/* Leaderboard & End */
-.lb-container { background: var(--panel); border: 1px solid #2a3558; border-radius: 16px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; margin-bottom: 20px; text-align: left; }
-.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.fc-front { font-size: 22px; font-weight: 800; color: var(--text); }
+.fc-back { display: none; flex-direction: column; gap: 12px; width: 100%; }
+.fc-ans-item { background: var(--surf2); border: 1px solid var(--border); padding: 12px; border-radius: 10px; font-size: 15px; color: var(--muted); }
+.fc-ans-correct { border-color: var(--success); color: var(--success); font-weight: 800; background: rgba(76,175,80,0.1); }
+
+.flashcard.flipped .fc-front { display: none; }
+.flashcard.flipped .fc-back { display: flex; }
+.flashcard.flipped .fc-hint { display: none; }
+
+.controls-hud { position: absolute; bottom: 40px; left: 0; right: 0; display: flex; justify-content: center; gap: 40px; padding: 0 20px; z-index: 10;}
+.ctrl-btn { width: 70px; height: 70px; border-radius: 50%; border: none; font-size: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: 0.2s; color: #fff;}
+.btn-bad { background: linear-gradient(135deg, var(--danger), #b71c1c); border: 2px solid #ff8a80;}
+.btn-good { background: linear-gradient(135deg, var(--success), #1b5e20); border: 2px solid #b9f6ca;}
+.ctrl-btn:active { transform: scale(0.9) translateY(4px); box-shadow: none; }
+
+/* Leaderboard */
+.lb-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; width: 100%; max-height: 50vh; overflow-y: auto; margin-bottom: 20px; text-align: left; }
+.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px dashed var(--border); }
 .lb-item:last-child { border-bottom: none; }
-.end-score { font-size: 80px; font-weight: 800; color: var(--success); font-family: 'IBM Plex Mono', monospace; margin: 10px 0; text-shadow: 0 0 20px rgba(0,230,118,0.5); }
+
+/* Loader */
+.ov-load { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+
+/* Custom Modal */
+.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
+.ca-ov.active { opacity: 1; pointer-events: auto; }
+.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.ca-ov.active .ca-box { transform: scale(1); }
+.ca-icon { font-size: 50px; margin-bottom: 15px; line-height: 1; }
+.ca-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
+.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.ca-btn { width: 100%; padding: 12px 0; border-radius: 10px; font-size: 14px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; border: none; background: var(--primary); color: #fff;}
 </style>
 </head>
 <body>
-<div class="bg-glow"></div>
+<div class="bg-radar"></div>
 
-<!-- Loading -->
-<div id="ov-load" class="screen">
-  <div style="font-size:50px; margin-bottom:10px; animation: spin 2s infinite linear;">🌀</div>
-  <div style="color:var(--primary); font-weight:800;">กำลังสร้างแฟลชการ์ด...</div>
+<div id="ov-load" class="ov-load">
+  <div class="spinner"></div>
+  <div style="color:var(--muted); font-weight:700;">กำลังรวบรวมข้อมูลฝึกทบทวน...</div>
 </div>
 
-<!-- Start -->
+<div id="custom-alert" class="ca-ov">
+  <div class="ca-box">
+    <div id="ca-icon" class="ca-icon">⚠️</div>
+    <div id="ca-title" class="ca-title">แจ้งเตือน</div>
+    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <button class="ca-btn" onclick="document.getElementById('custom-alert').classList.remove('active')">รับทราบ</button>
+  </div>
+</div>
+
+<!-- Start Screen -->
 <div id="start-ui" class="screen hidden">
-  <div style="font-size: 80px; margin-bottom: 10px; filter: drop-shadow(0 0 20px var(--primary-glow));">🃏</div>
-  <div class="title">Flashcard</div>
-  <div class="subtitle">โหมดประจัญบาน<br>อ่านโจทย์และคำตอบบนการ์ด<br><b>ปัดขวาถ้าถูก (✅) / ปัดซ้ายถ้าผิด (❌)</b><br>ทำคะแนนให้มากที่สุดใน 60 วินาที!</div>
-  
-  <button class="btn" onclick="startGame()">🚀 เริ่มประจัญบาน</button>
-  <button class="btn btn-outline" onclick="showLeaderboard()">🏆 ทำเนียบคะแนนสูงสุด</button>
-  <button class="btn-close" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>
+  <div class="panel-box">
+    <div class="app-icon">🪖</div>
+    <div class="title">แฟลชการ์ดประจัญบาน</div>
+    <div class="subtitle">ปัดขวา "จำได้" ปัดซ้าย "จำไม่ได้"<br>ทบทวนความรู้และ รปป. ยิ่งจำได้มากยิ่งได้แต้มยุทธวิธีสูง!</div>
+    
+    <button class="btn btn-primary" onclick="startGame()">▶️ เริ่มฝึกทบทวน</button>
+    <button class="btn btn-outline" onclick="showLeaderboard()">🏆 ทำเนียบผู้เชี่ยวชาญ</button>
+    <button class="btn btn-outline" style="background:transparent; border-color:transparent; margin-top:5px; font-size:14px;" onclick="liff.closeWindow()">กลับศูนย์ข้อมูล</button>
+  </div>
 </div>
 
-<!-- Game -->
-<div id="game-ui" class="screen hidden" style="justify-content: flex-start; padding-top: 30px;">
-  <div class="game-header">
-    <div class="stat-box">⭐ <span class="score-text" id="score-count">0</span></div>
-    <div class="stat-box timer-text">⏱️ <span id="timer-count">60</span></div>
+<!-- Game Screen -->
+<div id="game-ui" class="screen hidden" style="padding:0;">
+  <div class="top-hud">
+    <div class="hud-count" id="g-count">ใบที่ 1 / 10</div>
+    <div class="hud-score" id="g-score">0</div>
   </div>
 
-  <div class="card-container" id="card-container">
-    <!-- Card injected via JS -->
-  </div>
+  <div class="card-container" id="card-stack"></div>
 
-  <div class="controls">
-    <button class="ctrl-btn btn-nope" onclick="handleButtonClick(false)">❌</button>
-    <button class="ctrl-btn btn-yep" onclick="handleButtonClick(true)">✅</button>
+  <div class="controls-hud" id="ctrl-hud" style="display:none;">
+    <button class="ctrl-btn btn-bad" onclick="handleSwipe('left')">❌</button>
+    <button class="ctrl-btn btn-good" onclick="handleSwipe('right')">✅</button>
   </div>
-  <div style="font-size: 12px; color: var(--muted);">สามารถใช้นิ้วปัดซ้าย-ขวาที่การ์ดได้</div>
 </div>
 
-<!-- End -->
+<!-- End Screen -->
 <div id="end-ui" class="screen hidden">
-  <div style="font-size: 60px; margin-bottom: 10px;">⏱️</div>
-  <div class="title" style="color:#fff;">หมดเวลา!</div>
-  <div style="color:var(--muted); margin-bottom:10px;">คุณเคลียร์การ์ดได้สำเร็จ</div>
-  
-  <div class="end-score" id="end-score">0</div>
-  <div style="font-size: 14px; color:var(--muted); margin-bottom: 30px;">ใบ</div>
-  
-  <button class="btn" onclick="startGame()">🔄 เล่นอีกครั้ง</button>
-  <button class="btn btn-outline" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบ</button>
+  <div class="panel-box">
+    <div class="app-icon" style="font-size:70px;">🎯</div>
+    <div class="title" style="color:var(--secondary);">เสร็จสิ้นการฝึก</div>
+    <div class="subtitle" style="margin-bottom:10px;">แต้มยุทธวิธีที่ทำได้</div>
+    
+    <div style="font-size:50px; font-weight:800; color:var(--success); font-family:'IBM Plex Mono'; text-shadow:0 0 20px rgba(76,175,80,0.5); margin-bottom:24px;" id="end-score">0</div>
+    
+    <button class="btn btn-primary" onclick="startGame()">🔄 ฝึกทบทวนอีกครั้ง</button>
+    <button class="btn btn-outline" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบผู้เชี่ยวชาญ</button>
+  </div>
 </div>
 
-<!-- Leaderboard -->
-<div id="lb-ui" class="screen hidden" style="justify-content: flex-start; padding-top:40px;">
-  <div class="title" style="font-size:24px;">ทำเนียบแฟลชการ์ด</div>
-  <div class="subtitle" style="margin-bottom: 16px;">จัดอันดับจากจำนวนการ์ดที่ตอบถูกใน 60 วินาที</div>
+<!-- Leaderboard Screen -->
+<div id="lb-ui" class="screen hidden">
+  <div class="title" style="font-size:22px; margin-bottom:5px;">🏆 ทำเนียบผู้เชี่ยวชาญ</div>
+  <div class="subtitle">จัดอันดับจากแต้มการทบทวนสูงสุด</div>
   
-  <div id="lb-loading" style="color:var(--primary); margin: 20px 0;">กำลังตรวจสอบข้อมูล...</div>
+  <div id="lb-loading" style="color:var(--secondary); margin: 20px 0; font-weight:700;">กำลังตรวจสอบข้อมูล...</div>
   <div class="lb-container" id="lb-list" style="display:none;"></div>
   
-  <button class="btn btn-outline" style="margin-top: auto;" onclick="closeLeaderboard()">← ย้อนกลับ</button>
+  <button class="btn btn-outline" onclick="closeLeaderboard()">← กลับสู่เมนูหลัก</button>
 </div>
 
 <script>
-// ==============================================
-// CONFIG
-// ==============================================
 const LIFF_ID = '2009717287-411iVMXe'; // << [ใส่ LIFF ID ของหน้า Flashcard]
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let allQs = [];
-let flashcards = [];
-let currentIndex = 0;
-let score = 0;
+let allQs = [], deck = [];
+let currentIdx = 0, score = 0, combo = 0;
 let userId = '';
-
-// Timer (60s)
-const TIME_LIMIT = 60;
-let timeLeft = 60;
-let timerInterval = null;
-
-// Swipe Logic
-let startX = 0;
-let currentX = 0;
-let isDragging = false;
 let currentCardEl = null;
+
+// Touch Drag Logic
+let startX = 0, startY = 0, currentX = 0, currentY = 0;
+let isDragging = false, isFlipped = false;
+
+function customAlert(msg) {
+  document.getElementById('ca-msg').innerHTML = msg;
+  document.getElementById('custom-alert').classList.add('active');
+}
 
 async function init() {
   try {
@@ -157,46 +180,16 @@ async function init() {
     
     userId = (await liff.getProfile()).userId;
     const data = await callAPI('GET', { action:'get_questions', userId: userId });
+    
     if (data.status === 'error') throw new Error(data.message);
-
     allQs = data.questions || [];
-    if (allQs.length === 0) throw new Error(`ไม่พบข้อสอบในระบบ`);
-    if (!allQs[0].correctAnswer) throw new Error("ไม่พบเฉลย! กรุณาอัปเดต Code.gs เป็นเวอร์ชันล่าสุด");
-
-    generateFlashcards();
+    if (allQs.length === 0) throw new Error(`ไม่พบข้อมูลในคลังทบทวน`);
 
     document.getElementById('ov-load').classList.add('hidden');
     document.getElementById('start-ui').classList.remove('hidden');
   } catch(e) {
-    document.getElementById('ov-load').innerHTML = `<h2 style="color:var(--danger);">ผิดพลาด</h2><p style="color:var(--muted);">${e.message}</p>`;
+    document.getElementById('ov-load').innerHTML = `<div style="font-size:50px;">⚠️</div><p style="color:var(--danger); margin-top:10px;">${e.message}</p>`;
   }
-}
-
-// สร้างกองการ์ด (แปลง 4 ตัวเลือก เป็น ถูก/ผิด)
-function generateFlashcards() {
-  flashcards = [];
-  let tempArr = [...allQs].sort(() => Math.random() - 0.5); // Shuffle questions
-  
-  tempArr.forEach(q => {
-    const isTrueStatement = Math.random() > 0.5;
-    const correctKey = (q.correctAnswer || '').toUpperCase();
-    let displayChoice = q.choices[correctKey];
-
-    if (!isTrueStatement) {
-      // เอาคำตอบที่ผิดมาหลอก
-      const wrongKeys = ['A','B','C','D'].filter(k => k !== correctKey && q.choices[k]);
-      if (wrongKeys.length > 0) {
-        const rKey = wrongKeys[Math.floor(Math.random() * wrongKeys.length)];
-        displayChoice = q.choices[rKey];
-      }
-    }
-
-    flashcards.push({
-      qText: q.questionText,
-      ansText: displayChoice,
-      isTrue: isTrueStatement
-    });
-  });
 }
 
 function startGame() {
@@ -204,130 +197,141 @@ function startGame() {
   document.getElementById('end-ui').classList.add('hidden');
   document.getElementById('game-ui').classList.remove('hidden');
   
-  score = 0;
-  currentIndex = 0;
-  document.getElementById('score-count').textContent = '0';
-  generateFlashcards(); // Reshuffle
+  score = 0; combo = 0; currentIdx = 0;
+  updateHud();
   
-  startTimer();
+  // สุ่มมา 10 ข้อสำหรับการฝึกทบทวน 1 รอบ
+  deck = [...allQs].sort(() => Math.random() - 0.5).slice(0, 10);
   renderCard();
 }
 
-function startTimer() {
-  clearInterval(timerInterval);
-  timeLeft = TIME_LIMIT;
-  document.getElementById('timer-count').textContent = timeLeft;
-  
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    document.getElementById('timer-count').textContent = timeLeft;
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      endGame();
-    }
-  }, 1000);
+function updateHud() {
+  document.getElementById('g-score').textContent = score;
+  document.getElementById('g-count').textContent = `ใบที่ ${Math.min(currentIdx + 1, deck.length)} / ${deck.length}`;
 }
 
 function renderCard() {
-  const container = document.getElementById('card-container');
-  container.innerHTML = '';
+  const stack = document.getElementById('card-stack');
+  stack.innerHTML = '';
+  document.getElementById('ctrl-hud').style.display = 'none';
   
-  if (currentIndex >= flashcards.length) {
-    generateFlashcards(); // ถ้าเล่นหมดกอง ให้สร้างกองใหม่แล้ววนซ้ำ
-    currentIndex = 0;
+  if (currentIdx >= deck.length) {
+    endGame();
+    return;
   }
-
-  const cardData = flashcards[currentIndex];
   
-  const card = document.createElement('div');
-  card.className = 'swipe-card';
-  card.innerHTML = `
-    <div class="stamp yep" id="stamp-yep">ถูกต้อง</div>
-    <div class="stamp nope" id="stamp-nope">ผิด</div>
-    <div class="card-q">${cardData.qText}</div>
-    <div class="card-divider"></div>
-    <div class="card-ans">👉 ${cardData.ansText}</div>
+  updateHud();
+  isFlipped = false;
+  const q = deck[currentIdx];
+  
+  const el = document.createElement('div');
+  el.className = 'flashcard';
+  
+  let backHtml = '';
+  ['A','B','C','D'].forEach(k => {
+    if(q.choices[k]) {
+      const isAns = q.correctAnswer === k;
+      backHtml += `<div class="fc-ans-item ${isAns ? 'fc-ans-correct' : ''}">${q.choices[k]}</div>`;
+    }
+  });
+
+  el.innerHTML = `
+    <div class="fc-category">${q.category || 'รปป.'}</div>
+    <div class="fc-front">${q.questionText}</div>
+    <div class="fc-back">
+      <div style="font-size:13px; color:var(--muted); text-transform:uppercase; font-weight:800;">เฉลย</div>
+      ${backHtml}
+    </div>
+    <div class="fc-hint">แตะเพื่อดูเฉลย</div>
   `;
   
-  container.appendChild(card);
-  currentCardEl = card;
+  // Events สำหรับพลิกไพ่ และ ลาก (Drag)
+  el.addEventListener('mousedown', dragStart);
+  el.addEventListener('touchstart', dragStart, {passive:false});
   
-  // Attach Touch/Mouse Events for Dragging
-  card.addEventListener('touchstart', handleDragStart, {passive: true});
-  card.addEventListener('touchmove', handleDragMove, {passive: false});
-  card.addEventListener('touchend', handleDragEnd);
+  document.addEventListener('mousemove', dragMove);
+  document.addEventListener('touchmove', dragMove, {passive:false});
   
-  card.addEventListener('mousedown', handleDragStart);
-  window.addEventListener('mousemove', handleDragMove);
-  window.addEventListener('mouseup', handleDragEnd);
+  document.addEventListener('mouseup', dragEnd);
+  document.addEventListener('touchend', dragEnd);
+
+  stack.appendChild(el);
+  currentCardEl = el;
 }
 
-// --- Drag & Swipe Logic ---
-function handleDragStart(e) {
-  if (!currentCardEl) return;
+// === Interaction Logic ===
+function dragStart(e) {
+  if(!currentCardEl) return;
+  if(e.target.closest('.ctrl-btn')) return; // อย่าบังปุ่มด้านล่าง
   isDragging = true;
-  startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
   currentCardEl.style.transition = 'none';
+  startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+  startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
 }
 
-function handleDragMove(e) {
-  if (!isDragging || !currentCardEl) return;
-  e.preventDefault(); // Prevent scrolling
-  currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-  const diff = currentX - startX;
-  const rotate = diff * 0.05;
+function dragMove(e) {
+  if (!isDragging || !currentCardEl || !isFlipped) return; // ต้องพลิกก่อนถึงจะปัดได้
+  e.preventDefault();
+  currentX = (e.type.includes('mouse') ? e.clientX : e.touches[0].clientX) - startX;
+  currentY = (e.type.includes('mouse') ? e.clientY : e.touches[0].clientY) - startY;
   
-  currentCardEl.style.transform = `translateX(${diff}px) rotate(${rotate}deg)`;
+  const rotate = currentX * 0.1;
+  currentCardEl.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotate}deg)`;
   
-  // Show Stamps
-  document.getElementById('stamp-yep').style.opacity = diff > 50 ? diff/100 : 0;
-  document.getElementById('stamp-nope').style.opacity = diff < -50 ? Math.abs(diff)/100 : 0;
+  // สี Feedback ซ้าย/ขวา
+  if (currentX > 50) currentCardEl.style.boxShadow = '20px 0 30px rgba(76,175,80,0.3)';
+  else if (currentX < -50) currentCardEl.style.boxShadow = '-20px 0 30px rgba(255,82,82,0.3)';
+  else currentCardEl.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
 }
 
-function handleDragEnd(e) {
+function dragEnd(e) {
   if (!isDragging || !currentCardEl) return;
   isDragging = false;
   
-  const diff = currentX - startX;
-  currentCardEl.style.transition = 'transform 0.3s ease-out';
-  
-  if (diff > 100) {
-    swipeAction(true); // ปัดขวา (ตอบว่าโจทย์นี้เป็น "ความจริง")
-  } else if (diff < -100) {
-    swipeAction(false); // ปัดซ้าย (ตอบว่าโจทย์นี้เป็น "ความเท็จ")
-  } else {
-    // Reset to center
-    currentCardEl.style.transform = `translateX(0px) rotate(0deg)`;
-    document.getElementById('stamp-yep').style.opacity = 0;
-    document.getElementById('stamp-nope').style.opacity = 0;
+  // ถ้ายังไม่พลิก ให้ถือว่าเป็นการ Tap (คลิก) เพื่อพลิกดูเฉลย
+  if (!isFlipped && Math.abs(currentX) < 10 && Math.abs(currentY) < 10) {
+    isFlipped = true;
+    currentCardEl.classList.add('flipped');
+    document.getElementById('ctrl-hud').style.display = 'flex'; // แสดงปุ่มให้กดง่ายๆ ด้วย
+    return;
   }
+  
+  if (!isFlipped) return;
+
+  currentCardEl.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+  
+  if (currentX > 100) { handleSwipe('right'); } 
+  else if (currentX < -100) { handleSwipe('left'); } 
+  else {
+    // กลับมาจุดเดิม
+    currentCardEl.style.transform = 'translate(0px, 0px) rotate(0deg)';
+    currentCardEl.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+  }
+  currentX = 0; currentY = 0;
 }
 
-function handleButtonClick(isRight) {
+function handleSwipe(dir) {
   if(!currentCardEl) return;
-  currentCardEl.style.transition = 'transform 0.3s ease-out';
-  swipeAction(isRight);
-}
-
-function swipeAction(swipedTrue) {
-  const isActualTrue = flashcards[currentIndex].isTrue;
   
-  // Animate Card Out
-  currentCardEl.style.transform = `translateX(${swipedTrue ? 500 : -500}px) rotate(${swipedTrue ? 30 : -30}deg)`;
+  const offX = dir === 'right' ? window.innerWidth : -window.innerWidth;
+  const rot  = dir === 'right' ? 30 : -30;
   
-  if (swipedTrue === isActualTrue) {
-    // ตอบถูก
-    score++;
-    document.getElementById('score-count').textContent = score;
+  currentCardEl.style.transition = 'transform 0.4s ease-out, opacity 0.4s ease-out';
+  currentCardEl.style.transform = `translate(${offX}px, 100px) rotate(${rot}deg)`;
+  currentCardEl.style.opacity = '0';
+  
+  if (dir === 'right') {
+    combo++;
+    score += (10 + (combo * 2)); // โบนัส Combo
+  } else {
+    combo = 0;
   }
   
-  currentCardEl = null; // Disable dragging
-  
-  // Load next card quickly
+  currentCardEl = null;
   setTimeout(() => {
-    currentIndex++;
-    if(timeLeft > 0) renderCard();
-  }, 300);
+    currentIdx++;
+    renderCard();
+  }, 400);
 }
 
 function endGame() {
@@ -336,12 +340,11 @@ function endGame() {
   document.getElementById('end-score').textContent = score;
   
   if (score > 0) {
-    callAPI('POST', { action: 'submit_flashcard_score', userId: userId, score: score })
-      .catch(e => console.error(e));
+    callAPI('POST', { action: 'submit_flashcard_score', userId: userId, score: score });
   }
 }
 
-// --- Leaderboard ---
+// === Leaderboard Logic ===
 async function showLeaderboard() {
   document.getElementById('start-ui').classList.add('hidden');
   document.getElementById('lb-ui').classList.remove('hidden');
@@ -371,20 +374,20 @@ async function loadLeaderboardData() {
     list.innerHTML = '';
     
     if (res.leaderboard.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted);">ยังไม่มีสถิติในระบบ</div>';
+      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-size:13px;">ยังไม่มีผู้เข้าทดสอบทบทวน</div>';
     } else {
       res.leaderboard.forEach((e, i) => {
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-        const isMe = e.userId === userId ? 'color:var(--primary); font-weight:800;' : '';
+        const isMe = e.userId === userId ? 'color:var(--secondary); font-weight:800;' : '';
         
         list.innerHTML += `
           <div class="lb-item">
             <div style="font-size:16px; font-weight:800; width:30px; color:var(--muted);">${medal}</div>
             <div style="flex:1; ${isMe}">
               <div>${e.fullName}</div>
-              <div style="font-size:11px; color:#555;">${e.rank} ${e.position}</div>
+              <div style="font-size:11px; color:var(--muted);">${e.rank} ${e.position}</div>
             </div>
-            <div style="font-size:18px; font-weight:800; color:var(--success); font-family:monospace;">${e.score}</div>
+            <div style="font-size:20px; font-weight:800; color:var(--success); font-family:'IBM Plex Mono';">${e.score}</div>
           </div>
         `;
       });
@@ -396,19 +399,14 @@ async function loadLeaderboardData() {
   }
 }
 
+// === API Helper ===
 async function callAPI(method, params, timeoutMs=20000) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') {
-      url += '?' + new URLSearchParams(params).toString();
-      opts.method = 'GET';
-    } else {
-      opts.method  = 'POST';
-      opts.headers = { 'Content-Type':'text/plain' };
-      opts.body    = JSON.stringify(params);
-    }
+    if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; } 
+    else { opts.method  = 'POST'; opts.headers = { 'Content-Type':'text/plain' }; opts.body = JSON.stringify(params); }
     const resp = await fetch(url, opts);
     clearTimeout(tid);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
