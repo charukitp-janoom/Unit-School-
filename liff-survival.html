@@ -3,361 +3,307 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Unit School — Survival Mode</title>
+<title>ภารกิจหลังแนวข้าศึก (Survival)</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg-color: #120909;
-  --panel-bg: #1c1111;
-  --fire: #ff3d00;
-  --orange: #ff9100;
-  --yellow: #ffea00;
-  --btn-grad: linear-gradient(180deg, #ff5252 0%, #d50000 100%);
-  --border: #5c1818;
-  --text: #ffffff;
-  --correct: #00e676;
+  /* Tactical Theme (Danger Vibe) */
+  --primary: #d32f2f; 
+  --primary-dark: #8e0000;
+  --secondary: #ffca28;
+  --bg: #050505; --surface: #121212; --surf2: #1e1e1e;
+  --border: #333333; --text: #e0e0e0; --muted: #888888;
+  --success: #388e3c; --danger: #d32f2f; --info: #1976d2;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: var(--text); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-/* Background effect */
-.bg-glow { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100vw; height: 40vh; background: radial-gradient(ellipse at top, rgba(213,0,0,0.25) 0%, rgba(18,9,9,0) 70%); z-index: -1; pointer-events: none; }
+/* Danger Background Effects */
+.bg-vignette { position: fixed; inset: 0; background: radial-gradient(circle, transparent 50%, rgba(211,47,47,0.15) 100%); z-index: -1; pointer-events: none;}
+.bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(211, 47, 47, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(211, 47, 47, 0.05) 1px, transparent 1px); background-size: 25px 25px; z-index: -2;}
 
-/* Overlays */
-.ov { position: fixed; inset: 0; background: rgba(18,9,9,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 20px; text-align: center; }
-.ov.hidden { display: none !important; }
-.spinner { width: 60px; height: 60px; border: 4px solid rgba(255,61,0,0.1); border-top: 4px solid var(--fire); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.screen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100vh; position: absolute; inset: 0; padding: 20px; transition: 0.3s; }
+.hidden { display: none !important; opacity: 0; pointer-events: none; }
 
-/* Screens */
-.screen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 500px; margin: 0 auto; height: 100%; flex: 1; padding: 20px 16px; }
-.start-logo { font-size: 80px; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(255,61,0,0.6)); animation: float 3s ease-in-out infinite; }
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-.title { font-size: 36px; font-weight: 800; color: var(--fire); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px;}
-.subtitle { font-size: 14px; color: #ffab91; margin-bottom: 40px; line-height: 1.6; }
+/* Panels */
+.panel-box { background: var(--surface); border: 1px solid var(--danger); border-radius: 16px; padding: 30px 24px; text-align: center; width: 100%; max-width: 360px; box-shadow: 0 10px 40px rgba(211,47,47,0.3); position: relative;}
+.panel-box::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--danger); border-radius: 16px 16px 0 0;}
+.app-icon { font-size: 70px; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(211,47,47,0.8));}
+.title { font-size: 26px; font-weight: 800; margin-bottom: 5px; color: var(--text); text-transform: uppercase; letter-spacing: 1px;}
+.subtitle { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
 
 /* Buttons */
-.btn { background: var(--btn-grad); color: #fff; border: 2px solid #ff8a80; padding: 16px 32px; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; width: 100%; font-family: 'Sarabun', sans-serif; transition: 0.2s; box-shadow: 0 4px 15px rgba(213,0,0,0.5); margin-bottom: 12px; }
-.btn:active { transform: scale(0.96); }
-.btn-outline { background: transparent; border: 2px solid var(--orange); color: var(--orange); box-shadow: none; }
-.btn-outline:active { background: rgba(255,145,0,0.1); }
-.btn-close { background: transparent; border: none; color: #888; text-decoration: underline; box-shadow: none; font-size: 14px; margin-top: 20px;}
+.btn { width: 100%; padding: 14px 16px; border-radius: 10px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase;}
+.btn-primary { background: linear-gradient(135deg, var(--danger), var(--primary-dark)); color: #fff; border: 1px solid #ff5252;}
+.btn-outline { background: var(--surf2); border: 1px solid var(--border); color: var(--text); box-shadow: none;}
+.btn:active { transform: scale(0.96); box-shadow: none;}
 
-/* Game Header */
-.game-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.streak-box { background: rgba(255,61,0,0.15); border: 1px solid var(--fire); padding: 8px 16px; border-radius: 20px; font-size: 20px; font-weight: 800; color: var(--orange); display: flex; align-items: center; gap: 8px; font-family: 'IBM Plex Mono', monospace; }
-.life-box { font-size: 24px; filter: drop-shadow(0 0 5px red); }
+/* Game HUD */
+.top-hud { position: absolute; top: 0; left: 0; right: 0; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--border); z-index: 10;}
+.hud-label { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase;}
+.hud-score { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 800; color: var(--danger); text-shadow: 0 0 10px rgba(211,47,47,0.5);}
 
-/* Timer Bar */
-.timer-container { width: 100%; background: var(--panel-bg); border: 1px solid var(--border); border-radius: 10px; height: 16px; overflow: hidden; margin-bottom: 20px; position: relative; }
-.timer-bar { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--orange), var(--fire)); width: 100%; border-radius: 10px; }
+/* Question Area */
+.game-area { flex: 1; display: flex; flex-direction: column; width: 100%; max-width: 500px; margin: 0 auto; padding-top: 80px;}
+.q-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 20px; min-height: 120px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5);}
+.q-text { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.5; }
 
-/* Question Box */
-.q-card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px 20px; text-align: center; font-size: 18px; font-weight: 600; line-height: 1.6; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+.choices-grid { display: flex; flex-direction: column; gap: 12px; }
+.choice-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: left; display: flex; gap: 15px; align-items: center; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; color: var(--text); }
+.c-label { color: var(--muted); font-family: 'IBM Plex Mono'; font-weight: 800; background: var(--surf2); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);}
+.choice-btn:active { transform: scale(0.98); background: var(--surf2); }
 
-/* Choices */
-.choices { display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%; }
-.choice-btn { background: rgba(255,255,255,0.03); border: 2px solid var(--border); border-radius: 12px; padding: 16px; color: var(--text); font-size: 16px; font-family: 'Sarabun', sans-serif; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; overflow: hidden; }
-.choice-btn.selected { border-color: var(--yellow); background: rgba(255,234,0,0.1); }
-.choice-btn.correct { background: var(--correct); border-color: #fff; color: #000; box-shadow: 0 0 15px rgba(0,230,118,0.5); font-weight: 700; }
-.choice-btn.wrong { background: var(--fire); border-color: #fff; color: #fff; box-shadow: 0 0 15px rgba(255,61,0,0.5); font-weight: 700; }
+/* Flash Effects */
+.flash-correct { animation: flashG 0.5s ease-out; }
+.flash-wrong { animation: flashR 0.8s ease-out; }
+@keyframes flashG { 0%, 100% { background: var(--surface); border-color: var(--border); } 50% { background: rgba(56,142,60,0.2); border-color: var(--success); } }
+@keyframes flashR { 0% { background: var(--danger); } 100% { background: var(--surface); } }
 
 /* Leaderboard */
-.lb-container { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; margin-bottom: 20px; text-align: left; }
-.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.lb-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; width: 100%; max-height: 50vh; overflow-y: auto; margin-bottom: 20px; text-align: left; }
+.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px dashed var(--border); }
 .lb-item:last-child { border-bottom: none; }
-.lb-rank { font-size: 16px; font-weight: 800; color: var(--orange); width: 30px; }
-.lb-name { flex: 1; font-size: 15px; color: var(--text); }
-.lb-score { font-size: 18px; font-weight: 800; color: var(--yellow); font-family: 'IBM Plex Mono', monospace; }
 
-/* End Screen */
-.end-score { font-size: 80px; font-weight: 800; color: var(--yellow); font-family: 'IBM Plex Mono', monospace; line-height: 1; margin: 10px 0; text-shadow: 0 0 30px var(--fire); }
+/* Custom Modal Alert */
+.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
+.ca-ov.active { opacity: 1; pointer-events: auto; }
+.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.ca-ov.active .ca-box { transform: scale(1); }
+.ca-icon { font-size: 50px; margin-bottom: 15px; line-height: 1; }
+.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
+.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.ca-btn { width: 100%; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; background: var(--danger); color: #fff;}
+
+/* Loaders */
+.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--danger); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-<div class="bg-glow"></div>
+<div class="bg-grid"></div>
+<div class="bg-vignette"></div>
 
 <!-- Loading -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <h2 style="color:var(--fire);">โหลดกระสุน...</h2>
-  <p style="color:#ffab91; margin-top:10px;" id="load-msg">กำลังดึงคลังข้อสอบทั้งหมด</p>
+  <div style="font-weight:700; color:var(--muted);">กำลังส่งสัญญาณหาศูนย์บัญชาการ...</div>
+</div>
+
+<!-- Custom Alert -->
+<div id="custom-alert" class="ca-ov">
+  <div class="ca-box">
+    <div id="ca-icon" class="ca-icon">⚠️</div>
+    <div id="ca-title" class="ca-title">แจ้งเตือน</div>
+    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <button class="ca-btn" onclick="document.getElementById('custom-alert').classList.remove('active')">รับทราบ</button>
+  </div>
 </div>
 
 <!-- Start Screen -->
-<div id="start-ui" class="screen" style="display:none;">
-  <div class="start-logo">💀</div>
-  <div class="title">Survival</div>
-  <div class="subtitle">โหมดเอาชีวิตรอด<br>ข้อละ 10 วินาที พลาด 1 ครั้งจบเกม!<br>ทำสถิติให้ได้มากที่สุด!</div>
-  
-  <button class="btn" onclick="startGame()">🔥 เริ่มเอาชีวิตรอด</button>
-  <button class="btn btn-outline" onclick="showLeaderboard()">🏆 ทำเนียบผู้รอดชีวิต</button>
-  <button class="btn btn-close" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>
+<div id="start-ui" class="screen hidden">
+  <div class="panel-box">
+    <div class="app-icon">🔥</div>
+    <div class="title" style="color:var(--danger);">ภารกิจหลังแนวข้าศึก</div>
+    <div class="subtitle">คุณจะต้องตอบคำถามไปเรื่อยๆ โดยห้ามตอบผิดแม้แต่ข้อเดียว <span style="color:var(--danger)">"ตอบผิด = จบภารกิจทันที"</span></div>
+    
+    <button class="btn btn-primary" onclick="startGame()">⚔️ เริ่มปฏิบัติการ</button>
+    <button class="btn btn-outline" onclick="showLeaderboard()">🏆 ทำเนียบผู้รอดชีวิต</button>
+    <button class="btn" style="background:transparent; border:none; color:var(--muted); font-size:14px; box-shadow:none;" onclick="liff.closeWindow()">กลับสู่เมนูหลัก</button>
+  </div>
 </div>
 
-<!-- Leaderboard UI -->
-<div id="lb-ui" class="screen" style="display:none; justify-content: flex-start; padding-top: 40px;">
-  <div class="title" style="font-size: 28px;">ทำเนียบผู้รอดชีวิต</div>
-  <div class="subtitle" style="margin-bottom: 16px;">จัดอันดับจากสถิติ Streak (ตอบถูกต่อเนื่อง)</div>
-  
-  <div id="lb-loading" style="color:var(--orange); margin: 20px 0;">กำลังค้นหาข้อมูล...</div>
-  <div class="lb-container" id="lb-list" style="display:none;"></div>
-  
-  <button class="btn btn-outline" style="margin-top: auto;" onclick="closeLeaderboard()">← ย้อนกลับ</button>
-</div>
-
-<!-- Game UI -->
-<div id="game-ui" class="screen" style="display:none; justify-content: flex-start;">
-  <div class="game-header">
-    <div class="streak-box">🔥 <span id="streak-count">0</span></div>
-    <div class="life-box" id="life-icon">❤️</div>
+<!-- Game Screen -->
+<div id="game-ui" class="screen hidden" style="justify-content: flex-start; padding: 0;">
+  <div class="top-hud">
+    <div>
+      <div class="hud-label">รอดชีวิต (STREAK)</div>
+      <div class="hud-score" id="g-streak">0</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="hud-label">สถิติสูงสุดของคุณ</div>
+      <div class="hud-score" style="color:var(--muted); text-shadow:none;" id="g-best">0</div>
+    </div>
   </div>
 
-  <div class="timer-container">
-    <div class="timer-bar" id="timer-bar"></div>
-  </div>
-
-  <div class="q-card" id="q-text">
-    คำถาม?
-  </div>
-
-  <div class="choices">
-    <button class="choice-btn" id="btn-A" onclick="selectAnswer('A')">-</button>
-    <button class="choice-btn" id="btn-B" onclick="selectAnswer('B')">-</button>
-    <button class="choice-btn" id="btn-C" onclick="selectAnswer('C')">-</button>
-    <button class="choice-btn" id="btn-D" onclick="selectAnswer('D')">-</button>
+  <div class="game-area" id="game-area">
+    <div class="q-box" id="q-box">
+      <div class="q-text" id="q-text">กำลังโหลดสถานการณ์...</div>
+    </div>
+    <div class="choices-grid">
+      <div class="choice-btn" id="c-A" onclick="selectAnswer('A')"><div class="c-label">A</div><div id="t-A">-</div></div>
+      <div class="choice-btn" id="c-B" onclick="selectAnswer('B')"><div class="c-label">B</div><div id="t-B">-</div></div>
+      <div class="choice-btn" id="c-C" onclick="selectAnswer('C')"><div class="c-label">C</div><div id="t-C">-</div></div>
+      <div class="choice-btn" id="c-D" onclick="selectAnswer('D')"><div class="c-label">D</div><div id="t-D">-</div></div>
+    </div>
   </div>
 </div>
 
 <!-- End Screen -->
-<div id="end-ui" class="ov hidden">
-  <div class="screen">
-    <div style="font-size: 60px; margin-bottom: 10px;">💀</div>
-    <div class="title" style="color:#fff;">GAME OVER</div>
-    <div style="color:#ffab91;">คุณเอาชีวิตรอดไปได้</div>
-    <div class="end-score" id="end-streak">0</div>
-    <div style="font-size: 14px; color:#aaa; margin-bottom: 30px;">ข้อ</div>
+<div id="end-ui" class="screen hidden">
+  <div class="panel-box">
+    <div class="app-icon" style="font-size:70px; filter: grayscale(100%);">☠️</div>
+    <div class="title" style="color:var(--danger);">ภารกิจล้มเหลว (KIA)</div>
+    <div class="subtitle" style="margin-bottom:15px;">คุณถูกข้าศึกตรวจพบหลังรอดมาได้</div>
     
-    <button class="btn" onclick="startGame()">🔄 ลองใหม่อีกครั้ง</button>
-    <button class="btn btn-outline" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบ</button>
-    <button class="btn btn-close" onclick="liff.closeWindow()">กลับสู่หน้าหลัก LINE</button>
+    <div style="font-size:50px; font-weight:800; color:var(--text); font-family:'IBM Plex Mono'; text-shadow:0 0 20px rgba(255,255,255,0.3); margin-bottom:5px;" id="end-score">0</div>
+    <div style="font-size:14px; color:var(--muted); margin-bottom:24px; text-transform:uppercase;">คำถาม (Streak)</div>
+    
+    <button class="btn btn-primary" onclick="startGame()">🔄 ขอกำลังเสริม (เล่นใหม่)</button>
+    <button class="btn btn-outline" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบผู้รอดชีวิต</button>
+  </div>
+</div>
+
+<!-- Leaderboard Screen -->
+<div id="lb-ui" class="screen hidden">
+  <div class="panel-box" style="padding:20px 15px; height:80vh; display:flex; flex-direction:column; max-width: 100%;">
+    <div class="title" style="font-size:22px; margin-bottom:5px; color:var(--text); text-shadow:none;">🏆 ทำเนียบผู้รอดชีวิต</div>
+    <div class="subtitle" style="margin-bottom:15px;">จัดอันดับจากจำนวนข้อที่รอด (Streak)</div>
+    
+    <div id="lb-loading" style="color:var(--danger); font-weight:700;">กำลังค้นหารายชื่อ...</div>
+    <div class="lb-container" id="lb-list" style="display:none; flex:1;"></div>
+    
+    <button class="btn btn-outline" style="margin-top:auto;" onclick="closeLeaderboard()">← ถอยทัพกลับเมนู</button>
   </div>
 </div>
 
 <script>
-// ==============================================
-// CONFIG
-// ==============================================
 const LIFF_ID = '2009717287-2RbYerHf';   // << [ใส่ LIFF ID ของหน้า Survival]
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
 let allQs = [];
-let gamePool = [];
-let currentQIndex = 0;
-let currentStreak = 0;
+let poolQs = [];
+let currentQ = null;
+let streak = 0;
+let bestStreak = 0;
 let isLocked = false;
-let currentCorrectAnswer = '';
 let userId = '';
 
-// Timer (10 Seconds)
-const TIME_LIMIT_MS = 10000;
-let timerTimeout = null;
+function customAlert(msg) {
+  document.getElementById('ca-msg').innerHTML = msg;
+  document.getElementById('custom-alert').classList.add('active');
+}
 
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
     
-    const profile = await liff.getProfile();
-    userId = profile.userId;
-    
-    // ดึงข้อสอบทั้งหมด
+    userId = (await liff.getProfile()).userId;
     const data = await callAPI('GET', { action:'get_questions', userId: userId });
-    if (data.status === 'error') throw new Error(data.message);
-
-    allQs = data.questions || [];
-    if (allQs.length === 0) throw new Error(`ไม่พบข้อสอบในระบบเลย`);
     
-    if (!allQs[0].correctAnswer) {
-       throw new Error("⚠️ ไม่พบข้อมูลเฉลย! กรุณาไปที่ Google Apps Script แล้วกด Deploy -> New version");
-    }
+    if (data.status === 'error') throw new Error(data.message);
+    allQs = data.questions || [];
+    if (allQs.length === 0) throw new Error(`ไม่พบข้อมูลคลังข้อสอบ`);
 
+    // โหลด Best Streak มาแสดงหน้าจอ
+    try {
+      const lbRes = await callAPI('GET', { action:'get_survival_leaderboard' });
+      if(lbRes.status === 'ok' && lbRes.leaderboard) {
+        const myData = lbRes.leaderboard.find(x => x.userId === userId);
+        if(myData) bestStreak = myData.streak;
+      }
+    } catch(e) {}
+    
+    document.getElementById('g-best').textContent = bestStreak;
     document.getElementById('ov-load').classList.add('hidden');
-    document.getElementById('start-ui').style.display = 'flex';
+    document.getElementById('start-ui').classList.remove('hidden');
   } catch(e) {
-    document.getElementById('ov-load').innerHTML = `<h2 style="color:var(--fire);font-size:24px;">เกิดข้อผิดพลาด</h2><p style="color:#ffab91;">${e.message}</p><button class="btn btn-outline" style="margin-top:20px;" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>`;
+    document.getElementById('ov-load').innerHTML = `<div style="font-size:50px;">⚠️</div><p style="color:var(--danger); margin-top:10px;">${e.message}</p>`;
   }
-}
-
-// ผสมข้อสอบ
-function shuffleArray(array) {
-  let arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
 }
 
 function startGame() {
-  document.getElementById('start-ui').style.display = 'none';
-  document.getElementById('end-ui').classList.add('hidden');
-  document.getElementById('game-ui').style.display = 'flex';
+  document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
+  document.getElementById('game-ui').classList.remove('hidden');
   
-  currentStreak = 0;
-  document.getElementById('streak-count').textContent = '0';
-  document.getElementById('life-icon').textContent = '❤️';
+  streak = 0;
+  document.getElementById('g-streak').textContent = streak;
   
-  // สุ่มข้อสอบเข้า Pool ถ้าหมดก็สุ่มเติมใหม่เรื่อยๆ
-  gamePool = shuffleArray(allQs);
-  currentQIndex = 0;
-  
-  loadNextQuestion();
+  // สับไพ่ข้อสอบใหม่
+  poolQs = [...allQs].sort(() => Math.random() - 0.5);
+  nextQuestion();
 }
 
-function loadNextQuestion() {
+function nextQuestion() {
   isLocked = false;
-
-  // ถ้าคำถามใน Pool กำลังจะหมด ให้เติมเข้าไปอีก (Endless Mode)
-  if (currentQIndex >= gamePool.length) {
-    gamePool = gamePool.concat(shuffleArray(allQs));
-  }
-
-  const q = gamePool[currentQIndex];
-  document.getElementById('q-text').textContent = q.questionText;
-  currentCorrectAnswer = (q.correctAnswer || '').toUpperCase();
-
-  const displayLetters = ['A', 'B', 'C', 'D'];
-  const shuffledKeys = displayLetters.filter(k => q.choices && q.choices[k]).sort(() => Math.random() - 0.5);
-
-  // รีเซ็ตและซ่อนปุ่ม
-  displayLetters.forEach(l => {
-    const btn = document.getElementById(`btn-${l}`);
-    btn.className = 'choice-btn';
-    btn.style.display = 'none'; 
+  if(poolQs.length === 0) poolQs = [...allQs].sort(() => Math.random() - 0.5); // ถ้าหมดให้วนซ้ำ
+  
+  currentQ = poolQs.pop();
+  document.getElementById('q-text').textContent = currentQ.questionText;
+  
+  ['A','B','C','D'].forEach(k => {
+    const btn = document.getElementById(`c-${k}`);
+    btn.style.display = currentQ.choices[k] ? 'flex' : 'none';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.background = 'var(--surface)';
+    document.getElementById(`t-${k}`).textContent = currentQ.choices[k] || '';
   });
-
-  shuffledKeys.forEach((key, index) => {
-    const letter = displayLetters[index];
-    const btn = document.getElementById(`btn-${letter}`);
-    btn.style.display = 'block'; 
-    btn.textContent = q.choices[key];
-    btn.setAttribute('data-real-key', key);
-  });
-
-  startTimerBar();
 }
 
-function startTimerBar() {
-  clearTimeout(timerTimeout);
-  const bar = document.getElementById('timer-bar');
-  
-  // รีเซ็ตหลอดเวลาทันที
-  bar.style.transition = 'none';
-  bar.style.width = '100%';
-  
-  // ปล่อยให้เบราว์เซอร์เรนเดอร์ width 100% ก่อนเริ่ม transition
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      bar.style.transition = `width ${TIME_LIMIT_MS}ms linear`;
-      bar.style.width = '0%';
-    });
-  });
-
-  // ตั้งเวลาตาย (Game Over)
-  timerTimeout = setTimeout(() => {
-    if (!isLocked) {
-      handleWrongAnswer(null, true);
-    }
-  }, TIME_LIMIT_MS);
-}
-
-function selectAnswer(displayLetter) {
-  if (isLocked) return;
+function selectAnswer(ans) {
+  if(isLocked) return;
   isLocked = true;
   
-  // หยุดหลอดเวลา
-  clearTimeout(timerTimeout);
-  const bar = document.getElementById('timer-bar');
-  bar.style.width = bar.offsetWidth + 'px'; // ค้างความยาวหลอดไว้ที่เดิม
-  bar.style.transition = 'none';
-
-  const btn = document.getElementById(`btn-${displayLetter}`);
-  const realKey = btn.getAttribute('data-real-key');
+  const btn = document.getElementById(`c-${ans}`);
   
-  if (realKey === currentCorrectAnswer) {
-    // ตอบถูก!
-    btn.classList.add('correct');
-    currentStreak++;
-    document.getElementById('streak-count').textContent = currentStreak;
+  if (ans === currentQ.correctAnswer) {
+    // ถูกต้อง
+    btn.style.borderColor = 'var(--success)';
+    btn.style.background = 'rgba(56,142,60,0.1)';
     
-    setTimeout(() => {
-      currentQIndex++;
-      loadNextQuestion();
-    }, 600); // ดีเลย์แปบนึงให้รู้ว่าตอบถูก
-  } else {
-    // ตอบผิด 💀
-    handleWrongAnswer(btn, false);
-  }
-}
-
-function handleWrongAnswer(wrongBtn, isTimeout) {
-  isLocked = true;
-  document.getElementById('life-icon').textContent = '💔';
-  
-  if (isTimeout) {
-    document.getElementById('q-text').innerHTML = `<span style="color:var(--fire); font-size:24px;">⏰ หมดเวลา!</span><br>` + document.getElementById('q-text').innerHTML;
-  } else if (wrongBtn) {
-    wrongBtn.classList.add('wrong');
-  }
-
-  // เฉลยข้อที่ถูกต้อง
-  ['A','B','C','D'].forEach(l => {
-    const b = document.getElementById(`btn-${l}`);
-    if (b.getAttribute('data-real-key') === currentCorrectAnswer) {
-      b.classList.add('correct');
+    document.getElementById('q-box').classList.add('flash-correct');
+    setTimeout(() => document.getElementById('q-box').classList.remove('flash-correct'), 500);
+    
+    streak++;
+    document.getElementById('g-streak').textContent = streak;
+    if(streak > bestStreak) {
+      bestStreak = streak;
+      document.getElementById('g-best').textContent = bestStreak;
     }
-  });
-
-  setTimeout(() => { endGame(); }, 2000);
+    
+    setTimeout(() => { nextQuestion(); }, 500);
+    
+  } else {
+    // ผิด (ตาย)
+    btn.style.borderColor = 'var(--danger)';
+    btn.style.background = 'rgba(211,47,47,0.2)';
+    document.getElementById(`c-${currentQ.correctAnswer}`).style.borderColor = 'var(--success)';
+    
+    document.body.classList.add('flash-wrong');
+    setTimeout(() => document.body.classList.remove('flash-wrong'), 800);
+    
+    setTimeout(() => { endGame(); }, 1200);
+  }
 }
 
 function endGame() {
-  document.getElementById('game-ui').style.display = 'none';
-  const endUI = document.getElementById('end-ui');
-  endUI.classList.remove('hidden');
+  document.getElementById('game-ui').classList.add('hidden');
+  document.getElementById('end-ui').classList.remove('hidden');
+  document.getElementById('end-score').textContent = streak;
   
-  document.getElementById('end-streak').textContent = currentStreak;
-
-  // ส่งคะแนนไปเซิร์ฟเวอร์
-  if (currentStreak > 0) {
-    callAPI('POST', { 
-      action: 'submit_survival_score', 
-      userId: userId,
-      streak: currentStreak
-    }).catch(e => console.error("Error saving score:", e));
+  if (streak > 0) {
+    callAPI('POST', { action: 'submit_survival_score', userId: userId, streak: streak });
   }
 }
 
-// ==============================================
-// LEADERBOARD
-// ==============================================
+// === Leaderboard ===
 async function showLeaderboard() {
-  document.getElementById('start-ui').style.display = 'none';
-  document.getElementById('lb-ui').style.display = 'flex';
+  document.getElementById('start-ui').classList.add('hidden');
+  document.getElementById('lb-ui').classList.remove('hidden');
   loadLeaderboardData();
 }
 
 function showLeaderboardFromEnd() {
   document.getElementById('end-ui').classList.add('hidden');
-  document.getElementById('lb-ui').style.display = 'flex';
+  document.getElementById('lb-ui').classList.remove('hidden');
   loadLeaderboardData();
 }
 
 function closeLeaderboard() {
-  document.getElementById('lb-ui').style.display = 'none';
-  document.getElementById('start-ui').style.display = 'flex';
+  document.getElementById('lb-ui').classList.add('hidden');
+  document.getElementById('start-ui').classList.remove('hidden');
 }
 
 async function loadLeaderboardData() {
@@ -372,46 +318,38 @@ async function loadLeaderboardData() {
     list.innerHTML = '';
     
     if (res.leaderboard.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">ยังไม่มีผู้รอดชีวิต<br><br>มาทำสถิติเป็นคนแรกเลย!</div>';
+      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-size:13px;">ยังไม่มีรายชื่อผู้รอดชีวิต</div>';
     } else {
       res.leaderboard.forEach((e, i) => {
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-        const isMe = e.userId === userId ? 'color:var(--orange);' : '';
+        const isMe = e.userId === userId ? 'color:var(--danger); font-weight:800;' : '';
         
         list.innerHTML += `
           <div class="lb-item">
-            <div class="lb-rank">${medal}</div>
-            <div class="lb-name" style="${isMe}">
-              <div style="font-weight:700">${e.fullName}</div>
-              <div style="font-size:11px; color:#888;">${e.rank} ${e.position}</div>
+            <div style="font-size:16px; font-weight:800; width:30px; color:var(--muted);">${medal}</div>
+            <div style="flex:1; ${isMe}">
+              <div>${e.fullName}</div>
+              <div style="font-size:11px; color:var(--muted);">${e.rank} ${e.position}</div>
             </div>
-            <div class="lb-score">${e.streak} 🔥</div>
+            <div style="font-size:20px; font-weight:800; color:var(--text); font-family:'IBM Plex Mono';">${e.streak}</div>
           </div>
         `;
       });
     }
     document.getElementById('lb-loading').style.display = 'none';
     list.style.display = 'block';
-
   } catch(e) {
-    document.getElementById('lb-loading').innerHTML = '<span style="color:var(--fire)">❌ โหลดข้อมูลล้มเหลว</span>';
+    document.getElementById('lb-loading').innerHTML = '<span style="color:var(--danger)">❌ โหลดข้อมูลล้มเหลว</span>';
   }
 }
 
-// API Helper
 async function callAPI(method, params, timeoutMs=20000) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') {
-      url += '?' + new URLSearchParams(params).toString();
-      opts.method = 'GET';
-    } else {
-      opts.method  = 'POST';
-      opts.headers = { 'Content-Type':'text/plain' };
-      opts.body    = JSON.stringify(params);
-    }
+    if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; } 
+    else { opts.method  = 'POST'; opts.headers = { 'Content-Type':'text/plain' }; opts.body = JSON.stringify(params); }
     const resp = await fetch(url, opts);
     clearTimeout(tid);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
