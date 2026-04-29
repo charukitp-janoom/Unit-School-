@@ -3,105 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ภารกิจหน่วย EOD (กู้ระเบิด)</title>
+<title>เกมกู้ระเบิด</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Tactical Theme */
-  --bg: #050505; --panel: #111111;
-  --primary: #2e7d32; --secondary: #ffca28;
-  --text: #e0e0e0; --muted: #777777; --border: #333333;
-  --danger: #d32f2f; --success: #388e3c; --info: #1976d2;
-  
-  /* Wire Colors */
-  --w-red: #f44336; --w-blue: #2196f3; --w-green: #4caf50; --w-yellow: #ffeb3b;
+  --bg: #0a0a0a; --panel: #1a1a1a;
+  --red: #ff3333; --green: #33cc33; --blue: #3388ff; --yellow: #ffcc00;
+  --text: #eee; --muted: #777; --border: #333;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-/* Backgrounds & Effects */
-.bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(211, 47, 47, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(211, 47, 47, 0.05) 1px, transparent 1px); background-size: 20px 20px; z-index: -2;}
-.bg-pulse { position: fixed; inset: 0; background: radial-gradient(circle, rgba(211,47,47,0.15) 0%, rgba(0,0,0,0) 70%); z-index: -1; animation: pulse 2s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+/* Effects */
+.bg-pulse { position: fixed; inset: 0; background: radial-gradient(circle, rgba(255,0,0,0.1) 0%, rgba(0,0,0,0) 70%); z-index: -1; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 .flash { position: fixed; inset: 0; background: #fff; z-index: 9999; animation: flashAnim 1.5s forwards; pointer-events: none; }
-@keyframes flashAnim { 0% { opacity: 1; } 20% { background: var(--danger); opacity: 1; } 100% { background: var(--danger); opacity: 0; } }
+@keyframes flashAnim { 0% { opacity: 1; } 20% { background: var(--red); opacity: 1; } 100% { background: var(--red); opacity: 0; } }
 
 .screen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 500px; margin: 0 auto; height: 100%; flex: 1; padding: 20px; text-align: center; }
 .hidden { display: none !important; }
 
-/* Buttons */
-.btn { width: 100%; padding: 14px 16px; border-radius: 8px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-transform: uppercase;}
-.btn-primary { background: linear-gradient(135deg, var(--danger), #8e0000); color: #fff; border: 1px solid #ff5252;}
-.btn-outline { background: var(--panel); border: 1px solid var(--border); color: var(--text); box-shadow: none;}
-.btn:active { transform: scale(0.96); box-shadow: none; }
-
-/* Panels */
-.panel-box { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px 24px; text-align: center; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.8);}
-.title { font-size: 28px; font-weight: 800; margin-bottom: 5px; color: var(--danger); text-shadow: 0 0 15px rgba(211,47,47,0.5); text-transform: uppercase; letter-spacing: 1px;}
-.subtitle { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+/* UI Elements */
+.title { font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 5px; text-shadow: 0 0 10px var(--red); }
+.subtitle { font-size: 14px; color: var(--muted); margin-bottom: 30px; line-height: 1.6; }
+.btn { background: #333; color: #fff; border: 1px solid #555; padding: 14px 24px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; width: 100%; font-family: 'Sarabun', sans-serif; transition: 0.2s; margin-bottom: 12px; }
+.btn:active { transform: scale(0.96); }
+.btn-red { background: linear-gradient(180deg, var(--red) 0%, #aa0000 100%); border-color: #ff8888; box-shadow: 0 4px 15px rgba(255,0,0,0.4); }
 
 /* Game Area */
-.bomb-header { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 20px; background: #000; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--danger); box-shadow: 0 0 20px rgba(211,47,47,0.2);}
-.bomb-icon { font-size: 24px; animation: tick 1s infinite alternate; filter: drop-shadow(0 0 5px var(--danger));}
+.bomb-header { display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 20px; background: var(--panel); padding: 10px 20px; border-radius: 12px; border: 1px solid #333; }
+.bomb-icon { font-size: 24px; animation: tick 1s infinite alternate; }
 @keyframes tick { from { transform: scale(1); } to { transform: scale(1.1); } }
-.timer { font-family: 'IBM Plex Mono', monospace; font-size: 32px; font-weight: 800; color: var(--danger); text-shadow: 0 0 15px var(--danger); letter-spacing: 2px;}
-.defused-count { font-weight: 800; font-size: 14px; color: var(--success); display: flex; flex-direction: column; align-items: flex-end;}
-.defused-count span { font-size: 20px; font-family: 'IBM Plex Mono'; line-height: 1;}
+.timer { font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 800; color: var(--red); text-shadow: 0 0 10px var(--red); }
+.defused-count { font-weight: 800; font-size: 16px; color: var(--green); }
 
-.q-box { background: var(--panel); border: 1px dashed var(--border); border-radius: 12px; padding: 20px; width: 100%; font-size: 17px; font-weight: 600; margin-bottom: 24px; min-height: 100px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);}
+.q-box { background: #222; border: 1px solid #444; border-radius: 12px; padding: 20px; width: 100%; font-size: 17px; font-weight: 600; margin-bottom: 24px; min-height: 100px; display: flex; align-items: center; justify-content: center; }
 
 /* Wires */
 .wires-container { display: flex; flex-direction: column; gap: 16px; width: 100%; }
 .wire-row { display: flex; align-items: center; gap: 12px; width: 100%; position: relative; }
-.wire-btn { flex: 1; background: #1a1a1a; border: 1px solid #444; border-radius: 8px; padding: 14px 16px; color: #fff; font-size: 15px; font-weight: 600; font-family:'Sarabun'; text-align: left; cursor: pointer; position: relative; overflow: hidden; transition: 0.3s; z-index: 2;}
-.wire-color { width: 16px; height: 44px; border-radius: 8px; box-shadow: inset 0 0 8px rgba(0,0,0,0.8); flex-shrink: 0; z-index: 2; transition: 0.3s; cursor: pointer;}
-.wire-cut-effect { position: absolute; left: -10px; right: -10px; top: 50%; height: 6px; background: #000; transform: translateY(-50%); z-index: 3; display: none; box-shadow: 0 0 10px #000;}
+.wire-btn { flex: 1; background: var(--panel); border: 1px solid #444; border-radius: 8px; padding: 12px 16px; color: #fff; font-size: 14px; text-align: left; cursor: pointer; position: relative; overflow: hidden; transition: 0.3s; z-index: 2;}
+.wire-color { width: 12px; height: 40px; border-radius: 6px; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); flex-shrink: 0; z-index: 2; transition: 0.3s; cursor: pointer;}
+.wire-cut-effect { position: absolute; left: -10px; right: -10px; top: 50%; height: 4px; background: #000; transform: translateY(-50%); z-index: 3; display: none; }
 
 /* Wire States */
-.cut .wire-btn { opacity: 0.2; background: #0a0a0a; border-color: #222; pointer-events: none; }
-.cut .wire-color { opacity: 0.2; }
+.cut .wire-btn { opacity: 0.3; background: #111; border-color: #222; pointer-events: none; }
+.cut .wire-color { opacity: 0.3; }
 .cut .wire-cut-effect { display: block; }
-.wire-red { background: var(--w-red); }
-.wire-blue { background: var(--w-blue); }
-.wire-green { background: var(--w-green); }
-.wire-yellow { background: var(--w-yellow); }
+.wire-red { background: var(--red); }
+.wire-blue { background: var(--blue); }
+.wire-green { background: var(--green); }
+.wire-yellow { background: var(--yellow); }
 
 /* End Screen */
-.end-score { font-size: 60px; font-weight: 800; color: var(--success); font-family: 'IBM Plex Mono', monospace; margin: 10px 0; text-shadow: 0 0 20px rgba(56,142,60,0.5); line-height: 1;}
+.end-score { font-size: 60px; font-weight: 800; color: var(--green); font-family: 'IBM Plex Mono', monospace; margin: 10px 0; text-shadow: 0 0 20px var(--green); }
 
 /* Leaderboard */
-.lb-container { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; margin-bottom: 20px; text-align: left; }
-.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px dashed var(--border); }
+.lb-container { background: var(--panel); border: 1px solid #333; border-radius: 12px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; margin-bottom: 20px; text-align: left; }
+.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px solid #222; }
 .lb-item:last-child { border-bottom: none; }
 
-/* Custom Modal */
-.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
-.ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.ca-ov.active .ca-box { transform: scale(1); }
-.ca-icon { font-size: 50px; margin-bottom: 15px; line-height: 1; }
-.ca-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
-.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
-.ca-btn { width: 100%; padding: 12px 0; border-radius: 10px; font-size: 14px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; background: var(--primary); color: #fff;}
-
-/* Loaders */
+/* Loaders & Alerts */
 .ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--danger); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--red); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;}
+.ca-ov.active { opacity: 1; pointer-events: auto; }
+.ca-box { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; transform: scale(0.9); transition: transform 0.2s; }
+.ca-ov.active .ca-box { transform: scale(1); }
+.ca-icon { font-size: 50px; margin-bottom: 15px; }
+.ca-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+.ca-btn { width: 100%; padding: 12px 0; border-radius: 8px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; border: none; background: var(--red); color: #fff;}
 </style>
 </head>
 <body>
-<div class="bg-grid"></div>
 <div class="bg-pulse"></div>
 
 <!-- Loading -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <div style="font-weight:700; color:var(--muted);">กำลังตรวจสอบพื้นที่...</div>
+  <div style="font-weight:700; color:var(--muted);">กำลังโหลดพื้นที่...</div>
 </div>
 
-<!-- Custom Alert -->
 <div id="custom-alert" class="ca-ov">
   <div class="ca-box">
     <div id="ca-icon" class="ca-icon">⚠️</div>
@@ -113,26 +98,24 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 
 <!-- Start -->
 <div id="start-ui" class="screen hidden">
-  <div class="panel-box">
-    <div style="font-size: 70px; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(211,47,47,0.8));">💣</div>
-    <div class="title">หน่วย EOD</div>
-    <div class="subtitle">ระวัง! ตัดสายวงจรที่ <b>"ผิด"</b> ทิ้งเพื่อกู้ระเบิด<br>หากเผลอตัดสายที่เป็น <span style="color:var(--danger)">"คำตอบที่ถูกต้อง"</span><br>ระเบิดจะทำงานทันที!</div>
-    
-    <button class="btn btn-primary" onclick="startGame()">✂️ ปฏิบัติภารกิจกู้ระเบิด</button>
-    <button class="btn btn-outline" onclick="showLeaderboard()">🏆 ทำเนียบหน่วย EOD</button>
-    <button class="btn btn-outline" style="background:transparent; border-color:transparent; font-size:14px;" onclick="liff.closeWindow()">กลับศูนย์บัญชาการ</button>
-  </div>
+  <div style="font-size: 80px; margin-bottom: 10px; filter: drop-shadow(0 0 20px red);">💣</div>
+  <div class="title">เกมกู้ระเบิด</div>
+  <div class="subtitle">ระวัง! ตัดสายที่ <b>"ผิด"</b> ทิ้ง 3 สายเพื่อกู้ระเบิด<br>หากเผลอตัดสายที่เป็น "คำตอบที่ถูก" ระเบิดจะทำงานทันที!</div>
+  
+  <button class="btn btn-red" onclick="startGame()">✂️ เข้าสู่ภารกิจกู้ระเบิด</button>
+  <button class="btn" onclick="showLeaderboard()">🏆 ทำเนียบ</button>
+  <button class="btn" style="background:transparent; border:none; font-size:14px; color:#888;" onclick="liff.closeWindow()">กลับหน้าหลัก</button>
 </div>
 
 <!-- Game -->
-<div id="game-ui" class="screen hidden" style="justify-content: flex-start; padding-top: 30px;">
+<div id="game-ui" class="screen hidden" style="justify-content: flex-start;">
   <div class="bomb-header">
     <div class="bomb-icon">💣</div>
     <div class="timer" id="timer">30.0</div>
-    <div class="defused-count">กู้สำเร็จ <span id="score">0</span></div>
+    <div class="defused-count">กู้สำเร็จ: <span id="score">0</span></div>
   </div>
 
-  <div class="q-box" id="q-text">วิเคราะห์วงจร...</div>
+  <div class="q-box" id="q-text">คำถามจะแสดงที่นี่</div>
 
   <div class="wires-container">
     <div class="wire-row" id="row-0">
@@ -160,29 +143,27 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 
 <!-- End -->
 <div id="end-ui" class="screen hidden">
-  <div class="panel-box">
-    <div style="font-size: 70px; margin-bottom: 10px;">💥</div>
-    <div class="title" style="color:var(--danger);">ภารกิจล้มเหลว!</div>
-    <div style="color:var(--muted); margin-bottom:24px;" id="fail-reason">คุณเผลอตัดสายวงจรหลัก!</div>
-    
-    <div style="font-size: 14px; font-weight:800; color:var(--text); text-transform:uppercase;">ยอดรวมกู้ระเบิดสำเร็จ</div>
-    <div class="end-score" id="end-score">0</div>
-    <div style="font-size: 14px; color:var(--muted); margin-bottom: 30px;">ลูก</div>
-    
-    <button class="btn btn-primary" onclick="startGame()">🔄 ปฏิบัติภารกิจใหม่</button>
-    <button class="btn btn-outline" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบ EOD</button>
-  </div>
+  <div style="font-size: 60px; margin-bottom: 10px;">💥</div>
+  <div class="title" style="color:var(--red);">ระเบิดทำงาน!</div>
+  <div style="color:var(--muted); margin-bottom:10px;" id="fail-reason">คุณเผลอตัดสายที่ถูกต้องไป!</div>
+  
+  <div style="margin-top:20px;">กู้ระเบิดสำเร็จ</div>
+  <div class="end-score" id="end-score">0</div>
+  <div style="font-size: 14px; color:var(--muted); margin-bottom: 30px;">ลูก</div>
+  
+  <button class="btn btn-red" onclick="startGame()">🔄 ทำภารกิจใหม่</button>
+  <button class="btn" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบ</button>
 </div>
 
 <!-- Leaderboard -->
 <div id="lb-ui" class="screen hidden" style="justify-content: flex-start;">
-  <div class="title" style="font-size:22px; margin-bottom:5px; color:var(--secondary); text-shadow:none;">ทำเนียบหน่วย EOD</div>
+  <div class="title" style="font-size:24px;">🏆 ทำเนียบ EOD</div>
   <div class="subtitle" style="margin-bottom: 16px;">จัดอันดับจากจำนวนระเบิดที่กู้สำเร็จ</div>
   
-  <div id="lb-loading" style="color:var(--danger); margin: 20px 0; font-weight:700;">กำลังตรวจสอบข้อมูล...</div>
+  <div id="lb-loading" style="color:var(--red); margin: 20px 0;">กำลังตรวจสอบข้อมูล...</div>
   <div class="lb-container" id="lb-list" style="display:none;"></div>
   
-  <button class="btn btn-outline" style="margin-top: auto;" onclick="closeLeaderboard()">← กลับสู่เมนูหลัก</button>
+  <button class="btn" style="margin-top: auto;" onclick="closeLeaderboard()">← ย้อนกลับ</button>
 </div>
 
 <script>
@@ -198,8 +179,7 @@ let isLocked = false;
 let currentCorrectAnswer = '';
 let userId = '';
 
-// Timer
-const TIME_LIMIT = 30000; // 30 วินาที
+const TIME_LIMIT = 30000;
 let startTime = 0;
 let timerInterval = null;
 
@@ -218,12 +198,12 @@ async function init() {
     
     if (data.status === 'error') throw new Error(data.message);
     allQs = data.questions || [];
-    if (allQs.length === 0) throw new Error(`ไม่พบข้อมูลวงจรระเบิดในระบบ`);
+    if (allQs.length === 0) throw new Error(`ไม่พบข้อสอบในระบบ`);
 
     document.getElementById('ov-load').classList.add('hidden');
     document.getElementById('start-ui').classList.remove('hidden');
   } catch(e) {
-    document.getElementById('ov-load').innerHTML = `<div style="font-size:50px;">⚠️</div><p style="color:var(--danger); margin-top:10px;">${e.message}</p>`;
+    document.getElementById('ov-load').innerHTML = `<h2 style="color:var(--red);">ผิดพลาด</h2><p style="color:#aaa;">${e.message}</p>`;
   }
 }
 
@@ -285,7 +265,7 @@ function loadNextBomb() {
 function startTimer() {
   clearInterval(timerInterval);
   startTime = Date.now();
-  document.getElementById('timer').style.color = 'var(--danger)';
+  document.getElementById('timer').style.color = 'var(--red)';
   
   timerInterval = setInterval(() => {
     const elapsed = Date.now() - startTime;
@@ -309,9 +289,10 @@ function cutWire(index) {
   const btn = document.getElementById(`btn-${index}`);
   const realKey = btn.getAttribute('data-real-key');
   
+  // กู้ระเบิดต้องตัดสายที่ผิดทิ้ง ถ้าตัดสายที่ถูกต้องระเบิดจะตู้ม!
   if (realKey === currentCorrectAnswer) {
     row.classList.add('cut');
-    explodeBomb("คุณเผลอตัดสายวงจรหลัก!");
+    explodeBomb("คุณเผลอตัดสายที่ถูกต้องไป!");
   } else {
     row.classList.add('cut');
     wiresCutCount++;
@@ -321,14 +302,14 @@ function cutWire(index) {
     if (wiresCutCount >= totalWrongWires) {
       isLocked = true;
       clearInterval(timerInterval);
-      document.getElementById('timer').style.color = 'var(--success)';
+      document.getElementById('timer').style.color = 'var(--green)';
       score++;
       document.getElementById('score').textContent = score;
       
       setTimeout(() => {
         currentQIndex++;
         loadNextBomb();
-      }, 600);
+      }, 800);
     }
   }
 }
@@ -337,7 +318,6 @@ function explodeBomb(reason) {
   isLocked = true;
   clearInterval(timerInterval);
   
-  // Flash Effect
   const flash = document.createElement('div');
   flash.className = 'flash';
   document.body.appendChild(flash);
@@ -353,7 +333,7 @@ function explodeBomb(reason) {
     if (score > 0) {
       callAPI('POST', { action: 'submit_codebreaker_score', userId: userId, defusedCount: score });
     }
-  }, 1000);
+  }, 1500);
 }
 
 async function showLeaderboard() {
@@ -385,20 +365,20 @@ async function loadLeaderboardData() {
     list.innerHTML = '';
     
     if (res.leaderboard.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-size:13px;">ยังไม่มีใครกู้ระเบิดได้สำเร็จ</div>';
+      list.innerHTML = '<div style="text-align:center; padding:20px; color:#777;">ยังไม่มีใครกู้ระเบิดได้สำเร็จ</div>';
     } else {
       res.leaderboard.forEach((e, i) => {
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-        const isMe = e.userId === userId ? 'color:var(--danger); font-weight:800;' : '';
+        const isMe = e.userId === userId ? 'color:var(--red); font-weight:800;' : '';
         
         list.innerHTML += `
           <div class="lb-item">
-            <div style="font-size:16px; font-weight:800; width:30px; color:var(--muted);">${medal}</div>
+            <div style="font-size:16px; font-weight:800; width:30px; color:#aaa;">${medal}</div>
             <div style="flex:1; ${isMe}">
               <div>${e.fullName}</div>
-              <div style="font-size:11px; color:var(--muted);">${e.rank} ${e.position}</div>
+              <div style="font-size:11px; color:#666;">${e.rank} ${e.position}</div>
             </div>
-            <div style="font-size:20px; font-weight:800; color:var(--success); font-family:'IBM Plex Mono';">${e.defusedCount}</div>
+            <div style="font-size:18px; font-weight:800; color:var(--green); font-family:monospace;">${e.defusedCount}</div>
           </div>
         `;
       });
@@ -406,7 +386,7 @@ async function loadLeaderboardData() {
     document.getElementById('lb-loading').style.display = 'none';
     list.style.display = 'block';
   } catch(e) {
-    document.getElementById('lb-loading').innerHTML = '❌ โหลดข้อมูลล้มเหลว';
+    document.getElementById('lb-loading').textContent = '❌ โหลดข้อมูลล้มเหลว';
   }
 }
 
@@ -417,14 +397,9 @@ async function callAPI(method, params, timeoutMs=20000) {
     let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
     if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; } 
     else { opts.method  = 'POST'; opts.headers = { 'Content-Type':'text/plain' }; opts.body = JSON.stringify(params); }
-    const resp = await fetch(url, opts);
-    clearTimeout(tid);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return await resp.json();
-  } catch(e) {
-    clearTimeout(tid);
-    throw e;
-  }
+    const resp = await fetch(url, opts); clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status); return await resp.json();
+  } catch(e) { clearTimeout(tid); throw e; }
 }
 
 init();
