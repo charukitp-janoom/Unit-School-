@@ -114,7 +114,7 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 <!-- Loading Overlay -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <div style="font-weight:700; color:var(--muted);" id="load-msg">กำลังจัดเตรียมห้องเรียน...</div>
+  <div style="font-weight:700; color:var(--muted);" id="load-msg">กำลังโหลดระบบ...</div>
 </div>
 
 <!-- Custom Alert Modal -->
@@ -127,16 +127,25 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
   </div>
 </div>
 
+<!-- Login Screen -->
+<div id="screen-login" class="screen hidden" style="justify-content: center;">
+  <div class="setup-box">
+    <div style="font-size:60px; margin-bottom:10px;">👨‍🏫</div>
+    <div class="setup-title">เข้าสู่ระบบผู้สอน</div>
+    <input type="password" id="admin-pin" class="form-control" placeholder="รหัสผ่าน Admin">
+    <button class="btn btn-primary" style="width:100%;" id="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
 <!-- Setup Screen -->
 <div id="screen-setup" class="screen hidden" style="justify-content: center;">
   <div class="setup-box">
-    <div style="font-size:60px; margin-bottom:10px;">👨‍🏫</div>
-    <div class="setup-title">ห้องสอบสด (Live Quiz)</div>
-    <input type="password" id="inp-secret" class="form-control" placeholder="รหัสผ่านผู้ดูแลระบบ">
+    <div style="font-size:60px; margin-bottom:10px;">📡</div>
+    <div class="setup-title">เปิดห้องสอบสด</div>
     <select id="inp-subject" class="form-control" style="text-align:center;">
       <option value="">กำลังโหลดวิชา...</option>
     </select>
-    <button class="btn btn-primary" style="width:100%;" id="btn-start" onclick="initRoom()">สร้างห้องสอบ</button>
+    <button class="btn btn-primary" style="width:100%;" id="btn-start" onclick="startRoom()">เปิดห้องสอบ</button>
   </div>
 </div>
 
@@ -188,15 +197,19 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 </div>
 
 <script>
+// >>> อย่าลืมเปลี่ยน LIFF_ID และ GAS_URL ให้เป็นของคุณนะครับ <<<
 const LIFF_ID = '2009717287-DofMgtKC';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
 let adminSecret = '';
-let currentState = null;
-let currentPlayers = [];
 let pollInterval = null;
 let countdownInterval = null;
-let endTime = 0; // ใช้ Date.now() สำหรับนับเวลาที่แม่นยำที่สุด
+let endTime = 0; 
+
+let currentState = {};
+let currentAnswers = [];
+let currentPlayers = [];
+let appConfig = null;
 
 // === Custom Alert Functions ===
 function showModal(icon, title, msg, isConfirm = false, onConfirm = null) {
@@ -224,45 +237,77 @@ function showModal(icon, title, msg, isConfirm = false, onConfirm = null) {
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
     
-    // โหลดรายวิชามาให้ Host เลือกเปิดห้อง
-    const res = await callAPI('GET', { action: 'get_subjects', userId: 'HOST' });
-    if(res.status === 'ok') {
-      const sel = document.getElementById('inp-subject');
-      sel.innerHTML = '<option value="">-- เลือกวิชาที่ต้องการสอน --</option>';
-      res.subjects.forEach(s => {
-        sel.innerHTML += `<option value="${s.name}">${s.name} (${s.count} ข้อ)</option>`;
-      });
-      document.getElementById('ov-load').classList.add('hidden');
-      showScreen('screen-setup');
-    }
+    const configRes = await callAPI('GET', { action: 'get_config' });
+    if(configRes.status === 'ok') { appConfig = configRes.config; applyTemplate(appConfig); }
+    
+    document.getElementById('ov-load').classList.add('hidden');
+    showScreen('screen-login');
   } catch(e) {
     document.getElementById('ov-load').classList.add('hidden');
-    showModal('⚠️', 'เชื่อมต่อล้มเหลว', e.message);
+    showModal('❌', 'เกิดข้อผิดพลาด', 'Init Error: ' + e.message);
   }
+}
+
+function applyTemplate(c) {
+  if(!c) return;
+  document.documentElement.style.setProperty('--config-primary', c.colorPrimary);
+  document.documentElement.style.setProperty('--config-secondary', c.colorSecondary);
+  document.title = "Live Host - " + c.appName;
 }
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-  if(id !== 'screen-setup') document.getElementById('top-bar').classList.remove('hidden');
+  if(id !== 'screen-login' && id !== 'screen-setup') document.getElementById('top-bar').classList.remove('hidden');
   else document.getElementById('top-bar').classList.add('hidden');
   document.getElementById(id).classList.remove('hidden');
 }
 
-async function initRoom() {
-  adminSecret = document.getElementById('inp-secret').value;
+async function doLogin() {
+  const secret = document.getElementById('admin-pin').value;
+  if(!secret) return;
+
+  const btn = document.getElementById('btn-login');
+  btn.textContent = 'กำลังตรวจสอบ...'; btn.disabled = true;
+
+  try {
+    const res = await callAPI('GET', { action:'admin_data', secret: secret });
+    if(res.status === 'ok') {
+      adminSecret = secret;
+      
+      // ดึงหมวดหมู่วิชาจากข้อสอบในคลังมาใส่ Dropdown
+      if(res.questions) {
+        const categories = [...new Set(res.questions.filter(q => q.active === 'YES').map(q => q.category || 'ทั่วไป'))];
+        if (categories.length > 0) {
+          document.getElementById('inp-subject').innerHTML = '<option value="">-- เลือกวิชาที่จะสอบ --</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        } else {
+          document.getElementById('inp-subject').innerHTML = `<option value="">ไม่มีข้อสอบในระบบ</option>`;
+        }
+      }
+      showScreen('screen-setup');
+    } else { 
+      showModal('❌', 'เข้าสู่ระบบล้มเหลว', 'รหัสผ่านไม่ถูกต้อง'); 
+    }
+  } catch (e) { 
+    showModal('❌', 'เกิดข้อผิดพลาด', e.message); 
+  } finally { 
+    btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false; 
+  }
+}
+
+async function startRoom() {
   const subj = document.getElementById('inp-subject').value;
-  if(!adminSecret || !subj) return showModal('⚠️', 'แจ้งเตือน', 'กรุณาระบุรหัสผ่านและเลือกวิชาให้ครบถ้วน');
+  if(!subj) return showModal('⚠️', 'แจ้งเตือน', 'กรุณาเลือกวิชาที่จะสอบ');
   
   const btn = document.getElementById('btn-start');
-  btn.textContent = 'กำลังสร้างห้อง...';
-  btn.disabled = true;
-  
+  btn.textContent = 'กำลังเปิดห้อง...'; btn.disabled = true;
+
   try {
     const res = await callAPI('POST', { action: 'live_host_action', secret: adminSecret, command: 'START', subject: subj });
     if(res.status === 'ok') {
       currentState = res.state;
-      document.getElementById('room-pin').textContent = subj.substring(0, 8); // จำลอง PIN สั้นๆ
+      document.getElementById('room-pin').textContent = subj.substring(0, 8); 
       document.getElementById('btn-next-step').textContent = 'เริ่มการสอบ';
       showScreen('screen-lobby');
       startPolling();
@@ -270,9 +315,9 @@ async function initRoom() {
       showModal('❌', 'ข้อผิดพลาด', res.message);
     }
   } catch(e) {
-    showModal('📡', 'สัญญาณขาดหาย', 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองใหม่');
+    showModal('📡', 'การเชื่อมต่อขัดข้อง', 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองใหม่');
   } finally {
-    btn.textContent = 'สร้างห้องสอบ';
+    btn.textContent = 'เปิดห้องสอบ';
     btn.disabled = false;
   }
 }
@@ -281,39 +326,38 @@ function startPolling() {
   clearInterval(pollInterval);
   pollInterval = setInterval(async () => {
     try {
-      const res = await callAPI('GET', { action: 'live_get_state', isHost: 'true' });
+      // ⚡ ใช้ Timeout เพื่อป้องกัน request ค้าง
+      const res = await callAPI('GET', { action:'live_get_state', isHost:'true' }, 5000); 
       if(res.status === 'ok') {
-        updateUI(res.state, res.participants, res.answers);
+        currentState = res.state;
+        currentAnswers = res.answers || [];
+        currentPlayers = res.players || res.participants || []; 
+        updateHostUI();
       }
-    } catch(e) {} // เงียบไว้เพื่อไม่ให้รบกวนการใช้งานหากเน็ตสะดุดเสี้ยววิ
-  }, 1000); // ⚡ อัปเดตฝั่ง Host ไวขึ้น (1 วินาที)
+    } catch(e) {} 
+  }, 1500); 
 }
 
-function updateUI(state, participants, answers) {
-  currentState = state;
-  currentPlayers = participants || [];
-  
-  // อัปเดตจำนวนคน
+function updateHostUI() {
   document.getElementById('p-count').textContent = currentPlayers.length;
   
-  if(state.status === 'LOBBY') {
+  if(currentState.status === 'LOBBY') {
     const grid = document.getElementById('players-grid');
     grid.innerHTML = '';
     currentPlayers.forEach(p => {
       grid.innerHTML += `<div class="player-tag">${p.fullName}</div>`;
     });
   } 
-  else if (state.status === 'QUESTION') {
-    // นับคนตอบแบบ Real-time
-    const currentAns = answers.filter(a => a.qIndex === state.currentQIndex);
+  else if (currentState.status === 'QUESTION') {
+    const currentAns = currentAnswers.filter(a => a.qIndex === currentState.currentQIndex);
     const answeredCount = currentAns.length;
     document.getElementById('ans-count-display').textContent = `${answeredCount} / ${currentPlayers.length} ตอบแล้ว`;
     
-    // ⚡ ฟังก์ชัน Fast Forward: หากทุกคนตอบครบแล้ว ให้ลดเวลาเหลือ 3 วินาทีทันที
+    // Fast Forward: ถ้านักเรียนตอบครบทุกคน ลดเวลาเหลือ 3 วิ
     if(currentPlayers.length > 0 && answeredCount >= currentPlayers.length) {
        const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
        if (remaining > 3) {
-         endTime = Date.now() + 3000; // หดเวลาให้จบไวขึ้น
+         endTime = Date.now() + 3000; 
        }
     }
   }
@@ -321,7 +365,6 @@ function updateUI(state, participants, answers) {
 
 async function nextState(newStatus) {
   let nextQIndex = currentState.currentQIndex;
-  // หากกำลังจะเปลี่ยนไปคำถามข้อใหม่ ให้บวก Index
   if(newStatus === 'QUESTION' && currentState.status === 'SCOREBOARD') {
     nextQIndex++;
   }
@@ -354,7 +397,6 @@ function renderState() {
     document.getElementById('q-text').textContent = q.questionText;
     document.getElementById('ans-count-display').textContent = `0 / ${currentPlayers.length} ตอบแล้ว`;
     
-    // เคลียร์สถานะ UI กลับสู่เริ่มต้น
     for(let i=0; i<4; i++) {
        const box = document.getElementById(`ans-${i}`);
        box.className = `ans-box ans-${['red','blue','yellow','green'][i]}`;
@@ -362,17 +404,14 @@ function renderState() {
        box.style.display = 'flex';
     }
     
-    // นำตัวเลือกที่สุ่มแล้วมาแสดง
     q.shuffledKeys.forEach((key, i) => {
        document.getElementById(`ans-text-${i}`).textContent = q.choices[key] || '';
     });
-    // ซ่อนกล่องที่ไม่ได้ใช้ (กรณีตัวเลือกน้อยกว่า 4)
     for(let i=q.shuffledKeys.length; i<4; i++) {
        document.getElementById(`ans-${i}`).style.display = 'none';
     }
     
-    // เริ่มจับเวลา (แม่นยำสูงด้วย Date.now)
-    const timeLimit = 20; // 20 วินาที
+    const timeLimit = 20; 
     endTime = Date.now() + (timeLimit * 1000);
     document.getElementById('q-timer').textContent = timeLimit;
     
@@ -382,21 +421,19 @@ function renderState() {
        
        if(remaining <= 0) {
          clearInterval(countdownInterval);
-         nextState('REVEAL'); // หมดเวลา ข้ามไปเฉลยอัตโนมัติ
+         nextState('REVEAL'); 
        }
-    }, 100); // วนลูปเช็คทุก 0.1 วิ เพื่อให้ UI สมูท
+    }, 100); 
   }
   else if(currentState.status === 'REVEAL') {
     const q = currentState.questions[currentState.currentQIndex];
     const correctIdx = q.shuffledKeys.indexOf(q.correctAnswer);
     
-    // ไฮไลต์ข้อที่ถูก หรี่ข้อที่ผิด
     for(let i=0; i<4; i++) {
        const box = document.getElementById(`ans-${i}`);
        if(i === correctIdx) box.classList.add('correct');
        else box.classList.add('dimmed');
     }
-    
     document.getElementById('btn-next-step').textContent = 'สรุปคะแนน';
   }
   else if(currentState.status === 'SCOREBOARD') {
@@ -406,38 +443,33 @@ function renderState() {
 }
 
 async function renderPodium() {
-  const res = await callAPI('GET', { action: 'live_get_state', isHost: 'true' });
-  if(res.status === 'ok') {
-    const scores = {};
-    (res.answers || []).forEach(a => {
-       if(!scores[a.userId]) scores[a.userId] = { name: a.fullName, score: 0 };
-       scores[a.userId].score += a.score;
-    });
-    
-    // เรียงคะแนนจากมากไปน้อย
-    const sorted = Object.values(scores).sort((a,b) => b.score - a.score);
-    // สลับเป็นลำดับ 2, 1, 3 สำหรับวาด Podium
-    const top3 = [sorted[1], sorted[0], sorted[2]]; 
-    
-    let html = '';
-    top3.forEach((p, idx) => {
-       if(p) {
-          html += `
-            <div class="podium-place p-${idx+1}">
-              <div class="p-name">${p.name}</div>
-              <div class="p-score">${p.score}</div>
-              <div class="p-block">${idx === 0 ? 2 : idx === 1 ? 1 : 3}</div>
-            </div>
-          `;
-       } else {
-          html += `<div class="podium-place p-${idx+1}"></div>`;
-       }
-    });
-    document.getElementById('podium-wrap').innerHTML = html;
-    
-    const isLast = currentState.currentQIndex >= currentState.questions.length - 1;
-    document.getElementById('btn-next-step').textContent = isLast ? 'จบการสอน' : 'ข้อถัดไป';
-  }
+  const scores = {};
+  currentAnswers.forEach(a => {
+     if(!scores[a.userId]) scores[a.userId] = { name: a.fullName, score: 0 };
+     scores[a.userId].score += a.score;
+  });
+  
+  const sorted = Object.values(scores).sort((a,b) => b.score - a.score);
+  const top3 = [sorted[1], sorted[0], sorted[2]]; 
+  
+  let html = '';
+  top3.forEach((p, idx) => {
+     if(p) {
+        html += `
+          <div class="podium-place p-${idx+1}">
+            <div class="p-name">${p.name}</div>
+            <div class="p-score">${p.score}</div>
+            <div class="p-block">${idx === 0 ? 2 : idx === 1 ? 1 : 3}</div>
+          </div>
+        `;
+     } else {
+        html += `<div class="podium-place p-${idx+1}"></div>`;
+     }
+  });
+  document.getElementById('podium-wrap').innerHTML = html;
+  
+  const isLast = currentState.currentQIndex >= currentState.questions.length - 1;
+  document.getElementById('btn-next-step').textContent = isLast ? 'จบการสอน' : 'ข้อถัดไป';
 }
 
 function handleNextStep() {
@@ -453,24 +485,43 @@ function handleNextStep() {
 }
 
 function closeRoom() {
-  showModal('🚪', 'ยืนยันปิดห้อง', 'คุณต้องการยุติการสอบและปิดห้องเรียนใช่หรือไม่?', true, async () => {
+  showModal('🚪', 'ยืนยันปิดห้อง', 'ยืนยันยุติการสอบสดและปิดห้องเรียนใช่หรือไม่?', true, async () => {
     clearInterval(pollInterval);
     clearInterval(countdownInterval);
     await callAPI('POST', { action:'live_host_action', secret:adminSecret, command:'END' });
+    document.getElementById('room-pin').textContent = '...';
+    document.getElementById('inp-subject').value = '';
     showScreen('screen-setup');
   });
 }
 
-// API Helper
-async function callAPI(method, params, timeoutMs=20000) {
-  const ctrl = new AbortController(); const tid = setTimeout(() => ctrl.abort(), timeoutMs);
+// 🌟 Robust API Call with AbortController to handle Network Errors gracefully
+async function callAPI(method, params, timeoutMs=30000) {
+  const ctrl = new AbortController(); 
+  const tid = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; } 
-    else { opts.method = 'POST'; opts.headers = { 'Content-Type':'text/plain' }; opts.body = JSON.stringify(params); }
-    const resp = await fetch(url, opts); clearTimeout(tid);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status); return await resp.json();
-  } catch(e) { clearTimeout(tid); throw e; }
+    if (method === 'GET') { 
+      url += '?' + new URLSearchParams(params).toString(); 
+      opts.method = 'GET'; 
+    } else { 
+      opts.method = 'POST'; 
+      opts.headers = { 'Content-Type':'text/plain' }; 
+      opts.body = JSON.stringify(params); 
+    }
+    const resp = await fetch(url, opts); 
+    clearTimeout(tid);
+    
+    if (!resp.ok) throw new Error('HTTP ' + resp.status); 
+    return await resp.json();
+  } catch(e) { 
+    clearTimeout(tid); 
+    // ตรวจจับข้อผิดพลาด Failed to fetch
+    if (e.name === 'TypeError' || e.message.includes('Failed to fetch') || e.message.includes('NetworkError')) {
+      throw new Error('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบลิงก์ GAS_URL หรือตั้งค่า Web App ให้สิทธิ์การเข้าถึงเป็น "Anyone"');
+    }
+    throw e; 
+  }
 }
 
 init();
