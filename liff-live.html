@@ -3,40 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Unit School — Live Joystick</title>
+<title>วิทยุสื่อสารกำลังพล (Live Player)</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f2f2f2;
-  --shape-red: #e21b3c;
-  --shape-blue: #1368ce;
-  --shape-yellow: #d89e00;
-  --shape-green: #26890c;
-  --gold: #ffc107;
+  /* Tactical Theme */
+  --bg: #0a0a0a;
+  --surface: #121212;
+  --primary: #2e7d32;
+  --secondary: #ffca28;
+  --text: #e0e0e0;
+  
+  /* Combat Buttons (Keep distinct colors for gameplay, but tactical tone) */
+  --shape-red: #d32f2f;
+  --shape-blue: #1976d2;
+  --shape-yellow: #fbc02d;
+  --shape-green: #388e3c;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+/* Grid Background */
+.bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(46, 125, 50, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(46, 125, 50, 0.1) 1px, transparent 1px); background-size: 20px 20px; z-index: -1;}
 
 /* Screens */
-.screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; position: absolute; inset: 0; z-index: 10; text-align: center; padding: 20px;}
-.hidden { display: none !important; }
+.screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; position: absolute; inset: 0; z-index: 10; text-align: center; padding: 20px; transition: 0.2s;}
+.hidden { display: none !important; opacity: 0; pointer-events: none;}
 
 /* Status Screens */
-.status-screen { background: #46178f; color: #fff; }
-.status-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; }
-.status-sub { font-size: 16px; opacity: 0.8; }
-.spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
+.status-screen { background: rgba(10,10,10,0.95); backdrop-filter: blur(5px); }
+.status-title { font-size: 24px; font-weight: 800; margin-bottom: 10px; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px;}
+.status-sub { font-size: 15px; color: #aaa; }
+.spinner { width: 50px; height: 50px; border: 4px solid #333; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse-opacity { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 .pulse-anim { animation: pulse-opacity 1.5s infinite; }
 
+/* Lobby Info */
+.lobby-box { background: var(--surface); border: 1px solid #333; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: left;}
+.rule-title { font-size: 16px; font-weight: 800; color: var(--secondary); margin-bottom: 12px; text-align: center; border-bottom: 1px dashed #333; padding-bottom: 8px;}
+.rule-item { font-size: 14px; line-height: 1.6; color: #ccc; margin-bottom: 8px; display: flex; gap: 8px;}
+
 /* Joystick Buttons */
-.game-screen { background: #f2f2f2; padding: 10px; }
-.btn-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; width: 100%; height: 100%; }
-.btn-shape { border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 rgba(0,0,0,0.2); cursor: pointer; transition: 0.1s;}
+.game-screen { background: var(--bg); padding: 10px; }
+.btn-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; width: 100%; height: 100%; max-width: 600px; margin: 0 auto; }
+.btn-shape { border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 rgba(0,0,0,0.4); cursor: pointer; transition: 0.1s; border: 2px solid rgba(255,255,255,0.1);}
 .btn-shape:active { transform: translateY(6px); box-shadow: none; }
-.shape-icon { width: 60px; height: 60px; background: #fff; }
+.shape-icon { width: 60px; height: 60px; background: rgba(255,255,255,0.9); }
 .bg-red { background: var(--shape-red); }
 .bg-blue { background: var(--shape-blue); }
 .bg-yellow { background: var(--shape-yellow); }
@@ -48,33 +62,32 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); overflow: hidd
 .s-green { border-radius: 8px; }
 
 /* Reveal */
-.reveal-correct { background: #66bf39; color: #fff; }
-.reveal-wrong { background: #ff3355; color: #fff; }
-.points-text { font-size: 20px; font-weight: 800; margin-top: 10px; background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 20px;}
+.reveal-correct { background: linear-gradient(135deg, #1b5e20, #003300); }
+.reveal-wrong { background: linear-gradient(135deg, #b71c1c, #4a0000); }
+.points-text { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 800; margin-top: 15px; background: rgba(0,0,0,0.4); padding: 8px 20px; border-radius: 20px; color: var(--secondary); border: 1px solid rgba(255,202,40,0.3);}
 </style>
 </head>
 <body>
+<div class="bg-grid"></div>
 
 <div id="screen-loading" class="screen status-screen">
   <div class="spinner"></div>
-  <div class="status-title">กำลังเชื่อมต่อ...</div>
+  <div class="status-title" id="loading-txt">กำลังรับสัญญาณ...</div>
 </div>
 
 <div id="screen-lobby" class="screen status-screen hidden">
-  <div style="font-size: 50px; margin-bottom: 10px;">🎮</div>
-  <div class="status-title" style="font-size: 26px; margin-bottom: 10px;">คุณอยู่ในห้องสอบแล้ว!</div>
-  <div class="status-sub" style="margin-bottom:20px;">รหัสประจำตัว: <span id="u-name" style="font-weight:800; color:var(--gold);">-</span></div>
+  <div style="font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(46,125,50,0.5));">📻</div>
+  <div class="status-title" style="font-size: 22px;">เชื่อมต่อเครือข่ายสำเร็จ</div>
+  <div class="status-sub">รหัสเรียกขาน: <span id="u-name" style="font-weight:800; color:var(--secondary);">-</span></div>
   
-  <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 20px; text-align: left; width: 100%; max-width: 400px; margin-top: 10px;">
-    <div style="font-size: 16px; font-weight: 800; color: var(--gold); margin-bottom: 12px; text-align: center;">📖 กติกาและวิธีการเล่น</div>
-    <div style="font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; gap: 8px; color: #ddd;">
-      <div>1️⃣ <b style="color:#fff;">อ่านคำถามและตัวเลือก</b> ที่หน้าจอโปรเจคเตอร์ด้านหน้าห้องเรียน</div>
-      <div>2️⃣ <b style="color:#fff;">กดปุ่มสีบนมือถือ</b> ให้ตรงกับคำตอบที่คุณคิดว่าถูกต้อง</div>
-      <div>3️⃣ <b style="color:#fff;">ตอบให้ไวที่สุด!</b> ยิ่งตอบเร็ว ยิ่งได้คะแนนโบนัสเยอะ (คะแนนลดหลั่นตามเวลา)</div>
-    </div>
+  <div class="lobby-box">
+    <div class="rule-title">รปจ. การปฏิบัติงาน</div>
+    <div class="rule-item"><span>1️⃣</span> <span>ดูคำสั่ง/เป้าหมายที่ <b>หน้าจอส่วนกลาง (โปรเจคเตอร์)</b></span></div>
+    <div class="rule-item"><span>2️⃣</span> <span>กดยืนยันเป้าหมายด้วย <b>ปุ่มสีบนวิทยุสื่อสารนี้</b></span></div>
+    <div class="rule-item"><span>3️⃣</span> <span>ยิ่งยืนยันเร็ว ยิ่งได้แต้มยุทธวิธีสูง</span></div>
   </div>
 
-  <div class="status-sub pulse-anim" style="margin-top:30px; font-size:16px;">⏳ รอครูฝึกกดเริ่มข้อสอบ...</div>
+  <div class="status-sub pulse-anim" style="margin-top:40px; font-size:15px; color:var(--secondary);">⏳ รอคำสั่งปฏิบัติการจากศูนย์บัญชาการ...</div>
 </div>
 
 <div id="screen-game" class="screen game-screen hidden">
@@ -86,34 +99,35 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); overflow: hidd
   </div>
 </div>
 
-<div id="screen-wait" class="screen status-screen hidden" style="background:#e5e5e5; color:#333;">
-  <div class="spinner" style="border-color: #ccc; border-top-color: #666;"></div>
-  <div class="status-title">ส่งคำตอบแล้ว!</div>
-  <div class="status-sub">รอเพื่อนๆ ตอบให้ครบ...</div>
+<div id="screen-wait" class="screen status-screen hidden" style="background:var(--surface);">
+  <div class="spinner" style="border-top-color: var(--secondary);"></div>
+  <div class="status-title" style="color:var(--text);">บันทึกพิกัดแล้ว!</div>
+  <div class="status-sub">กำลังรอการประเมินผลจากศูนย์...</div>
 </div>
 
 <div id="screen-reveal" class="screen hidden">
-  <div style="font-size: 80px; margin-bottom:10px;" id="r-icon">✔️</div>
-  <div class="status-title" id="r-title">ถูกต้อง!</div>
+  <div style="font-size: 80px; margin-bottom:10px;" id="r-icon">🎯</div>
+  <div class="status-title" id="r-title" style="color:#fff;">ยืนยันเป้าหมาย!</div>
   <div class="points-text hidden" id="r-points">+0</div>
-  <div class="status-sub" style="margin-top:40px;">มองที่หน้าจอหลักเพื่อดูอันดับ</div>
+  <div class="status-sub" style="margin-top:40px; color:rgba(255,255,255,0.7);">โปรดดูอันดับของท่านที่จอภาพส่วนกลาง</div>
 </div>
 
 <script>
-// >>> ใส่ LIFF ID สำหรับมือถือ และ GAS URL ของคุณที่นี่ <<<
 const LIFF_ID = '2009717287-H2IUHwxQ';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
 let userId = '';
 let userName = '';
 let currentState = null;
-let pollInterval = null;
+let pollTimeout = null;
 let isAnswered = false;
 let currentQIndex = -1;
 let questionStartTime = 0;
 
 let lastScore = 0;
 let lastCorrect = false;
+
+let currentPollInterval = 2500; 
 
 async function init() {
   try {
@@ -125,9 +139,9 @@ async function init() {
     userName = profile.displayName;
     document.getElementById('u-name').textContent = userName;
     
-    startPolling();
+    pollState();
   } catch(e) {
-    document.getElementById('screen-loading').innerHTML = `<h2 style="color:#ff3355">ผิดพลาด</h2><p>${e.message}</p>`;
+    document.getElementById('screen-loading').innerHTML = `<div style="font-size:50px;">⚠️</div><p style="color:var(--shape-red); margin-top:10px;">${e.message}</p>`;
   }
 }
 
@@ -136,18 +150,25 @@ function showScreen(id) {
   document.getElementById(id).classList.remove('hidden');
 }
 
-function startPolling() {
-  pollInterval = setInterval(async () => {
-    try {
-      const res = await callAPI('GET', { action:'live_get_state', isHost:'false' });
-      if(res.status === 'ok') {
-        handleStateUpdate(res.state);
-      } else {
-        document.getElementById('screen-loading').innerHTML = `<h2 style="color:#ff3355; margin-bottom:20px;">ครูฝึกยังไม่เปิดห้อง</h2><button onclick="liff.closeWindow()" style="padding:10px 20px; border-radius:8px; border:none; background:#fff; color:#333; font-weight:800; font-family:'Sarabun'">ปิดหน้าต่าง</button>`;
-        showScreen('screen-loading');
-      }
-    } catch(e) {}
-  }, 2000); 
+async function pollState() {
+  try {
+    const res = await callAPI('GET', { action:'live_get_state', isHost:'false' });
+    if(res.status === 'ok') {
+      currentPollInterval = 2000; 
+      handleStateUpdate(res.state);
+    } else {
+      document.getElementById('screen-loading').innerHTML = `
+        <div style="font-size:60px; margin-bottom:10px;">📵</div>
+        <h2 style="color:var(--shape-red); margin-bottom:20px;">ศูนย์บัญชาการยังไม่เปิดทำการ</h2>
+        <button onclick="liff.closeWindow()" style="padding:12px 24px; border-radius:8px; border:none; background:var(--surface); border:1px solid #333; color:#fff; font-weight:800; font-family:'Sarabun'">ปิดหน้าต่าง</button>
+      `;
+      showScreen('screen-loading');
+    }
+  } catch(e) {
+    currentPollInterval = Math.min(5000, currentPollInterval + 1000);
+  }
+  
+  pollTimeout = setTimeout(pollState, currentPollInterval);
 }
 
 function handleStateUpdate(state) {
@@ -179,8 +200,8 @@ function handleStateUpdate(state) {
        document.getElementById('r-points').classList.add('hidden');
     } else {
        scr.className = `screen ${lastCorrect ? 'reveal-correct' : 'reveal-wrong'}`;
-       document.getElementById('r-icon').textContent = lastCorrect ? '✔️' : '❌';
-       document.getElementById('r-title').textContent = lastCorrect ? 'อัจฉริยะ!' : 'ตอบผิด!';
+       document.getElementById('r-icon').textContent = lastCorrect ? '🎯' : '❌';
+       document.getElementById('r-title').textContent = lastCorrect ? 'ยืนยันเป้าหมาย!' : 'พลาดเป้า!';
        if(lastCorrect) {
          document.getElementById('r-points').textContent = `+${lastScore}`;
          document.getElementById('r-points').classList.remove('hidden');
@@ -195,14 +216,13 @@ function handleStateUpdate(state) {
 async function submitAnswer(colorIndex) {
   if(isAnswered) return;
   isAnswered = true;
+  // ⚡ สลับหน้าทันทีเพื่อการตอบสนองที่ไวขึ้น
   showScreen('screen-wait');
   
   const timeTaken = Date.now() - questionStartTime;
-  
   const q = currentState.question;
   let selectedKey = '';
   
-  // แปลงสีที่กดให้ตรงกับลำดับตัวเลือกที่ Host ได้ทำการสุ่มเอาไว้
   if (q.shuffledKeys && q.shuffledKeys.length > colorIndex) {
     selectedKey = q.shuffledKeys[colorIndex];
   } else {
