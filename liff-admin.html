@@ -3,777 +3,768 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Unit School — Admin Dashboard</title>
+<title>ศูนย์บัญชาการ (Command Center)</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy:   #1a237e; --navy2:  #283593;
-  --gold:   #ffd700; --gold2:  #ffb300;
-  --bg:     #0f1322; --surface:#161c36; --surf2:  #1e2647;
-  --border: #2a3558; --text:   #e8ecf8; --muted:  #6e7aa0;
-  --green:  #00c853; --red:    #ff5252; --blue:   #4fc3f7; --purple: #ce93d8;
-  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  /* Tactical Theme */
+  --primary: #2e7d32; 
+  --secondary: #ffca28;
+  --bg: #0a0a0a; --surface:#121212; --surf2:  #1e1e1e;
+  --border: #333333; --text: #e0e0e0; --muted: #888888;
+  --green: #4caf50; --red: #ff5252; --blue: #29b6f6;
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-/* OVERLAYS */
-.ov{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9999;padding:32px;text-align:center}
-.ov.hidden{display:none!important}
-.ov-spinner{width:64px;height:64px;border:3px solid var(--surf2);border-top:3px solid var(--gold);border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* Utilities */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+.flex { display: flex; } .flex-col { flex-direction: column; }
+.items-center { align-items: center; } .justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; } .gap-4 { gap: 16px; }
+.mt-2 { margin-top: 8px; } .mt-4 { margin-top: 16px; } .mb-2 { margin-bottom: 8px; } .mb-4 { margin-bottom: 16px; }
 
-/* LOGIN SCREEN */
-.login-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px 28px;width:100%;max-width:340px;text-align:center}
-.pin-input{width:100%;background:var(--surf2);border:2px solid var(--border);border-radius:12px;padding:15px;font-size:20px;font-family:'IBM Plex Mono',monospace;color:var(--text);outline:none;text-align:center;letter-spacing:4px;margin:16px 0}
-.pin-input:focus{border-color:var(--gold);}
-.err-msg{font-size:13px;color:var(--red);margin-bottom:12px;min-height:20px}
+/* Buttons */
+.btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: 'Sarabun'; }
+.btn:active { transform: scale(0.96); }
+.btn-primary { background: linear-gradient(135deg, var(--primary), #1b5e20); color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.btn-secondary { background: var(--surf2); border: 1px solid var(--border); color: var(--text); }
+.btn-danger { background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.3); color: var(--red); }
+.btn-success { background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.3); color: var(--green); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
 
-/* HEADER */
-.hdr{background:linear-gradient(135deg,var(--navy),var(--navy2));padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+/* Forms */
+.form-control { width: 100%; padding: 12px 16px; background: #000; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; margin-bottom: 12px; outline: none; transition: 0.2s;}
+.form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(46,125,50,0.2); }
+select.form-control { cursor: pointer; }
 
-/* TABS */
-.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
-.tabs::-webkit-scrollbar { display:none; }
-.tab{flex:none;padding:12px 20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:all .2s}
-.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+/* Layout */
+.ov { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.spinner { width: 45px; height: 45px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* CONTENT */
-.tab-content{display:none;padding:16px 16px 80px;max-width:600px;margin:0 auto}
-.tab-content.active{display:block}
+.login-box { background: var(--surface); padding: 40px 24px; border-radius: 16px; border: 1px solid var(--border); width: 90%; max-width: 340px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 
-/* Q-TABS (เพิ่มสไตล์สำหรับแท็บย่อยข้อสอบ) */
-.q-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; }
-.q-tabs::-webkit-scrollbar { display: none; }
-.q-tab { flex: none; padding: 6px 12px; background: var(--surf2); border: 1px solid var(--border); border-radius: 14px; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; transition: 0.2s; }
-.q-tab.active { background: rgba(255,215,0,0.15); border-color: var(--gold); color: var(--gold); }
-.q-content { display: none; flex-direction: column; gap: 10px; }
-.q-content.active { display: flex; }
+/* App Layout */
+.app-header { background: var(--surface); padding: 16px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+.app-title { font-size: 18px; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px;}
+.app-org { font-size: 12px; color: var(--muted); margin-top: 2px;}
 
-/* GRIDS & CARDS */
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
-.stat-val{font-size:28px;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--gold)}
-.stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+.tabs { display: flex; overflow-x: auto; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 10px; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { padding: 14px 16px; font-size: 14px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: 0.2s;}
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(46,125,50,0.1); }
 
-.data-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px; animation:fadeUp .3s ease; display: flex; flex-direction: column; gap: 10px;}
-.data-hdr { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-.badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; font-family:'IBM Plex Mono',monospace;}
-.badge.pdf { background: rgba(248,81,73,0.15); color: #f85149; }
-.badge.video { background: rgba(255,152,0,0.15); color: #ff9800; }
-.badge.link { background: rgba(46,160,67,0.15); color: #2ea043; }
-.badge.active { background: rgba(0,200,83,0.15); color: var(--green); border: 1px solid var(--green);}
-.badge.inactive { background: rgba(255,82,82,0.15); color: var(--red); border: 1px solid var(--red);}
+.tab-content { padding: 20px 16px; display: none; flex-direction: column; gap: 16px; max-width: 800px; margin: 0 auto; width: 100%;}
+.tab-content.active { display: flex; }
 
-/* FORM & MODAL */
-.form-group{margin-bottom:16px}
-.form-label{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;display:block}
-input[type=text],input[type=number],textarea,select{width:100%;background:var(--surf2);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;font-family:'Sarabun',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
-input:focus,textarea:focus,select:focus{border-color:var(--gold);}
-textarea{resize:vertical;min-height:80px}
-select option{background:var(--surf2);color:var(--text)}
+/* Sub Tabs (For Questions) */
+.sub-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 4px; }
+.sub-tabs::-webkit-scrollbar { display: none; }
+.sub-tab { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; background: var(--bg); border: 1px solid var(--border); color: var(--muted); cursor: pointer; white-space: nowrap; transition: 0.2s; }
+.sub-tab.active { background: rgba(46, 125, 50, 0.15); border-color: var(--primary); color: var(--primary); }
 
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:flex;align-items:flex-end}
-.modal-backdrop.hidden{display:none!important}
-.modal{background:var(--surface);border-top-left-radius:20px;border-top-right-radius:20px;padding:24px 20px;width:100%;max-height:90vh;overflow-y:auto;border:1px solid var(--border)}
+/* Cards & Lists */
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+.stat-val { font-size: 28px; font-weight: 800; color: var(--primary); font-family: 'IBM Plex Mono', monospace; margin-bottom: 4px; }
+.stat-label { font-size: 12px; color: var(--muted); }
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold)}
-.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a}
-.btn-red{background:rgba(255,82,82,0.15);color:var(--red);border:1px solid rgba(255,82,82,0.3)}
-.btn-secondary{background:var(--surf2);color:var(--text);border:1px solid var(--border)}
-.btn-sm{padding:8px 14px;font-size:13px}
-.btn-full{width:100%}
+.list-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.list-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.list-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.list-sub { font-size: 12px; color: var(--muted); }
+.badge { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: var(--surf2); border: 1px solid var(--border); color: var(--secondary); }
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.hidden{display:none!important}
+/* Custom Modal */
+.modal-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(2px);}
+.modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+.modal-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; color: var(--secondary); border-bottom: 1px dashed var(--border); padding-bottom: 10px; text-transform: uppercase;}
+
+/* Alert & Confirm Modals */
+.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(2px);}
+.ca-ov.active { opacity: 1; pointer-events: auto; }
+.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.ca-ov.active .ca-box { transform: scale(1); }
+.ca-icon { font-size: 60px; margin-bottom: 15px; line-height: 1; }
+.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
+.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.ca-btn-group { display: flex; gap: 12px; justify-content: center; }
+.ca-btn { flex: 1; padding: 12px 0; border-radius: 8px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
+.ca-btn-cancel { background: var(--surf2); border: 1px solid var(--border); color: var(--text); }
+.ca-btn-confirm { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(46,125,50,0.3); }
+.ca-btn-danger { background: var(--red); color: #fff; box-shadow: 0 4px 15px rgba(255,82,82,0.3); }
+.ca-btn:active { transform: scale(0.96); }
 </style>
 </head>
 <body>
 
+<!-- Loading Overlay -->
 <div id="ov-load" class="ov">
-  <div class="ov-spinner"></div>
-  <div style="font-size:18px;font-weight:800;color:var(--gold)">Admin Dashboard</div>
-  <div style="font-size:13px;color:var(--muted)" id="load-txt">กำลังเชื่อมต่อ...</div>
+  <div class="spinner"></div>
+  <div style="font-weight: 700; color: var(--muted);" id="load-msg">กำลังเชื่อมต่อศูนย์บัญชาการ...</div>
 </div>
 
-<div id="ov-login" class="ov hidden">
-  <div class="login-box">
-    <div style="font-size:56px;margin-bottom:12px">🔐</div>
-    <div style="font-size:20px;font-weight:800;color:var(--gold);">Admin Dashboard</div>
-    <div style="font-size:13px;color:var(--muted);">กรอกรหัสผ่านผู้ดูแลระบบ</div>
-    <input type="password" class="pin-input" id="pin-input" placeholder="••••••" maxlength="20">
-    <div class="err-msg" id="err-msg"></div>
-    <button class="btn btn-gold btn-full" onclick="doLogin()">🔓 เข้าสู่ระบบ</button>
+<!-- Custom Alert & Confirm -->
+<div id="custom-alert" class="ca-ov">
+  <div class="ca-box">
+    <div id="ca-icon" class="ca-icon">⚠️</div>
+    <div id="ca-title" class="ca-title">แจ้งเตือน</div>
+    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <div id="ca-btn-group" class="ca-btn-group"></div>
   </div>
 </div>
 
+<!-- Login Screen -->
+<div id="ov-login" class="ov hidden">
+  <div class="login-box">
+    <div style="font-size: 60px; margin-bottom: 10px;">🎖️</div>
+    <h2 style="margin-bottom: 5px; color: var(--secondary);" class="dynamic-app-name">Command Center</h2>
+    <div style="font-size: 13px; color: var(--muted); margin-bottom: 24px;" class="dynamic-org-name">Organization</div>
+    <input type="password" id="inp-pin" class="form-control" style="text-align:center; font-size:20px; letter-spacing:4px;" placeholder="รหัสผ่านผู้บังคับบัญชา">
+    <button class="btn btn-primary" style="width: 100%;" onclick="doLogin()">ยืนยันตัวตน</button>
+  </div>
+</div>
+
+<!-- Main App -->
 <div id="app" class="hidden">
-  <div class="hdr">
-    <div style="display:flex; align-items:center; gap:12px;">
-      <div style="width:36px;height:36px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🎖️</div>
-      <div>
-        <div style="font-size:15px;font-weight:800;color:var(--gold)">Admin Dashboard</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.55)">Unit School</div>
-      </div>
+  <div class="app-header">
+    <div>
+      <div class="app-title dynamic-app-name">Command Center</div>
+      <div class="app-org dynamic-org-name">System</div>
     </div>
-    <button class="btn btn-secondary btn-sm" onclick="loadData()">🔄</button>
+    <div class="flex gap-2">
+      <button class="btn btn-secondary btn-sm" onclick="loadData()">🔄 รีเฟรช</button>
+      <button class="btn btn-secondary btn-sm" onclick="liff.closeWindow()">❌ ปิด</button>
+    </div>
   </div>
 
   <div class="tabs">
-    <div class="tab active" onclick="showTab('overview')">📊 ภาพรวม</div>
-    <div class="tab" onclick="showTab('leaderboard')">🏆 อันดับ</div>
-    <div class="tab" onclick="showTab('members')">👤 กำลังพล</div>
-    <div class="tab" onclick="showTab('questions')">📝 ข้อสอบ</div>
-    <div class="tab" onclick="showTab('library')">📚 คลังความรู้</div>
-    <div class="tab" onclick="showTab('store')">🛒 ร้านค้า PX</div>
+    <div class="tab active" onclick="showTab('dashboard')">📡 สถานการณ์</div>
+    <div class="tab" onclick="showTab('members')">🪖 กำลังพล</div>
+    <div class="tab" onclick="showTab('questions')">📋 คลังข้อสอบ</div>
+    <div class="tab" onclick="showTab('library')">📻 ยุทโธปกรณ์</div>
+    <div class="tab" onclick="showTab('store')">🚁 สวัสดิการ PX</div>
+    <div class="tab" onclick="showTab('settings')">⚙️ ตั้งค่าระบบ</div>
   </div>
 
-  <!-- TAB OVERVIEW -->
-  <div id="tab-overview" class="tab-content active">
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-val" id="s-members">—</div><div class="stat-label">กำลังพลลงทะเบียน</div></div>
-      <div class="stat-card" style="color:var(--green)"><div class="stat-val" id="s-examed" style="color:var(--green)">—</div><div class="stat-label" style="color:var(--green)">ทำข้อสอบแล้ว</div></div>
-      <div class="stat-card" style="color:var(--red)"><div class="stat-val" id="s-not" style="color:var(--red)">—</div><div class="stat-label" style="color:var(--red)">ยังไม่ได้สอบ</div></div>
-      <div class="stat-card"><div class="stat-val" id="s-avg" style="color:var(--blue)">—%</div><div class="stat-label">คะแนนเฉลี่ย</div></div>
-    </div>
-
-    <div style="font-weight:700; color:var(--muted); margin:20px 0 10px;">⚙️ ตั้งค่าระบบ</div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;">
-      <div class="form-group">
-        <label class="form-label">เวลาในการทำข้อสอบ (นาที)</label>
-        <input type="number" id="inp-exam-time" placeholder="เช่น 20">
+  <!-- TAB: Dashboard -->
+  <div class="tab-content active" id="tab-dashboard">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-members">0</div>
+        <div class="stat-label">ยอด<span class="dynamic-term-user">กำลังพล</span>รวม</div>
       </div>
-      <button class="btn btn-gold btn-full" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
-    </div>
-  </div>
-
-  <!-- TAB LEADERBOARD -->
-  <div id="tab-leaderboard" class="tab-content">
-    <div style="font-weight:700; color:var(--muted); margin-bottom:12px;">🏆 ตารางอันดับคะแนนรวม</div>
-    <div id="lb-container" style="display:flex; flex-direction:column; gap:10px;"></div>
-  </div>
-
-  <!-- TAB MEMBERS -->
-  <div id="tab-members" class="tab-content">
-    <div style="font-weight:700; color:var(--muted); margin-bottom:12px;">👤 รายชื่อกำลังพลทั้งหมด</div>
-    <div id="members-container" style="display:flex; flex-direction:column; gap:10px;"></div>
-  </div>
-
-  <!-- TAB QUESTIONS -->
-  <div id="tab-questions" class="tab-content">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <div style="font-weight:700; color:var(--muted);">📝 คลังข้อสอบ</div>
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-secondary btn-sm" onclick="openImportModal()">📥 นำเข้าข้อสอบ</button>
-        <button class="btn btn-gold btn-sm" onclick="openAddQuestion()">+ เพิ่มข้อสอบ</button>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-examed" style="color: var(--secondary);">0</div>
+        <div class="stat-label">ผ่านการทดสอบแล้ว</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-questions" style="color: var(--blue);">0</div>
+        <div class="stat-label">ข้อสอบในคลัง</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-avg" style="color: var(--green);">0%</div>
+        <div class="stat-label">คะแนนเฉลี่ยรวม</div>
       </div>
     </div>
-    <div id="q-container"></div>
   </div>
 
-  <!-- TAB LIBRARY -->
-  <div id="tab-library" class="tab-content">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <div style="font-weight:700; color:var(--muted);">📚 จัดการคลังความรู้</div>
-      <button class="btn btn-gold btn-sm" onclick="openAddLibrary()">+ เพิ่มสื่อการสอน</button>
+  <!-- TAB: Members -->
+  <div class="tab-content" id="tab-members">
+    <div class="flex justify-between items-center mb-2">
+      <h3 style="font-size:16px;">บัญชีรายชื่อ<span class="dynamic-term-user">กำลังพล</span></h3>
+      <input type="text" id="search-member" class="form-control" style="width: 150px; margin:0; padding:6px 12px;" placeholder="ค้นหาชื่อ..." onkeyup="renderMembers()">
     </div>
-    <div id="lib-container"></div>
+    <div id="list-members" class="flex flex-col gap-2"></div>
   </div>
 
-  <!-- TAB STORE -->
-  <div id="tab-store" class="tab-content">
-    <div class="q-tabs" style="margin-bottom: 20px;">
-      <div class="q-tab active" onclick="showStoreSubTab('rewards')" id="s-tab-btn-rewards">🎁 จัดการของรางวัล</div>
-      <div class="q-tab" onclick="showStoreSubTab('requests')" id="s-tab-btn-requests">🔔 รายการขอแลกรางวัล</div>
-    </div>
-
-    <!-- Sub-tab: Rewards -->
-    <div class="q-content active" id="s-content-rewards">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <div style="font-size:12px; color:var(--muted);">แคตตาล็อกรางวัลที่เปิดให้แลก</div>
-        <button class="btn btn-gold btn-sm" onclick="openAddReward()">+ เพิ่มของรางวัล</button>
+  <!-- TAB: Questions -->
+  <div class="tab-content" id="tab-questions">
+    <div class="flex justify-between items-center mb-2">
+      <h3 style="font-size:16px;">จัดการแบบทดสอบ</h3>
+      <div class="flex gap-2">
+        <button class="btn btn-secondary btn-sm" onclick="openModal('modal-import-q')">📥 นำเข้า</button>
+        <button class="btn btn-primary btn-sm" onclick="openQuestionModal()">+ เพิ่มข้อ</button>
       </div>
-      <div id="reward-container"></div>
+    </div>
+    
+    <div class="sub-tabs" id="q-sub-tabs"></div>
+
+    <div id="q-subject-control" class="hidden" style="background: var(--surface); padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px;">
     </div>
 
-    <!-- Sub-tab: Requests -->
-    <div class="q-content" id="s-content-requests">
-      <div style="font-size:12px; color:var(--muted); margin-bottom:16px;">กำลังพลที่กดขอแลกรางวัล รอการอนุมัติ</div>
-      <div id="request-container"></div>
+    <div id="list-questions" class="flex flex-col gap-2"></div>
+  </div>
+
+  <!-- TAB: Library -->
+  <div class="tab-content" id="tab-library">
+    <div class="flex justify-between items-center mb-2">
+      <h3 style="font-size:16px;">คลังตำรา / รปป.</h3>
+      <div class="flex gap-2">
+        <button class="btn btn-secondary btn-sm" onclick="openBroadcastModal()">📢 แจ้งเตือน</button>
+        <button class="btn btn-primary btn-sm" onclick="openLibraryModal()">+ เพิ่มสื่อ</button>
+      </div>
+    </div>
+    <div id="list-library" class="flex flex-col gap-2"></div>
+  </div>
+
+  <!-- TAB: Store -->
+  <div class="tab-content" id="tab-store">
+    <div class="flex justify-between items-center mb-2">
+      <h3 style="font-size:16px;">สวัสดิการ PX</h3>
+      <button class="btn btn-primary btn-sm" onclick="openRewardModal()">+ เพิ่มสินค้า</button>
+    </div>
+    <div id="list-rewards" class="flex flex-col gap-2 mb-4"></div>
+
+    <h3 style="font-size:16px; border-top: 1px solid var(--border); padding-top: 16px;">คำขอเบิกสวัสดิการ</h3>
+    <div id="list-redemptions" class="flex flex-col gap-2"></div>
+  </div>
+
+  <!-- TAB: Settings -->
+  <div class="tab-content" id="tab-settings">
+    <div class="list-card">
+      <div class="list-title mb-2">ตั้งค่าระบบทั่วไป</div>
+      <label class="stat-label">เวลาทำแบบทดสอบมาตรฐาน (นาที)</label>
+      <input type="number" id="inp-exam-time" class="form-control" value="20">
+      <button class="btn btn-primary" onclick="saveSettings()">💾 บันทึกการตั้งค่า</button>
+    </div>
+    <div class="list-card mt-4" style="border-color: rgba(255,82,82,0.3);">
+      <div class="list-title" style="color: var(--red);">คำสั่งขั้นเด็ดขาด (Danger Zone)</div>
+      <div class="list-sub mb-2">รีเซ็ตกระดานคะแนนของทุกคน (ข้อมูลประวัติการสอบเก่าจะหายไปทั้งหมด)</div>
+      <button class="btn btn-danger" onclick="resetAllExams()">⚠️ ล้างประวัติการทดสอบทุกคน</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: QUESTION -->
-<div id="modal-q" class="modal-backdrop hidden" onclick="closeModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:18px; font-weight:800; color:var(--gold); margin-bottom:20px;" id="mq-title">เพิ่มข้อสอบ</div>
+<!-- ================= MODALS ================= -->
+
+<!-- 📢 Modal: Broadcast Message -->
+<div id="modal-broadcast" class="modal-ov hidden" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">📢 ประกาศคำสั่งศูนย์บัญชาการ</div>
+    <div class="stat-label mb-2">คำสั่งนี้จะถูกส่งตรงไปยังแชท LINE ของกำลังพล</div>
+    
+    <label class="stat-label mt-2">กลุ่มเป้าหมาย</label>
+    <select id="inp-broadcast-target-type" class="form-control" onchange="updateBroadcastTargetOptions()">
+      <option value="ALL">กำลังพลทั้งหมดในระบบ</option>
+      <option value="LEVEL">แยกตาม ยศ/ชั้น</option>
+      <option value="POSITION">แยกตาม สังกัด/ตำแหน่ง</option>
+    </select>
+    
+    <div id="wrap-broadcast-target-val" class="hidden">
+      <label class="stat-label">เลือกกลุ่มเป้าหมายย่อย</label>
+      <select id="inp-broadcast-target-val" class="form-control"></select>
+    </div>
+    
+    <label class="stat-label mt-2">พิมพ์ข้อความคำสั่ง</label>
+    <textarea id="inp-broadcast-msg" class="form-control" rows="5" placeholder="ตัวอย่าง: ประกาศ! ให้กำลังพลทุกนายเข้ารับการทดสอบ..."></textarea>
+    
+    <div class="flex gap-2 mt-4">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeAllModal()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1; background:var(--secondary); color:#000;" id="btn-send-broadcast" onclick="sendBroadcast()">🚀 ยืนยันส่งคำสั่ง</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add/Edit Question -->
+<div id="modal-q" class="modal-ov hidden" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title" id="mq-title">เพิ่มแบบทดสอบ</div>
     <input type="hidden" id="mq-id">
-    <div class="form-group"><label class="form-label">คำถาม</label><textarea id="mq-text"></textarea></div>
-    <div class="form-group"><label class="form-label">ตัวเลือก A</label><input type="text" id="mq-a"></div>
-    <div class="form-group"><label class="form-label">ตัวเลือก B</label><input type="text" id="mq-b"></div>
-    <div class="form-group"><label class="form-label">ตัวเลือก C</label><input type="text" id="mq-c"></div>
-    <div class="form-group"><label class="form-label">ตัวเลือก D</label><input type="text" id="mq-d"></div>
-    <div class="form-group"><label class="form-label">เฉลย</label>
-      <select id="mq-ans"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
+    <label class="stat-label">หลักสูตร / วิชา</label>
+    <input type="text" id="mq-cat" class="form-control" placeholder="เช่น วิชาทหารทั่วไป">
+    <label class="stat-label">โจทย์คำถาม</label>
+    <textarea id="mq-text" class="form-control" rows="3" placeholder="พิมพ์คำถาม..."></textarea>
+    <div class="flex gap-2">
+      <input type="text" id="mq-a" class="form-control" placeholder="ตัวเลือก A">
+      <input type="text" id="mq-b" class="form-control" placeholder="ตัวเลือก B">
     </div>
-    <div class="form-group"><label class="form-label">หมวดหมู่/รายวิชา</label><input type="text" id="mq-cat"></div>
-    <div style="display:flex; gap:10px; margin-top:20px;">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeAllModal()">ยกเลิก</button>
-      <button class="btn btn-gold" style="flex:2" onclick="saveQuestion()">💾 บันทึก</button>
+    <div class="flex gap-2">
+      <input type="text" id="mq-c" class="form-control" placeholder="ตัวเลือก C">
+      <input type="text" id="mq-d" class="form-control" placeholder="ตัวเลือก D">
     </div>
-  </div>
-</div>
-
-<!-- MODAL: IMPORT QUESTIONS -->
-<div id="modal-import" class="modal-backdrop hidden" onclick="closeModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:18px; font-weight:800; color:var(--gold); margin-bottom:10px;">📥 นำเข้าข้อสอบจาก Excel</div>
-    <div style="font-size:12px; color:var(--muted); margin-bottom:15px; line-height:1.5;">
-      ให้ Copy ข้อมูลจากตาราง Excel มาวางในกล่องด้านล่างนี้ โดยเรียงคอลัมน์ดังนี้:<br>
-      <b style="color:var(--text)">คำถาม | ตัวเลือก A | B | C | D | เฉลย | รายวิชา</b>
-    </div>
-    <div class="form-group">
-      <textarea id="mi-text" placeholder="วางข้อมูลจาก Excel ลงที่นี่..." style="min-height: 150px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: pre; overflow-x: auto;"></textarea>
-    </div>
-    <div style="display:flex; gap:10px; margin-top:20px;">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeAllModal()">ยกเลิก</button>
-      <button class="btn btn-gold" style="flex:2" onclick="processImport()" id="btn-import-submit">🚀 นำเข้าข้อมูล</button>
+    <label class="stat-label">เฉลยที่ถูกต้อง (A, B, C หรือ D)</label>
+    <select id="mq-ans" class="form-control">
+      <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+    </select>
+    <div class="flex gap-2 mt-2">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeAllModal()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveQuestion()">บันทึก</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: LIBRARY -->
-<div id="modal-lib" class="modal-backdrop hidden" onclick="closeModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:18px; font-weight:800; color:var(--gold); margin-bottom:20px;" id="ml-title">เพิ่มสื่อการสอน</div>
+<!-- Modal: Bulk Import Questions -->
+<div id="modal-import-q" class="modal-ov hidden" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">นำเข้าข้อสอบ (Excel)</div>
+    <div class="stat-label mb-2">รูปแบบ: คำถาม | A | B | C | D | เฉลย | วิชา<br>(คัดลอกตารางจาก Excel มาวางได้เลย)</div>
+    <textarea id="inp-import-data" class="form-control" rows="8" placeholder="วางข้อมูลที่นี่..."></textarea>
+    <div class="flex gap-2 mt-2">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeAllModal()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="submitImport()">นำเข้าข้อมูล</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add/Edit Library -->
+<div id="modal-lib" class="modal-ov hidden" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title" id="ml-title">เพิ่มยุทโธปกรณ์/ตำรา</div>
     <input type="hidden" id="ml-id">
-    
-    <div class="form-group">
-      <label class="form-label">ชื่อสื่อการสอน / บทเรียน</label>
-      <input type="text" id="ml-title-inp" placeholder="เช่น คู่มือการปฐมพยาบาล">
-    </div>
-    
-    <div class="form-group">
-      <label class="form-label">ประเภท (Type)</label>
-      <select id="ml-type">
-        <option value="PDF">📄 เอกสาร (PDF)</option>
-        <option value="VIDEO">🎥 วิดีโอ (YouTube/MP4)</option>
-        <option value="LINK">🔗 เว็บไซต์ (Link)</option>
-      </select>
-    </div>
-    
-    <div class="form-group">
-      <label class="form-label">URL (ลิงก์ไปยังไฟล์หรือเว็บ)</label>
-      <textarea id="ml-url" placeholder="https://..." style="min-height: 60px;"></textarea>
-    </div>
-    
-    <div class="form-group">
-      <label class="form-label">หมวดหมู่รายวิชา</label>
-      <input type="text" id="ml-cat" placeholder="เช่น วิชาอาวุธ">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">สถานะการแสดงผล</label>
-      <select id="ml-active">
-        <option value="YES">เปิดให้กำลังพลเข้าดูได้ (Active)</option>
-        <option value="NO">ซ่อนไว้ก่อน (Inactive)</option>
-      </select>
-    </div>
-    
-    <div style="display:flex; gap:10px; margin-top:20px;">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeAllModal()">ยกเลิก</button>
-      <button class="btn btn-gold" style="flex:2" onclick="saveLibrary()">💾 บันทึกข้อมูล</button>
+    <label class="stat-label">ชื่อตำรา/วิดีโอ</label>
+    <input type="text" id="ml-name" class="form-control">
+    <label class="stat-label">หมวดหมู่</label>
+    <input type="text" id="ml-cat" class="form-control" placeholder="เช่น รปป., วิดีโอฝึก">
+    <label class="stat-label">ประเภท</label>
+    <select id="ml-type" class="form-control">
+      <option value="PDF">เอกสาร PDF</option>
+      <option value="VIDEO">วิดีโอ (YouTube)</option>
+      <option value="LINK">เว็บไซต์</option>
+    </select>
+    <label class="stat-label">ลิงก์ (URL)</label>
+    <input type="text" id="ml-url" class="form-control" placeholder="https://...">
+    <div class="flex gap-2 mt-2">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeAllModal()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveLibrary()">บันทึก</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: STORE REWARD -->
-<div id="modal-reward" class="modal-backdrop hidden" onclick="closeModal(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:18px; font-weight:800; color:var(--gold); margin-bottom:20px;" id="mr-title">เพิ่มของรางวัล</div>
+<!-- Modal: Add/Edit Reward -->
+<div id="modal-rew" class="modal-ov hidden" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title" id="mr-title">เพิ่มสินค้า PX</div>
     <input type="hidden" id="mr-id">
-    
-    <div class="form-group">
-      <label class="form-label">ชื่อของรางวัล</label>
-      <input type="text" id="mr-name" placeholder="เช่น บัตรพัก 1 วัน">
-    </div>
-    <div class="form-group">
-      <label class="form-label">คำอธิบาย</label>
-      <input type="text" id="mr-desc" placeholder="เช่น ขออนุมัติผ่าน ผบ.ร้อย ได้ทันที">
-    </div>
-    <div style="display:flex; gap:10px;">
-      <div class="form-group" style="flex:1">
-        <label class="form-label">ราคา (เหรียญ)</label>
-        <input type="number" id="mr-price" placeholder="500">
+    <label class="stat-label">ชื่อสินค้า</label>
+    <input type="text" id="mr-name" class="form-control">
+    <label class="stat-label">รายละเอียด</label>
+    <input type="text" id="mr-desc" class="form-control">
+    <div class="flex gap-2">
+      <div style="flex:1;">
+        <label class="stat-label">ราคา (<span class="dynamic-term-coin">Coin</span>)</label>
+        <input type="number" id="mr-price" class="form-control">
       </div>
-      <div class="form-group" style="flex:1">
-        <label class="form-label">จำนวน (สิทธิ์)</label>
-        <input type="number" id="mr-stock" placeholder="10">
+      <div style="flex:1;">
+        <label class="stat-label">คงเหลือ (จำนวน)</label>
+        <input type="number" id="mr-stock" class="form-control">
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">ลิงก์รูปภาพ (Image URL)</label>
-      <input type="text" id="mr-image" placeholder="https://...">
-    </div>
-    <div class="form-group">
-      <label class="form-label">สถานะ (เปิด/ปิดให้แลก)</label>
-      <select id="mr-active"><option value="YES">เปิด (YES)</option><option value="NO">ปิด (NO)</option></select>
-    </div>
-    
-    <div style="display:flex; gap:10px; margin-top:20px;">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeAllModal()">ยกเลิก</button>
-      <button class="btn btn-gold" style="flex:2" onclick="saveReward()">💾 บันทึก</button>
+    <label class="stat-label">ลิงก์รูปภาพ (URL)</label>
+    <input type="text" id="mr-img" class="form-control" placeholder="https://...">
+    <div class="flex gap-2 mt-2">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeAllModal()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveReward()">บันทึก</button>
     </div>
   </div>
 </div>
 
 <script>
+// ==============================================
+// CONFIGURATION
+// ==============================================
 const LIFF_ID  = '2009717287-baGusOWI'; // LIFF ID Admin
 const GAS_URL  = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let adminSecret = '', adminData = null, userId = '';
+let adminSecret = '';
+let appData = {};
+let appConfig = null;
+let activeQuestionSubject = 'ALL'; 
+
+// Alert & Confirm Functions
+function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
+  document.getElementById('ca-icon').textContent = icon;
+  document.getElementById('ca-title').textContent = title;
+  document.getElementById('ca-msg').innerHTML = msg;
+  document.getElementById('ca-btn-group').innerHTML = `<button class="ca-btn ca-btn-confirm" onclick="closeCustomAlert()">รับทราบ</button>`;
+  document.getElementById('custom-alert').classList.add('active');
+}
+function closeCustomAlert() { document.getElementById('custom-alert').classList.remove('active'); }
+
+let confirmCallback = null;
+function customConfirm(msg, callback, title="ยืนยันคำสั่ง", icon="❓", btnClass="ca-btn-confirm") {
+  document.getElementById('ca-icon').textContent = icon;
+  document.getElementById('ca-title').textContent = title;
+  document.getElementById('ca-msg').innerHTML = msg;
+  document.getElementById('ca-btn-group').innerHTML = `
+    <button class="ca-btn ca-btn-cancel" onclick="closeCustomAlert()">ยกเลิก</button>
+    <button class="ca-btn ${btnClass}" id="btn-ca-ok">ยืนยัน</button>
+  `;
+  confirmCallback = callback;
+  document.getElementById('btn-ca-ok').onclick = () => { closeCustomAlert(); if(confirmCallback) confirmCallback(); };
+  document.getElementById('custom-alert').classList.add('active');
+}
 
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
-    if (!liff.isLoggedIn()) { liff.login(); return; }
-    userId = (await liff.getProfile()).userId;
+    
+    const configRes = await callAPI('GET', { action: 'get_config' });
+    if(configRes.status === 'ok') { 
+      appConfig = configRes.config; 
+      applyTemplate(appConfig); 
+    }
+    
     document.getElementById('ov-load').classList.add('hidden');
     document.getElementById('ov-login').classList.remove('hidden');
-  } catch(e) { document.getElementById('load-txt').textContent = '❌ ' + e.message; }
+  } catch(e) {
+    customAlert('Liff Error: ' + e.message, 'เกิดข้อผิดพลาด', '❌');
+  }
+}
+
+function applyTemplate(config) {
+  if(!config) return;
+  document.documentElement.style.setProperty('--primary', config.colorPrimary);
+  document.documentElement.style.setProperty('--secondary', config.colorSecondary);
+  
+  document.title = `${config.appName} - ศูนย์บัญชาการ`;
+  document.querySelectorAll('.dynamic-app-name').forEach(el => el.textContent = config.appName);
+  document.querySelectorAll('.dynamic-org-name').forEach(el => el.textContent = config.orgName);
+  document.querySelectorAll('.dynamic-term-user').forEach(el => el.textContent = config.termUser || 'กำลังพล');
+  document.querySelectorAll('.dynamic-term-coin').forEach(el => el.textContent = config.termCoin || 'เหรียญ PX');
 }
 
 async function doLogin() {
-  const secret = document.getElementById('pin-input').value.trim();
-  if (!secret) return;
+  const pin = document.getElementById('inp-pin').value.trim();
+  if(!pin) return;
+  document.getElementById('load-msg').textContent = 'กำลังตรวจสอบรหัสผ่าน...';
   document.getElementById('ov-login').classList.add('hidden');
   document.getElementById('ov-load').classList.remove('hidden');
 
   try {
-    const res = await callAPI('POST', { action:'admin_login', userId, secret });
-    if (res.status !== 'ok') throw new Error(res.message);
-    adminSecret = secret;
-    await loadData();
-    document.getElementById('ov-load').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
+    const res = await callAPI('POST', { action: 'admin_login', userId: 'ADMIN', secret: pin });
+    if (res.status === 'ok') {
+      adminSecret = pin;
+      await loadData();
+      document.getElementById('ov-load').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+    } else { throw new Error('รหัสผ่านไม่ถูกต้อง ระวังการบุกรุก'); }
   } catch(e) {
     document.getElementById('ov-load').classList.add('hidden');
     document.getElementById('ov-login').classList.remove('hidden');
-    document.getElementById('err-msg').textContent = '❌ ' + e.message;
+    customAlert(e.message, 'การยืนยันตัวตนล้มเหลว', '⛔');
   }
 }
 
 async function loadData() {
+  document.getElementById('ov-load').classList.remove('hidden');
   try {
-    const res = await callAPI('GET', { action:'admin_data', secret: adminSecret });
-    if (res.status !== 'ok') throw new Error(res.message);
-    adminData = res;
-    renderAll();
-  } catch(e) { alert('โหลดข้อมูลล้มเหลว: ' + e.message); }
+    const res = await callAPI('GET', { action: 'admin_data', secret: adminSecret });
+    if(res.status === 'ok') {
+      appData = res;
+      if(res.config) { appConfig = res.config; applyTemplate(appConfig); }
+      renderAll();
+    } else { throw new Error(res.message); }
+  } catch(e) { customAlert(e.message, 'เชื่อมต่อข้อมูลล้มเหลว', '📡'); }
+  finally { document.getElementById('ov-load').classList.add('hidden'); }
+}
+
+function showTab(tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
 }
 
 function renderAll() {
-  // Overview
-  const s = adminData.stats;
-  document.getElementById('s-members').textContent = s.totalMembers;
-  document.getElementById('s-examed').textContent = s.totalExamed;
-  document.getElementById('s-not').textContent = s.notExamed;
-  document.getElementById('s-avg').textContent = s.avgScore + '%';
-  if(adminData.settings) document.getElementById('inp-exam-time').value = adminData.settings.examTimeMinutes;
+  renderDashboard();
+  renderMembers();
+  renderQuestions();
+  renderLibrary();
+  renderStore();
+  if (appData.settings) { document.getElementById('inp-exam-time').value = appData.settings.examTimeMinutes; }
+}
 
-  // Leaderboard
-  const lbHtml = (adminData.leaderboard || []).map((e, i) => `
-    <div class="data-card" style="flex-direction:row; align-items:center;">
-      <div style="font-size:24px; font-weight:800; color:var(--gold); width:30px;">${i+1}</div>
-      <div style="flex:1;">
-        <div style="font-weight:700;">${e.fullName}</div>
-        <div style="font-size:11px; color:var(--muted);">${e.position || '-'}</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="font-weight:800; color:var(--gold); font-family:monospace;">${e.totalScore}/${e.maxScore}</div>
-        <div style="font-size:11px;">${Math.round(e.percentage)}%</div>
-      </div>
-      <button class="btn btn-red btn-sm" style="margin-left:10px;" onclick="resetUser('${e.userId}')">รีเซ็ต</button>
-    </div>
-  `).join('');
-  document.getElementById('lb-container').innerHTML = lbHtml || '<div style="text-align:center; color:var(--muted);">ไม่มีข้อมูล</div>';
+function renderDashboard() {
+  const st = appData.stats || {};
+  document.getElementById('stat-members').textContent = st.totalMembers || 0;
+  document.getElementById('stat-examed').textContent = st.totalExamed || 0;
+  document.getElementById('stat-questions').textContent = st.totalQuestions || 0;
+  document.getElementById('stat-avg').textContent = (st.avgScore || 0) + '%';
+}
 
-  // Members
-  const mHtml = (adminData.members || []).map(m => `
-    <div class="data-card">
-      <div style="font-weight:700;">${m.fullName} <span style="font-size:11px; color:var(--muted); font-weight:normal;">(${m.rank})</span></div>
-      <div style="font-size:12px; color:var(--muted);">ตำแหน่ง: ${m.position}</div>
-    </div>
-  `).join('');
-  document.getElementById('members-container').innerHTML = mHtml;
+function renderMembers() {
+  const q = document.getElementById('search-member').value.toLowerCase();
+  const list = document.getElementById('list-members'); list.innerHTML = '';
+  let members = appData.members || [];
+  if (q) members = members.filter(m => m.fullName.toLowerCase().includes(q) || m.rank.toLowerCase().includes(q) || (m.nickname||'').toLowerCase().includes(q));
 
-  // Questions (พร้อมแท็บรายวิชาและปุ่มเปิด/ปิด)
-  window._qMap = {};
-  const qGroups = {};
-  (adminData.questions || []).forEach(q => {
-    window._qMap[q.questionId] = q;
-    const cat = q.category || 'ทั่วไป';
-    if (!qGroups[cat]) qGroups[cat] = [];
-    qGroups[cat].push(q);
-  });
+  if (members.length === 0) return list.innerHTML = '<div class="text-center text-muted">ไม่พบประวัติกำลังพล</div>';
 
-  const cats = Object.keys(qGroups).sort();
-  if (cats.length === 0) {
-    document.getElementById('q-container').innerHTML = '<div style="text-align:center; color:var(--muted);">ยังไม่มีข้อสอบ</div>';
-  } else {
-    if (!window._activeQTab || !cats.includes(window._activeQTab)) window._activeQTab = cats[0];
+  members.forEach(m => {
+    const scoreObj = (appData.scores||[]).find(s => s.userId === m.userId);
+    let sText = scoreObj ? `<span style="color:var(--green)">${scoreObj.percentage}%</span>` : `<span style="color:var(--muted)">ยังไม่ผ่านการทดสอบ</span>`;
+    let nickText = m.nickname ? ` (${m.nickname})` : '';
     
-    let tabsHtml = '<div class="q-tabs">';
-    let contentsHtml = '';
-    
-    cats.forEach(cat => {
-      const isActive = cat === window._activeQTab ? 'active' : '';
-      const activeCount = qGroups[cat].filter(q => q.active === 'YES').length;
-      const isCatActive = activeCount > 0;
-      
-      tabsHtml += `<div class="q-tab ${isActive}" onclick="showQTab('${cat}')" id="q-tab-btn-${cat}">${cat} (${qGroups[cat].length})</div>`;
-      
-      contentsHtml += `<div class="q-content ${isActive}" id="q-content-${cat}">`;
-      contentsHtml += `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:12px; background:rgba(255,255,255,0.05); border-radius:10px; border:1px solid var(--border);">
+    list.innerHTML += `
+      <div class="list-card">
+        <div class="list-header">
           <div>
-            <div style="font-weight:700; color:var(--gold)">วิชา: ${cat}</div>
-            <div style="font-size:11px; color:var(--muted)">เปิดใช้งาน ${activeCount}/${qGroups[cat].length} ข้อ</div>
+            <div class="list-title">${m.fullName}${nickText}</div>
+            <div class="list-sub">${appConfig ? appConfig.termLevel : 'ยศ'}: ${m.rank} | ${appConfig ? appConfig.termPosition : 'สังกัด'}: ${m.position}</div>
+            <div class="list-sub mt-2">ผลประเมิน: ${sText}</div>
           </div>
-          <button class="btn btn-sm ${isCatActive ? 'btn-red' : 'btn-secondary'}" style="width:auto; padding:6px 12px; margin:0;" onclick="toggleSubject('${cat}', '${isCatActive ? 'NO' : 'YES'}')">
-            ${isCatActive ? '🔴 ปิดรายวิชานี้' : '🟢 เปิดรายวิชานี้'}
-          </button>
+          <button class="btn btn-danger btn-sm" onclick="resetUserExam('${m.userId}', '${m.fullName}')">ล้างประวัติ</button>
         </div>
-      `;
-      
-      contentsHtml += qGroups[cat].map(q => {
-        const badgeActive = q.active === 'YES' ? '<span class="badge active" style="margin-left:8px;">เปิด</span>' : '<span class="badge inactive" style="margin-left:8px;">ปิด</span>';
-        return `
-        <div class="data-card" style="margin-bottom:0;">
-          <div class="data-hdr">
-            <div>
-              <span class="badge" style="background:var(--surf2); color:var(--text);">${q.category}</span>
-              ${badgeActive}
-            </div>
-            <div style="font-size:11px; font-family:monospace; color:var(--muted);">${q.questionId}</div>
-          </div>
-          <div style="font-size:14px; font-weight:600; margin:10px 0;">${q.questionText}</div>
-          <div style="font-size:12px; color:var(--muted);">
-            A: ${q.choiceA} ${q.correctAnswer==='A'?'✅':''}<br>
-            B: ${q.choiceB} ${q.correctAnswer==='B'?'✅':''}<br>
-            C: ${q.choiceC} ${q.correctAnswer==='C'?'✅':''}<br>
-            D: ${q.choiceD} ${q.correctAnswer==='D'?'✅':''}
-          </div>
-          <div style="display:flex; gap:10px; margin-top:10px;">
-            <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openEditQuestion('${q.questionId}')">✏️ แก้ไข</button>
-            <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteQuestion('${q.questionId}')">🗑️ ลบ</button>
-          </div>
-        </div>`;
-      }).join('');
-      contentsHtml += `</div>`;
-    });
-    tabsHtml += '</div>';
-    document.getElementById('q-container').innerHTML = tabsHtml + contentsHtml;
+      </div>
+    `;
+  });
+}
+
+function renderQuestions() {
+  const list = document.getElementById('list-questions'); const subTabs = document.getElementById('q-sub-tabs'); const subjCtrl = document.getElementById('q-subject-control');
+  list.innerHTML = ''; subTabs.innerHTML = ''; subjCtrl.innerHTML = '';
+  const qs = appData.questions || [];
+
+  if (qs.length === 0) { list.innerHTML = '<div class="text-center text-muted">ไม่มีข้อมูลในคลัง</div>'; subjCtrl.classList.add('hidden'); return; }
+
+  const categories = [...new Set(qs.map(q => q.category || 'ทั่วไป'))];
+  if (activeQuestionSubject !== 'ALL' && !categories.includes(activeQuestionSubject)) activeQuestionSubject = 'ALL';
+
+  let tabsHtml = `<div class="sub-tab ${activeQuestionSubject === 'ALL' ? 'active' : ''}" onclick="setQuestionFilter('ALL')">ทั้งหมด (${qs.length})</div>`;
+  categories.forEach(cat => {
+    const count = qs.filter(q => (q.category||'ทั่วไป') === cat).length;
+    tabsHtml += `<div class="sub-tab ${activeQuestionSubject === cat ? 'active' : ''}" onclick="setQuestionFilter('${cat}')">${cat} (${count})</div>`;
+  });
+  subTabs.innerHTML = tabsHtml;
+
+  if (activeQuestionSubject === 'ALL') { subjCtrl.classList.add('hidden'); } 
+  else {
+     subjCtrl.classList.remove('hidden');
+     const qInCat = qs.filter(q => (q.category||'ทั่วไป') === activeQuestionSubject);
+     const isActive = qInCat.some(q => q.active === 'YES');
+     subjCtrl.innerHTML = `
+       <div class="flex justify-between items-center">
+         <div style="font-size:13px; font-weight:700; color:var(--text);">สถานะหลักสูตร: <span style="color:var(--secondary)">${activeQuestionSubject}</span></div>
+         <button class="btn ${isActive ? 'btn-success' : 'btn-danger'} btn-sm" onclick="toggleSubject('${activeQuestionSubject}', '${isActive ? 'NO' : 'YES'}')">
+           ${isActive ? '🟢 เปิดให้ทดสอบ' : '🔴 ปิดปรับปรุง'}
+         </button>
+       </div>
+     `;
   }
 
-  // Library
-  window._libMap = {};
-  const libHtml = (adminData.library || []).map(l => {
-    window._libMap[l.id] = l;
-    const tClass = l.type === 'PDF' ? 'pdf' : l.type === 'VIDEO' ? 'video' : 'link';
-    const activeClass = l.active === 'YES' ? 'active' : 'inactive';
-    const activeText = l.active === 'YES' ? 'ออนไลน์' : 'ซ่อน';
-    return `
-    <div class="data-card">
-      <div class="data-hdr">
-        <div style="display:flex; gap:6px;">
-          <span class="badge ${tClass}">${l.type}</span>
-          <span class="badge" style="background:var(--surf2); color:var(--text);">${l.category}</span>
-        </div>
-        <span class="badge ${activeClass}">${activeText}</span>
-      </div>
-      <div style="font-size:15px; font-weight:700; margin:10px 0;">${l.title}</div>
-      <div style="font-size:11px; color:var(--primary); word-break:break-all; margin-bottom:10px;">${l.url}</div>
-      <div style="display:flex; gap:10px;">
-        <button class="btn btn-secondary btn-sm" style="flex:1" onclick="openEditLibrary('${l.id}')">✏️ แก้ไข</button>
-        <button class="btn btn-red btn-sm" style="flex:1" onclick="deleteLibrary('${l.id}')">🗑️ ลบ</button>
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('lib-container').innerHTML = libHtml || '<div style="text-align:center; color:var(--muted);">ยังไม่มีสื่อการสอน</div>';
+  const filteredQs = activeQuestionSubject === 'ALL' ? qs : qs.filter(q => (q.category||'ทั่วไป') === activeQuestionSubject);
 
-  // Store - Rewards
-  window._rewMap = {};
-  const rewHtml = (adminData.rewards || []).map(r => {
-    window._rewMap[r.id] = r;
-    const activeBadge = r.active === 'YES' ? '<span class="badge active">เปิดแลก</span>' : '<span class="badge inactive">ซ่อน</span>';
-    return `
-    <div class="data-card" style="flex-direction:row; align-items:center; gap:16px;">
-      <img src="${r.image || 'https://cdn-icons-png.flaticon.com/512/10398/10398492.png'}" style="width:60px; height:60px; object-fit:contain; border-radius:8px; background:#fff; padding:4px;" onerror="this.style.display='none'">
-      <div style="flex:1; overflow:hidden;">
-        <div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">
-          <div style="font-weight:800; font-size:15px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${r.name}</div>
-          ${activeBadge}
-        </div>
-        <div style="font-size:12px; color:var(--muted); margin-bottom:4px;">${r.desc || '-'}</div>
-        <div style="font-size:12px; font-weight:700;">
-          <span style="color:var(--gold)">${r.price} 🪙</span> | <span style="color:var(--blue)">สต็อก: ${r.stock}</span>
+  filteredQs.forEach(q => {
+    list.innerHTML += `
+      <div class="list-card">
+        <div class="list-header">
+          <div>
+            <div class="badge mb-2">${q.category}</div>
+            <div class="list-title">${q.questionText}</div>
+            <div class="list-sub mt-2" style="color:var(--green)">✅ เฉลย ${q.correctAnswer}: ${q.choices ? q.choices[q.correctAnswer] : '-'}</div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <button class="btn btn-secondary btn-sm" onclick='editQuestion(${JSON.stringify(q).replace(/'/g, "&#39;")})'>แก้ไข</button>
+            <button class="btn btn-danger btn-sm" onclick="delQuestion('${q.questionId}')">ลบ</button>
+          </div>
         </div>
       </div>
-      <div style="display:flex; flex-direction:column; gap:6px;">
-        <button class="btn btn-secondary btn-sm" onclick="openEditReward('${r.id}')">✏️</button>
-        <button class="btn btn-red btn-sm" onclick="deleteReward('${r.id}')">🗑️</button>
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('reward-container').innerHTML = rewHtml || '<div style="text-align:center; color:var(--muted); padding:20px;">ยังไม่มีของรางวัล</div>';
-
-  // Store - Redemptions (Requests)
-  const reqHtml = (adminData.redemptions || []).filter(req => req.status === 'PENDING').map(req => `
-    <div class="data-card">
-      <div class="data-hdr" style="border-bottom:none; padding-bottom:0;">
-        <div style="font-weight:700; color:var(--blue);">${req.userName}</div>
-        <div style="font-size:11px; color:var(--muted);">${new Date(req.timestamp).toLocaleString()}</div>
-      </div>
-      <div style="font-size:14px; font-weight:600; margin:8px 0;">ขอแลก: ${req.rewardName} <span style="color:var(--gold)">(${req.price} 🪙)</span></div>
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <button class="btn btn-secondary btn-sm" style="flex:1; color:var(--red); border-color:var(--red);" onclick="updateRedemption('${req.id}', 'REJECTED')">❌ ปฏิเสธ (คืนเหรียญ)</button>
-        <button class="btn btn-gold btn-sm" style="flex:1; background:var(--green); color:#fff;" onclick="updateRedemption('${req.id}', 'APPROVED')">✅ อนุมัติให้รางวัล</button>
-      </div>
-    </div>
-  `).join('');
-  document.getElementById('request-container').innerHTML = reqHtml || '<div style="text-align:center; color:var(--muted); padding:20px;">ไม่มีคำขอแลกรางวัลที่ค้างอยู่</div>';
-}
-
-function showTab(name) {
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    const names = ['overview','leaderboard','members','questions', 'library', 'store'];
-    t.classList.toggle('active', names[i] === name);
+    `;
   });
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
 }
 
-function showQTab(cat) {
-  window._activeQTab = cat;
-  document.querySelectorAll('.q-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.q-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('q-tab-btn-' + cat).classList.add('active');
-  document.getElementById('q-content-' + cat).classList.add('active');
+window.setQuestionFilter = function(cat) { activeQuestionSubject = cat; renderQuestions(); }
+
+function renderLibrary() {
+  const list = document.getElementById('list-library'); list.innerHTML = '';
+  const libs = appData.library || [];
+  if (libs.length === 0) return list.innerHTML = '<div class="text-center text-muted">ยังไม่มีเอกสาร/สื่อ</div>';
+
+  libs.forEach(l => {
+    list.innerHTML += `
+      <div class="list-card">
+        <div class="list-header">
+          <div>
+            <div class="badge mb-2">${l.type} | ${l.category}</div>
+            <div class="list-title">${l.title}</div>
+            <div class="list-sub mt-2" style="word-break: break-all;">🔗 ${l.url}</div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <button class="btn btn-secondary btn-sm" onclick='editLibrary(${JSON.stringify(l).replace(/'/g, "&#39;")})'>แก้ไข</button>
+            <button class="btn btn-danger btn-sm" onclick="delLibrary('${l.id}')">ลบ</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
 }
 
-function showStoreSubTab(sub) {
-  document.querySelectorAll('#tab-store .q-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('#tab-store .q-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('s-tab-btn-' + sub).classList.add('active');
-  document.getElementById('s-content-' + sub).classList.add('active');
+function renderStore() {
+  const rList = document.getElementById('list-rewards'); const dList = document.getElementById('list-redemptions');
+  rList.innerHTML = ''; dList.innerHTML = '';
+
+  const rewards = appData.rewards || [];
+  if(rewards.length === 0) rList.innerHTML = '<div class="text-muted">ยังไม่มีสินค้า PX</div>';
+  rewards.forEach(r => {
+    rList.innerHTML += `
+      <div class="list-card flex" style="flex-direction:row; align-items:center;">
+        <img src="${r.image}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;background:#fff;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/10398/10398492.png'">
+        <div style="flex:1;">
+          <div class="list-title">${r.name}</div>
+          <div class="list-sub">ราคา: ${r.price} | คงคลัง: <span style="color:var(--secondary);font-weight:700;">${r.stock}</span></div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button class="btn btn-secondary btn-sm" onclick='editReward(${JSON.stringify(r).replace(/'/g, "&#39;")})'>แก้ไข</button>
+          <button class="btn btn-danger btn-sm" onclick="delReward('${r.id}')">ลบ</button>
+        </div>
+      </div>
+    `;
+  });
+
+  const redemps = appData.redemptions || []; const pending = redemps.filter(r => r.status === 'PENDING');
+  if(pending.length === 0) dList.innerHTML = '<div class="text-muted">ไม่มีคำขอเบิกสวัสดิการ</div>';
+  pending.forEach(r => {
+    dList.innerHTML += `
+      <div class="list-card">
+        <div class="list-header">
+          <div>
+            <div class="list-title">${r.userName}</div>
+            <div class="list-sub">ขอเบิก: <b style="color:var(--secondary)">${r.rewardName}</b> (${r.price} ${appConfig ? appConfig.termCoin : ''})</div>
+            <div class="list-sub mt-2 text-muted">เวลา: ${r.timestamp}</div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <button class="btn btn-success btn-sm" onclick="updateRedeem('${r.id}', 'APPROVED')">✅ อนุมัติ</button>
+            <button class="btn btn-danger btn-sm" onclick="updateRedeem('${r.id}', 'REJECTED')">❌ ปฏิเสธ</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
 }
 
-// --- QUESTIONS ---
-function openAddQuestion() {
-  document.getElementById('mq-title').textContent = '➕ เพิ่มข้อสอบ';
-  document.getElementById('mq-id').value = '';
-  ['text','a','b','c','d','cat'].forEach(k => document.getElementById('mq-'+k).value = '');
-  document.getElementById('mq-ans').value = 'A';
-  document.getElementById('modal-q').classList.remove('hidden');
+// ==============================================
+// ACTIONS
+// ==============================================
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(e) { if(e.target.classList.contains('modal-ov')) closeAllModal(); }
+function closeAllModal() { document.querySelectorAll('.modal-ov').forEach(m => m.classList.add('hidden')); }
+
+function openQuestionModal() {
+  document.getElementById('mq-title').textContent = 'เพิ่มแบบทดสอบ'; document.getElementById('mq-id').value = '';
+  document.getElementById('mq-cat').value = activeQuestionSubject === 'ALL' ? '' : activeQuestionSubject; 
+  document.getElementById('mq-text').value = ''; document.getElementById('mq-a').value = ''; document.getElementById('mq-b').value = '';
+  document.getElementById('mq-c').value = ''; document.getElementById('mq-d').value = ''; document.getElementById('mq-ans').value = 'A';
+  openModal('modal-q');
 }
-function openEditQuestion(id) {
-  const q = window._qMap[id];
-  document.getElementById('mq-title').textContent = '✏️ แก้ไขข้อสอบ';
-  document.getElementById('mq-id').value = q.questionId;
-  document.getElementById('mq-text').value = q.questionText;
-  document.getElementById('mq-a').value = q.choiceA;
-  document.getElementById('mq-b').value = q.choiceB;
-  document.getElementById('mq-c').value = q.choiceC;
-  document.getElementById('mq-d').value = q.choiceD;
-  document.getElementById('mq-ans').value = q.correctAnswer;
-  document.getElementById('mq-cat').value = q.category;
-  document.getElementById('modal-q').classList.remove('hidden');
+function editQuestion(q) {
+  document.getElementById('mq-title').textContent = 'แก้ไขแบบทดสอบ'; document.getElementById('mq-id').value = q.questionId;
+  document.getElementById('mq-cat').value = q.category; document.getElementById('mq-text').value = q.questionText;
+  document.getElementById('mq-a').value = q.choiceA; document.getElementById('mq-b').value = q.choiceB;
+  document.getElementById('mq-c').value = q.choiceC; document.getElementById('mq-d').value = q.choiceD; document.getElementById('mq-ans').value = q.correctAnswer;
+  openModal('modal-q');
 }
 async function saveQuestion() {
-  const data = {
-    action: 'save_question', secret: adminSecret,
-    questionId: document.getElementById('mq-id').value || undefined,
-    questionText: document.getElementById('mq-text').value,
-    choiceA: document.getElementById('mq-a').value, choiceB: document.getElementById('mq-b').value,
-    choiceC: document.getElementById('mq-c').value, choiceD: document.getElementById('mq-d').value,
-    correctAnswer: document.getElementById('mq-ans').value, category: document.getElementById('mq-cat').value
-  };
+  const id = document.getElementById('mq-id').value; const cat = document.getElementById('mq-cat').value;
+  const payload = { action: 'save_question', secret: adminSecret, questionId: id, category: cat, questionText: document.getElementById('mq-text').value, choiceA: document.getElementById('mq-a').value, choiceB: document.getElementById('mq-b').value, choiceC: document.getElementById('mq-c').value, choiceD: document.getElementById('mq-d').value, correctAnswer: document.getElementById('mq-ans').value };
+  try { await callAPI('POST', payload); closeAllModal(); if (cat) activeQuestionSubject = cat; await loadData(); customAlert('บันทึกข้อมูลเรียบร้อย', 'สำเร็จ', '✅'); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
+}
+function delQuestion(id) {
+  customConfirm('ยืนยันลบแบบทดสอบข้อนี้ออกจากคลัง?', async () => {
+    try { await callAPI('POST', {action:'delete_question', secret:adminSecret, questionId:id}); await loadData(); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
+  }, 'ยืนยันการลบ', '🗑️', 'ca-btn-danger');
+}
+function toggleSubject(sub, status) {
+  customConfirm(`ยืนยันคำสั่ง <b>${status==='YES'?'เปิด':'ปิด'}</b> หลักสูตร ${sub} ใช่หรือไม่?`, async () => {
+    try { await callAPI('POST', {action:'toggle_subject_active', secret:adminSecret, subject:sub, activeStatus:status}); await loadData(); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
+  }, 'จัดการหลักสูตร');
+}
+async function submitImport() {
+  const text = document.getElementById('inp-import-data').value.trim(); if(!text) return customAlert('กรุณาวางข้อมูลในช่องว่าง', 'แจ้งเตือน', '⚠️');
+  const lines = text.split('\n'); const qs = [];
+  for(let l of lines) { const cols = l.split('\t'); if(cols.length >= 6) { qs.push({ q:cols[0], a:cols[1], b:cols[2], c:cols[3], d:cols[4], ans:cols[5], cat:cols[6]||'ทั่วไป' }); } }
+  if(qs.length === 0) return customAlert('รูปแบบข้อมูลไม่ถูกต้อง กรุณาตรวจสอบการคัดลอกจาก Excel', 'แจ้งเตือน', '⚠️');
   try {
-    await callAPI('POST', data);
-    closeAllModal(); await loadData(); alert('✅ บันทึกข้อสอบสำเร็จ');
-  } catch(e) { alert(e.message); }
-}
-async function deleteQuestion(id) {
-  if(!confirm('ยืนยันลบข้อสอบ?')) return;
-  try { await callAPI('POST', {action:'delete_question', secret:adminSecret, questionId:id}); await loadData(); } catch(e) { alert(e.message); }
+    await callAPI('POST', {action:'import_questions', secret:adminSecret, questions:qs});
+    closeAllModal(); document.getElementById('inp-import-data').value = ''; activeQuestionSubject = 'ALL'; await loadData(); 
+    customAlert(`นำเข้าสำเร็จ ${qs.length} ข้อ`, 'ภารกิจสำเร็จ', '✅');
+  } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
 }
 
-async function toggleSubject(subject, status) {
-  const actionText = status === 'YES' ? 'เปิดใช้งาน' : 'ปิดการใช้งาน (ซ่อน)';
-  if(!confirm(`ยืนยันที่จะ ${actionText} ข้อสอบวิชา "${subject}" ทั้งหมดหรือไม่?`)) return;
-  try { 
-    await callAPI('POST', {action:'toggle_subject_active', secret:adminSecret, subject:subject, activeStatus:status}); 
-    await loadData(); 
-  } catch(e) { alert(e.message); }
+function openLibraryModal() {
+  document.getElementById('ml-title').textContent = 'เพิ่มยุทโธปกรณ์/สื่อ'; document.getElementById('ml-id').value = ''; document.getElementById('ml-name').value = '';
+  document.getElementById('ml-cat').value = ''; document.getElementById('ml-url').value = ''; openModal('modal-lib');
 }
-
-// --- IMPORT QUESTIONS ---
-function openImportModal() {
-  document.getElementById('mi-text').value = '';
-  document.getElementById('modal-import').classList.remove('hidden');
-}
-async function processImport() {
-  const text = document.getElementById('mi-text').value.trim();
-  if (!text) return alert('กรุณาวางข้อมูลก่อน');
-  
-  const lines = text.split('\n');
-  const qList = [];
-  
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-    
-    const cols = line.split('\t');
-    if (cols.length >= 6) {
-      qList.push({
-        q: cols[0].trim(),
-        a: cols[1].trim(),
-        b: cols[2].trim(),
-        c: cols[3].trim(),
-        d: cols[4].trim(),
-        ans: cols[5].trim().toUpperCase(),
-        cat: cols[6] ? cols[6].trim() : 'ทั่วไป'
-      });
-    }
-  }
-
-  if (qList.length === 0) return alert('ไม่พบข้อมูลที่ถูกต้อง กรุณาตรวจสอบการเรียงคอลัมน์ (ต้องมีอย่างน้อย 6 คอลัมน์)');
-  if (!confirm(`ตรวจสอบพบข้อสอบ ${qList.length} ข้อ ยืนยันการนำเข้าหรือไม่?`)) return;
-
-  const btn = document.getElementById('btn-import-submit');
-  btn.disabled = true;
-  btn.textContent = '⏳ กำลังนำเข้า...';
-
-  try {
-    const res = await callAPI('POST', { action: 'import_questions', secret: adminSecret, questions: qList });
-    closeAllModal();
-    await loadData();
-    alert('✅ ' + res.message);
-  } catch(e) {
-    alert('เกิดข้อผิดพลาด: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '🚀 นำเข้าข้อมูล';
-  }
-}
-
-// --- LIBRARY ---
-function openAddLibrary() {
-  document.getElementById('ml-title').textContent = '➕ เพิ่มสื่อการสอน';
-  document.getElementById('ml-id').value = '';
-  document.getElementById('ml-title-inp').value = '';
-  document.getElementById('ml-url').value = '';
-  document.getElementById('ml-cat').value = 'ทั่วไป';
-  document.getElementById('ml-type').value = 'PDF';
-  document.getElementById('ml-active').value = 'YES';
-  document.getElementById('modal-lib').classList.remove('hidden');
-}
-function openEditLibrary(id) {
-  const l = window._libMap[id];
-  document.getElementById('ml-title').textContent = '✏️ แก้ไขสื่อการสอน';
-  document.getElementById('ml-id').value = l.id;
-  document.getElementById('ml-title-inp').value = l.title;
-  document.getElementById('ml-url').value = l.url;
-  document.getElementById('ml-cat').value = l.category;
-  document.getElementById('ml-type').value = l.type;
-  document.getElementById('ml-active').value = l.active;
-  document.getElementById('modal-lib').classList.remove('hidden');
+function editLibrary(l) {
+  document.getElementById('ml-title').textContent = 'แก้ไขข้อมูลสื่อ'; document.getElementById('ml-id').value = l.id; document.getElementById('ml-name').value = l.title;
+  document.getElementById('ml-cat').value = l.category; document.getElementById('ml-type').value = l.type; document.getElementById('ml-url').value = l.url; openModal('modal-lib');
 }
 async function saveLibrary() {
-  const data = {
-    action: 'save_library', secret: adminSecret,
-    id: document.getElementById('ml-id').value || undefined,
-    title: document.getElementById('ml-title-inp').value,
-    type: document.getElementById('ml-type').value,
-    url: document.getElementById('ml-url').value,
-    category: document.getElementById('ml-cat').value,
-    active: document.getElementById('ml-active').value
-  };
-  try {
-    await callAPI('POST', data);
-    closeAllModal(); await loadData(); alert('✅ บันทึกสื่อการสอนสำเร็จ');
-  } catch(e) { alert(e.message); }
+  const payload = { action: 'save_library', secret: adminSecret, id: document.getElementById('ml-id').value, title: document.getElementById('ml-name').value, category: document.getElementById('ml-cat').value, type: document.getElementById('ml-type').value, url: document.getElementById('ml-url').value };
+  try { await callAPI('POST', payload); closeAllModal(); await loadData(); customAlert('บันทึกสำเร็จ', 'สำเร็จ', '✅'); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
 }
-async function deleteLibrary(id) {
-  if(!confirm('ยืนยันลบสื่อการสอน?')) return;
-  try { await callAPI('POST', {action:'delete_library', secret:adminSecret, id:id}); await loadData(); } catch(e) { alert(e.message); }
+function delLibrary(id) {
+  customConfirm('ยืนยันลบเอกสาร/สื่อการสอนนี้ออกจากคลัง?', async () => {
+    try { await callAPI('POST', {action:'delete_library', secret:adminSecret, id}); await loadData(); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
+  }, 'ยืนยันการลบ', '🗑️', 'ca-btn-danger');
 }
 
-// --- STORE FUNCTIONS ---
-function openAddReward() {
-  document.getElementById('mr-title').textContent = '➕ เพิ่มของรางวัล';
-  document.getElementById('mr-id').value = '';
-  ['name','desc','image'].forEach(k => document.getElementById('mr-'+k).value = '');
-  document.getElementById('mr-price').value = '500';
-  document.getElementById('mr-stock').value = '10';
-  document.getElementById('mr-active').value = 'YES';
-  document.getElementById('modal-reward').classList.remove('hidden');
+function openBroadcastModal() {
+  document.getElementById('inp-broadcast-target-type').value = 'ALL'; document.getElementById('wrap-broadcast-target-val').classList.add('hidden'); document.getElementById('inp-broadcast-msg').value = ''; updateBroadcastTargetOptions(); openModal('modal-broadcast');
 }
-function openEditReward(id) {
-  const r = window._rewMap[id];
-  document.getElementById('mr-title').textContent = '✏️ แก้ไขของรางวัล';
-  document.getElementById('mr-id').value = r.id;
-  document.getElementById('mr-name').value = r.name;
-  document.getElementById('mr-desc').value = r.desc;
-  document.getElementById('mr-price').value = r.price;
-  document.getElementById('mr-stock').value = r.stock;
-  document.getElementById('mr-image').value = r.image;
-  document.getElementById('mr-active').value = r.active;
-  document.getElementById('modal-reward').classList.remove('hidden');
+function updateBroadcastTargetOptions() {
+  const type = document.getElementById('inp-broadcast-target-type').value; const wrap = document.getElementById('wrap-broadcast-target-val'); const select = document.getElementById('inp-broadcast-target-val');
+  if (type === 'ALL') { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden'); select.innerHTML = '';
+  const members = appData.members || []; let options = new Set();
+  if (type === 'LEVEL') { members.forEach(m => { if(m.rank) options.add(m.rank); }); } else if (type === 'POSITION') { members.forEach(m => { if(m.position) options.add(m.position); }); }
+  if(options.size === 0) { select.innerHTML = '<option value="">ไม่มีข้อมูล</option>'; } else { [...options].sort().forEach(opt => { select.innerHTML += `<option value="${opt}">${opt}</option>`; }); }
+}
+function sendBroadcast() {
+  const msg = document.getElementById('inp-broadcast-msg').value.trim(); const targetType = document.getElementById('inp-broadcast-target-type').value; const targetValue = document.getElementById('inp-broadcast-target-val').value;
+  if(!msg) return customAlert('กรุณาพิมพ์ข้อความคำสั่งที่ต้องการส่ง', 'แจ้งเตือน', '⚠️');
+  
+  let confirmMsg = 'ยืนยันส่งคำสั่งไปยัง <b>"กำลังพลทั้งหมด"</b> ใช่หรือไม่?';
+  if(targetType === 'LEVEL') confirmMsg = `ยืนยันส่งคำสั่งไปยังชั้นยศ <b>"${targetValue}"</b> ใช่หรือไม่?`;
+  if(targetType === 'POSITION') confirmMsg = `ยืนยันส่งคำสั่งไปยังสังกัด <b>"${targetValue}"</b> ใช่หรือไม่?`;
+
+  customConfirm(confirmMsg, async () => {
+    const btn = document.getElementById('btn-send-broadcast'); btn.disabled = true; btn.textContent = 'กำลังส่ง...';
+    try {
+      const res = await callAPI('POST', { action: 'broadcast_message', secret: adminSecret, textMessage: msg, targetType: targetType, targetValue: targetValue });
+      if(res.status === 'ok') { customAlert(res.message, 'ส่งคำสั่งสำเร็จ', '🚀'); closeAllModal(); } else { throw new Error(res.message); }
+    } catch(e) { customAlert(e.message, 'ส่งล้มเหลว', '❌'); } finally { btn.disabled = false; btn.textContent = '🚀 ยืนยันส่งคำสั่ง'; }
+  }, 'ส่งประกาศคำสั่ง', '📢');
+}
+
+function openRewardModal() {
+  document.getElementById('mr-title').textContent = 'เพิ่มสินค้า PX'; document.getElementById('mr-id').value = ''; document.getElementById('mr-name').value = ''; document.getElementById('mr-desc').value = ''; document.getElementById('mr-price').value = '100'; document.getElementById('mr-stock').value = '10'; document.getElementById('mr-img').value = ''; openModal('modal-rew');
+}
+function editReward(r) {
+  document.getElementById('mr-title').textContent = 'แก้ไขสินค้า PX'; document.getElementById('mr-id').value = r.id; document.getElementById('mr-name').value = r.name; document.getElementById('mr-desc').value = r.desc; document.getElementById('mr-price').value = r.price; document.getElementById('mr-stock').value = r.stock; document.getElementById('mr-img').value = r.image; openModal('modal-rew');
 }
 async function saveReward() {
-  const data = {
-    action: 'save_reward', secret: adminSecret,
-    id: document.getElementById('mr-id').value || undefined,
-    name: document.getElementById('mr-name').value,
-    desc: document.getElementById('mr-desc').value,
-    price: Number(document.getElementById('mr-price').value),
-    stock: Number(document.getElementById('mr-stock').value),
-    image: document.getElementById('mr-image').value,
-    active: document.getElementById('mr-active').value
-  };
-  try {
-    await callAPI('POST', data);
-    closeAllModal(); await loadData(); alert('✅ บันทึกของรางวัลสำเร็จ');
-  } catch(e) { alert(e.message); }
+  const payload = { action: 'save_reward', secret: adminSecret, id: document.getElementById('mr-id').value, name: document.getElementById('mr-name').value, desc: document.getElementById('mr-desc').value, price: Number(document.getElementById('mr-price').value), stock: Number(document.getElementById('mr-stock').value), image: document.getElementById('mr-img').value };
+  try { await callAPI('POST', payload); closeAllModal(); await loadData(); customAlert('บันทึกสำเร็จ', 'ภารกิจสำเร็จ', '✅'); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
 }
-async function deleteReward(id) {
-  if(!confirm('ยืนยันลบของรางวัลชิ้นนี้?')) return;
-  try { await callAPI('POST', {action:'delete_reward', secret:adminSecret, id:id}); await loadData(); } catch(e) { alert(e.message); }
+function delReward(id) {
+  customConfirm('ยืนยันลบสินค้านี้ออกจาก PX?', async () => {
+    try { await callAPI('POST', {action:'delete_reward', secret:adminSecret, id}); await loadData(); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
+  }, 'ยืนยันการลบ', '🗑️', 'ca-btn-danger');
 }
-async function updateRedemption(id, status) {
-  const actionText = status === 'APPROVED' ? 'อนุมัติให้รางวัล' : 'ปฏิเสธและคืนเหรียญ';
-  if(!confirm(`ยืนยัน "${actionText}" รายการนี้?`)) return;
-  try { await callAPI('POST', {action:'update_redemption', secret:adminSecret, id:id, status:status}); await loadData(); } catch(e) { alert(e.message); }
+function updateRedeem(id, status) {
+  customConfirm(`ต้องการ <b>${status==='APPROVED'?'อนุมัติ':'ปฏิเสธ'}</b> คำขอเบิกสวัสดิการนี้ใช่หรือไม่?`, async () => {
+    try { await callAPI('POST', {action:'update_redemption', secret:adminSecret, id, status}); await loadData(); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
+  }, 'คำสั่งเบิกสวัสดิการ');
 }
 
 async function saveSettings() {
   const t = document.getElementById('inp-exam-time').value;
-  try { await callAPI('POST', {action:'save_settings', secret:adminSecret, examTimeMinutes:Number(t)}); alert('✅ บันทึกเวลาแล้ว'); } catch(e) { alert(e.message); }
+  try { await callAPI('POST', {action:'save_settings', secret:adminSecret, examTimeMinutes:Number(t)}); customAlert('บันทึกเวลาทำแบบทดสอบเรียบร้อย', 'สำเร็จ', '✅'); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
 }
-async function resetUser(uid) {
-  if(!confirm('รีเซ็ตผลสอบของคนนี้?')) return;
-  try { await callAPI('POST', {action:'reset_exam', secret:adminSecret, userId:uid}); await loadData(); } catch(e) { alert(e.message); }
+function resetUserExam(uid, name) {
+  customConfirm(`ยืนยันการ <b>ล้างประวัติผลประเมิน</b> ของ ${name} ?<br><span style="font-size:12px; color:var(--muted)">เพื่อให้กลับไปทำแบบทดสอบใหม่ได้</span>`, async () => {
+    try { await callAPI('POST', {action:'reset_exam', secret:adminSecret, userId:uid}); await loadData(); customAlert('ล้างผลการทดสอบสำเร็จ', 'สำเร็จ', '✅'); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
+  }, 'รีเซ็ตข้อมูล', '🔄');
 }
-
-function closeModal(e) { if(e.target.classList.contains('modal-backdrop')) closeAllModal(); }
-function closeAllModal() { document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.add('hidden')); }
+function resetAllExams() {
+  customConfirm(`<span style="color:var(--red);">⚠️ คำเตือน! (Danger Zone)</span><br>ระบบจะล้างประวัติการทดสอบของกำลังพลทุกคน<br>ยืนยันคำสั่งขั้นเด็ดขาดหรือไม่?`, async () => {
+    try { await callAPI('POST', {action:'reset_exam', secret:adminSecret}); await loadData(); customAlert('ล้างประวัติของกำลังพลทุกคนแล้ว', 'ดำเนินการเสร็จสิ้น', '✅'); } catch(e) { customAlert(e.message, 'ผิดพลาด', '❌'); }
+  }, 'คำสั่งลบข้อมูล', '⚠️', 'ca-btn-danger');
+}
 
 async function callAPI(method, params, timeoutMs=30000) {
   const ctrl = new AbortController(); const tid = setTimeout(()=>ctrl.abort(), timeoutMs);
@@ -782,10 +773,7 @@ async function callAPI(method, params, timeoutMs=30000) {
     if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; }
     else { opts.method = 'POST'; opts.headers = {'Content-Type':'text/plain'}; opts.body = JSON.stringify(params); }
     const resp = await fetch(url, opts); clearTimeout(tid);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
-    if(data.status === 'error') throw new Error(data.message);
-    return data;
+    if (!resp.ok) throw new Error('HTTP ' + resp.status); return await resp.json();
   } catch(e) { clearTimeout(tid); throw e; }
 }
 
