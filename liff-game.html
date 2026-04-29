@@ -3,87 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>แฟนพันธุ์แท้กำลังพล</title>
+<title>เกมเศรษฐี</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Tactical Theme */
-  --primary: #2e7d32; 
-  --primary-dark: #1b5e20;
-  --secondary: #ffca28;
-  --bg: #0a0a0a; --surface: #121212; --surf2: #1e1e1e;
-  --border: #333333; --text: #e0e0e0; --muted: #888888;
-  --success: #4caf50; --danger: #ff5252; --info: #29b6f6;
+  --bg-color: #0b0c10;
+  --panel-bg: #121826;
+  --gold: #ffb300;
+  --gold-glow: rgba(255, 179, 0, 0.4);
+  --btn-blue: linear-gradient(180deg, #1e3c72 0%, #1a237e 100%);
+  --btn-gold: linear-gradient(180deg, #ffca28 0%, #ff8f00 100%);
+  --btn-green: linear-gradient(180deg, #43a047 0%, #1b5e20 100%);
+  --btn-red: linear-gradient(180deg, #e53935 0%, #b71c1c 100%);
+  --text-main: #ffffff;
+  --text-muted: #8b949e;
+  --border: #30363d;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
 /* Grid Background */
-.bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(46, 125, 50, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(46, 125, 50, 0.1) 1px, transparent 1px); background-size: 30px 30px; z-index: -1;}
+.bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px); background-size: 30px 30px; z-index: -1;}
 
 .screen { display: flex; flex-direction: column; height: 100vh; width: 100%; position: absolute; inset: 0; transition: opacity 0.3s; padding: 20px;}
 .hidden { display: none !important; opacity: 0; pointer-events: none; }
 
-.btn { width: 100%; padding: 14px 16px; border-radius: 10px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; }
-.btn-gold { background: var(--secondary); color: #000; box-shadow: 0 4px 15px rgba(255,202,40,0.2); }
-.btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); box-shadow: none;}
+.btn { width: 100%; padding: 14px 16px; border-radius: 10px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); color: #fff;}
+.btn-primary { background: var(--btn-blue); border: 1px solid #3949ab;}
+.btn-gold { background: var(--btn-gold); color: #000; border: 1px solid #ffecb3;}
+.btn-outline { background: var(--panel-bg); border: 1px solid var(--border); color: var(--text-main); box-shadow: none;}
 .btn:active { transform: scale(0.96); box-shadow: none;}
 
-/* Loaders */
-.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-.spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Custom Modal Alert */
-.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
-.ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.ca-ov.active .ca-box { transform: scale(1); }
-.ca-icon { font-size: 60px; margin-bottom: 15px; line-height: 1; }
-.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
-.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
-.ca-btn-group { display: flex; gap: 12px; justify-content: center; }
-.ca-btn { flex: 1; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
-.ca-btn-cancel { background: var(--surf2); border: 1px solid var(--border); color: var(--text); }
-.ca-btn-confirm { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(46,125,50,0.3); }
-.ca-btn:active { transform: scale(0.96); }
-
 /* Main Menu */
-.panel-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 30px 24px; text-align: center; margin: auto; width: 100%; max-width: 360px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);}
-.title { font-size: 28px; font-weight: 800; margin-bottom: 5px; color: var(--secondary); text-transform: uppercase;}
-.subtitle { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.panel-box { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 16px; padding: 30px 24px; text-align: center; margin: auto; width: 100%; max-width: 360px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);}
+.title { font-size: 28px; font-weight: 800; margin-bottom: 5px; color: var(--gold); text-transform: uppercase;}
+.subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
 
 /* In-Game UI */
 .top-hud { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.hud-level { font-size: 14px; font-weight: 800; color: var(--secondary); text-transform: uppercase; border: 1px solid var(--secondary); padding: 4px 10px; border-radius: 20px; background: rgba(255,202,40,0.1);}
-.hud-prize { font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 800; color: var(--text); }
+.hud-level { font-size: 14px; font-weight: 800; color: var(--gold); text-transform: uppercase; border: 1px solid var(--gold); padding: 4px 10px; border-radius: 20px; background: rgba(255,179,0,0.1);}
+.hud-prize { font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 800; color: var(--text-main); }
 
 /* Lifelines */
 .lifelines { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
-.lifeline-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--surf2); border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 15px rgba(46,125,50,0.2);}
+.lifeline-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--panel-bg); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 15px var(--gold-glow); color: var(--gold);}
 .lifeline-btn:active { transform: scale(0.9); }
 .lifeline-btn.used { opacity: 0.3; pointer-events: none; border-color: var(--border); filter: grayscale(100%); }
 
-.q-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; min-height: 120px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5);}
-.q-text { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.5; }
+.q-box { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; min-height: 120px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);}
+.q-text { font-size: 18px; font-weight: 700; color: var(--text-main); line-height: 1.5; }
 
 .choices-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-.choice-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: left; display: flex; gap: 12px; align-items: center; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; color: var(--text); }
-.c-label { color: var(--secondary); font-family: 'IBM Plex Mono'; font-weight: 800; }
-.choice-btn:active { transform: scale(0.98); background: var(--surf2); }
-.choice-btn.selected { background: rgba(255,202,40,0.15); border-color: var(--secondary); }
-.choice-btn.correct { background: rgba(76,175,80,0.2); border-color: var(--success); color: var(--success); }
-.choice-btn.wrong { background: rgba(255,82,82,0.15); border-color: var(--danger); color: var(--danger); }
-.choice-btn.hidden-choice { visibility: hidden; opacity: 0; }
+.choice-btn { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: left; display: flex; gap: 12px; align-items: center; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; color: var(--text-main); }
+.c-label { color: var(--gold); font-family: 'IBM Plex Mono'; font-weight: 800; }
+.choice-btn:active { transform: scale(0.98); background: #1a2332; }
+.choice-btn.selected { background: rgba(255,179,0,0.15); border-color: var(--gold); }
+.choice-btn.correct { background: var(--btn-green); border-color: #4caf50; color: #fff; }
+.choice-btn.correct .c-label { color: #fff; }
+.choice-btn.wrong { background: var(--btn-red); border-color: #ff5252; color: #fff; }
+.choice-btn.wrong .c-label { color: #fff; }
+.choice-btn.hidden-choice { visibility: hidden; opacity: 0; pointer-events: none; }
 
 /* Leaderboard */
-.lb-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; text-align: left; margin-bottom: 15px; }
+.lb-container { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; text-align: left; margin-bottom: 15px; }
 .lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px dashed var(--border); }
 .lb-item:last-child { border-bottom: none; }
-.lb-rank { font-size: 16px; font-weight: 800; width: 30px; color: var(--muted); }
-.lb-prize { font-size: 16px; font-weight: 800; color: var(--secondary); font-family: 'IBM Plex Mono'; }
+.lb-rank { font-size: 16px; font-weight: 800; width: 30px; color: var(--text-muted); }
+.lb-prize { font-size: 16px; font-weight: 800; color: var(--gold); font-family: 'IBM Plex Mono'; }
+
+/* Loaders & Alert */
+.ov { position: fixed; inset: 0; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+.spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top: 4px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;}
+.ca-ov.active { opacity: 1; pointer-events: auto; }
+.ca-box { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; transform: scale(0.9); transition: transform 0.2s;}
+.ca-ov.active .ca-box { transform: scale(1); }
+.ca-icon { font-size: 60px; margin-bottom: 15px; line-height: 1; }
+.ca-title { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
+.ca-msg { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
+.ca-btn-group { display: flex; gap: 12px; justify-content: center; }
+.ca-btn { flex: 1; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
+.ca-btn-cancel { background: #1a2332; border: 1px solid var(--border); color: var(--text-main); }
+.ca-btn-confirm { background: var(--btn-blue); color: #fff; }
 </style>
 </head>
 <body>
@@ -92,7 +95,7 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 <!-- Loading -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <div style="font-weight:700; color:var(--muted);">กำลังเชื่อมต่อศูนย์ข้อมูล...</div>
+  <div style="font-weight:700; color:var(--text-muted);">กำลังโหลดข้อมูล...</div>
 </div>
 
 <!-- Custom Alert -->
@@ -108,30 +111,30 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 <!-- Start Screen -->
 <div id="start-ui" class="screen hidden" style="justify-content:center;">
   <div class="panel-box">
-    <div style="font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(255,202,40,0.5));">🚁</div>
-    <div class="title">แฟนพันธุ์แท้</div>
-    <div class="subtitle">ตอบคำถาม 15 ระดับ เพื่อชิงเหรียญ PX<br>คุณมี 3 ตัวช่วยในการทำภารกิจ</div>
+    <div style="font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 15px var(--gold-glow));">💰</div>
+    <div class="title">เกมเศรษฐี</div>
+    <div class="subtitle">ตอบคำถาม 15 ระดับ เพื่อชิงเงินรางวัลสูงสุด<br>คุณมี 3 ตัวช่วยในการทำภารกิจ</div>
     
-    <button class="btn btn-primary" style="margin-bottom:12px;" onclick="startGame()">▶️ เริ่มปฏิบัติภารกิจ</button>
-    <button class="btn btn-outline" style="margin-bottom:12px;" onclick="showLeaderboard()">🏆 ทำเนียบยอดฝีมือ</button>
-    <button class="btn" style="background:transparent; border:none; color:var(--muted); font-size:14px;" onclick="liff.closeWindow()">กลับสู่เมนูหลัก</button>
+    <button class="btn btn-primary" style="margin-bottom:12px;" onclick="startGame()">▶️ เริ่มเล่นเกม</button>
+    <button class="btn btn-outline" style="margin-bottom:12px;" onclick="showLeaderboard()">🏆 ดูทำเนียบ</button>
+    <button class="btn" style="background:transparent; border:none; color:var(--text-muted); font-size:14px; box-shadow:none;" onclick="liff.closeWindow()">กลับสู่เมนูหลัก</button>
   </div>
 </div>
 
 <!-- Game Screen -->
 <div id="game-ui" class="screen hidden" style="padding-top: 30px;">
   <div class="top-hud">
-    <div class="hud-level" id="g-level">ภารกิจที่ 1</div>
-    <div class="hud-prize" id="g-prize">🪙 0</div>
+    <div class="hud-level" id="g-level">คำถามที่ 1</div>
+    <div class="hud-prize" id="g-prize">฿ 0</div>
   </div>
 
   <div class="lifelines">
-    <div class="lifeline-btn" id="ll-50" onclick="use5050()">✂️</div>
-    <div class="lifeline-btn" id="ll-phone" onclick="usePhone()">📻</div>
+    <div class="lifeline-btn" id="ll-50" onclick="use5050()">50</div>
+    <div class="lifeline-btn" id="ll-phone" onclick="usePhone()">📞</div>
     <div class="lifeline-btn" id="ll-switch" onclick="useSwitch()">🔄</div>
   </div>
 
-  <div class="q-box"><div class="q-text" id="q-text">กำลังโหลดภารกิจ...</div></div>
+  <div class="q-box"><div class="q-text" id="q-text">กำลังโหลดคำถาม...</div></div>
 
   <div class="choices-grid">
     <div class="choice-btn" id="c-A" onclick="selectAnswer('A')"><span class="c-label">A:</span><span id="t-A">-</span></div>
@@ -140,19 +143,19 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
     <div class="choice-btn" id="c-D" onclick="selectAnswer('D')"><span class="c-label">D:</span><span id="t-D">-</span></div>
   </div>
   
-  <button class="btn btn-danger" style="margin-top:auto;" onclick="confirmWalkAway()">🏳️ ขอยุติภารกิจ (รับรางวัลปัจจุบัน)</button>
+  <button class="btn" style="background:var(--btn-red); margin-top:auto;" onclick="confirmWalkAway()">🏳️ ขอยอมแพ้ (รับรางวัลปัจจุบัน)</button>
 </div>
 
 <!-- End Screen -->
 <div id="end-ui" class="screen hidden" style="justify-content:center;">
   <div class="panel-box">
     <div style="font-size: 60px; margin-bottom: 10px;" id="end-icon">🎯</div>
-    <div class="title" style="color:var(--secondary);" id="end-title">จบภารกิจ!</div>
-    <div class="subtitle" id="end-sub">คุณได้รับรางวัล</div>
+    <div class="title" style="color:var(--gold);" id="end-title">จบเกม!</div>
+    <div class="subtitle" id="end-sub">คุณได้รับรางวัลเงินสดมูลค่า</div>
     
-    <div style="font-size:36px; font-weight:800; color:var(--success); font-family:'IBM Plex Mono'; margin-bottom:24px;" id="end-prize">🪙 0 PX</div>
+    <div style="font-size:36px; font-weight:800; color:#4caf50; font-family:'IBM Plex Mono'; margin-bottom:24px;" id="end-prize">฿ 0</div>
     
-    <button class="btn btn-primary" style="margin-bottom:12px;" onclick="resetGame()">🔄 เริ่มภารกิจใหม่</button>
+    <button class="btn btn-primary" style="margin-bottom:12px;" onclick="resetGame()">🔄 เล่นใหม่อีกครั้ง</button>
     <button class="btn btn-outline" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบ</button>
   </div>
 </div>
@@ -160,13 +163,13 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 <!-- Leaderboard Screen -->
 <div id="lb-ui" class="screen hidden" style="justify-content:center;">
   <div class="panel-box" style="max-width:100%; padding:20px 15px; height:85vh; display:flex; flex-direction:column;">
-    <div class="title" style="font-size:20px; margin-bottom:5px;">🏆 ทำเนียบยอดฝีมือ</div>
+    <div class="title" style="font-size:20px; margin-bottom:5px;">🏆 ทำเนียบเศรษฐี</div>
     <div class="subtitle" style="margin-bottom:15px;">จัดอันดับจากผลงานสูงสุด</div>
     
-    <div id="lb-loading" style="color:var(--secondary); font-weight:700;">กำลังรวบรวมข้อมูล...</div>
+    <div id="lb-loading" style="color:var(--gold); font-weight:700;">กำลังรวบรวมข้อมูล...</div>
     <div class="lb-container" id="lb-list" style="display:none;"></div>
     
-    <button class="btn btn-outline" style="margin-top:auto;" onclick="closeLeaderboard()">← กลับสู่เมนูหลัก</button>
+    <button class="btn btn-outline" style="margin-top:auto;" onclick="closeLeaderboard()">← กลับสู่หน้าหลัก</button>
   </div>
 </div>
 
@@ -188,25 +191,22 @@ let used50 = false;
 let usedPhone = false;
 let usedSwitch = false;
 
-function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
+// Custom Alert Helpers
+function showModal(msg, title="แจ้งเตือน", icon="⚠️", isConfirm=false, confirmCb=null) {
   document.getElementById('ca-icon').textContent = icon;
   document.getElementById('ca-title').textContent = title;
   document.getElementById('ca-msg').innerHTML = msg;
-  document.getElementById('ca-btn-group').innerHTML = `<button class="ca-btn ca-btn-confirm" onclick="closeCustomAlert()">รับทราบ</button>`;
+  if(isConfirm) {
+    document.getElementById('ca-btn-group').innerHTML = `
+      <button class="ca-btn ca-btn-cancel" onclick="document.getElementById('custom-alert').classList.remove('active')">ยกเลิก</button>
+      <button class="ca-btn ca-btn-confirm" id="btn-ca-ok">ยืนยัน</button>
+    `;
+    document.getElementById('btn-ca-ok').onclick = () => { document.getElementById('custom-alert').classList.remove('active'); confirmCb(); };
+  } else {
+    document.getElementById('ca-btn-group').innerHTML = `<button class="ca-btn ca-btn-confirm" onclick="document.getElementById('custom-alert').classList.remove('active')">รับทราบ</button>`;
+  }
   document.getElementById('custom-alert').classList.add('active');
 }
-function customConfirm(msg, callback, title="ยืนยันคำสั่ง", icon="❓", btnClass="ca-btn-confirm") {
-  document.getElementById('ca-icon').textContent = icon;
-  document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').innerHTML = msg;
-  document.getElementById('ca-btn-group').innerHTML = `
-    <button class="ca-btn ca-btn-cancel" onclick="closeCustomAlert()">ยกเลิก</button>
-    <button class="ca-btn ${btnClass}" id="btn-ca-ok">ยืนยัน</button>
-  `;
-  document.getElementById('btn-ca-ok').onclick = () => { closeCustomAlert(); callback(); };
-  document.getElementById('custom-alert').classList.add('active');
-}
-function closeCustomAlert() { document.getElementById('custom-alert').classList.remove('active'); }
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
@@ -228,19 +228,17 @@ async function init() {
     document.getElementById('ov-load').classList.add('hidden');
     showScreen('start-ui');
   } catch(e) {
-    document.getElementById('ov-load').innerHTML = `<div style="font-size:50px;">⚠️</div><p style="color:var(--danger); margin-top:10px;">${e.message}</p>`;
+    document.getElementById('ov-load').innerHTML = `<div style="font-size:50px;">⚠️</div><p style="color:#ff5252; margin-top:10px;">${e.message}</p>`;
   }
 }
 
 function resetGame() {
-  currentLvl = 1;
-  guaranteedPrizeIndex = 0;
+  currentLvl = 1; guaranteedPrizeIndex = 0;
   used50 = false; usedPhone = false; usedSwitch = false;
   
   document.getElementById('ll-50').classList.remove('used');
   document.getElementById('ll-phone').classList.remove('used');
   document.getElementById('ll-switch').classList.remove('used');
-  
   showScreen('start-ui');
 }
 
@@ -254,14 +252,15 @@ function loadQuestion() {
   isAnswerLocked = false;
   const q = gameQs[currentLvl - 1];
   
-  document.getElementById('g-level').textContent = `ภารกิจที่ ${currentLvl} / 15`;
-  document.getElementById('g-prize').textContent = `🪙 ${PRIZES[currentLvl]}`;
+  document.getElementById('g-level').textContent = `คำถามที่ ${currentLvl} / 15`;
+  document.getElementById('g-prize').textContent = `฿ ${PRIZES[currentLvl]}`;
   document.getElementById('q-text').textContent = q.questionText;
   
   ['A','B','C','D'].forEach(k => {
     const btn = document.getElementById(`c-${k}`);
     btn.className = 'choice-btn';
     btn.style.display = 'flex';
+    btn.classList.remove('hidden-choice');
     document.getElementById(`t-${k}`).textContent = q.choices[k] || '';
   });
 }
@@ -274,6 +273,7 @@ function selectAnswer(ans) {
   const btn = document.getElementById(`c-${ans}`);
   btn.classList.add('selected');
   
+  // [FIX BUG]: Check with actual correctAnswer
   setTimeout(() => {
     if (ans === q.correctAnswer) {
       btn.classList.replace('selected', 'correct');
@@ -291,7 +291,7 @@ function handleCorrect() {
   if (currentLvl === 10) guaranteedPrizeIndex = 10;
   
   if (currentLvl === 15) {
-    endGame(15, "สุดยอด! ภารกิจสมบูรณ์", "🏆");
+    endGame(15, "สุดยอด! คุณคือเศรษฐีคนใหม่", "🏆");
   } else {
     currentLvl++;
     loadQuestion();
@@ -299,14 +299,14 @@ function handleCorrect() {
 }
 
 function handleWrong() {
-  endGame(guaranteedPrizeIndex, "ภารกิจล้มเหลว!", "💀");
+  endGame(guaranteedPrizeIndex, "ตอบผิด!", "💀");
 }
 
 function confirmWalkAway() {
   if (isAnswerLocked) return;
-  customConfirm(`ยืนยันขอยุติภารกิจ?<br><span style="color:var(--muted)">คุณจะได้รับรางวัลในระดับที่ผ่านมาแล้ว</span>`, () => {
-    endGame(currentLvl - 1, "ยุติภารกิจสำเร็จ", "🏳️");
-  }, 'ขอยุติภารกิจ', '⚠️');
+  showModal(`ยืนยันการยอมแพ้?<br><span style="color:var(--text-muted)">คุณจะได้รับรางวัลปัจจุบัน</span>`, "ยอมแพ้", "⚠️", true, () => {
+    endGame(currentLvl - 1, "ยอมแพ้สำเร็จ", "🏳️");
+  });
 }
 
 function endGame(prizeIndex, title, icon) {
@@ -315,7 +315,7 @@ function endGame(prizeIndex, title, icon) {
   document.getElementById('end-title').textContent = title;
   
   const prizeText = PRIZES[prizeIndex];
-  document.getElementById('end-prize').textContent = `🪙 ${prizeText} PX`;
+  document.getElementById('end-prize').textContent = `฿ ${prizeText}`;
   
   if (prizeIndex > 0) {
     callAPI('POST', { action: 'submit_game_score', userId: userId, prizeIndex: prizeIndex, prizeText: prizeText });
@@ -325,44 +325,44 @@ function endGame(prizeIndex, title, icon) {
 // === Lifelines ===
 function use5050() {
   if (used50 || isAnswerLocked) return;
-  customConfirm("ขออนุญาตตัด 2 ตัวเลือกที่ผิดทิ้ง?", () => {
+  showModal("ขอใช้สิทธิ์ตัด 2 ตัวเลือกที่ผิดทิ้ง?", "ตัวช่วย 50:50", "✂️", true, () => {
     used50 = true;
     document.getElementById('ll-50').classList.add('used');
     const q = gameQs[currentLvl - 1];
     let wrongKeys = ['A','B','C','D'].filter(k => k !== q.correctAnswer);
     wrongKeys = wrongKeys.sort(() => Math.random() - 0.5).slice(0, 2);
     wrongKeys.forEach(k => { document.getElementById(`c-${k}`).classList.add('hidden-choice'); });
-  }, 'ตัวช่วย 50:50', '✂️');
+  });
 }
 
 function usePhone() {
   if (usedPhone || isAnswerLocked) return;
-  customConfirm("ขออนุญาตวิทยุสอบถามศูนย์บัญชาการ?", () => {
+  showModal("ขอใช้สิทธิ์โทรหาเพื่อน?", "ตัวช่วยโทรศัพท์", "📞", true, () => {
     usedPhone = true;
     document.getElementById('ll-phone').classList.add('used');
     
     document.getElementById('ov-load').classList.remove('hidden');
     document.querySelector('.spinner').style.display = 'none';
-    document.querySelector('#ov-load div:last-child').textContent = '📻 กำลังเชื่อมต่อวิทยุสื่อสาร...';
+    document.querySelector('#ov-load div:last-child').textContent = '📞 กำลังต่อสาย...';
     
     setTimeout(() => {
       document.getElementById('ov-load').classList.add('hidden');
       document.querySelector('.spinner').style.display = 'block';
       const q = gameQs[currentLvl - 1];
-      const isCorrect = Math.random() > 0.15; // โอกาสถูก 85%
+      const isCorrect = Math.random() > 0.15; // 85% accuracy
       let ans = q.correctAnswer;
       if (!isCorrect) {
         let wrongKeys = ['A','B','C','D'].filter(k => k !== q.correctAnswer && !document.getElementById(`c-${k}`).classList.contains('hidden-choice'));
         if (wrongKeys.length > 0) ans = wrongKeys[Math.floor(Math.random() * wrongKeys.length)];
       }
-      customAlert(`ศปก. แจ้งว่า:<br><br><b style="color:var(--secondary); font-size:16px;">"น่าจะเป็นข้อ ${ans} นะ แต่ผมก็ไม่ค่อยแน่ใจ"</b>`, 'วิทยุสื่อสาร', '📻');
+      showModal(`เพื่อนของคุณบอกว่า:<br><br><b style="color:var(--gold); font-size:18px;">"คิดว่าน่าจะเป็นข้อ ${ans} นะ"</b>`, 'เพื่อนสายตรง', '📞');
     }, 2000);
-  }, 'ขอความช่วยเหลือ', '📻');
+  });
 }
 
 function useSwitch() {
   if (usedSwitch || isAnswerLocked) return;
-  customConfirm("ขอเปลี่ยนคำสั่งภารกิจ (เปลี่ยนคำถาม)?", () => {
+  showModal("ขอเปลี่ยนคำถามในระดับเดียวกัน?", "เปลี่ยนคำถาม", "🔄", true, () => {
     usedSwitch = true;
     document.getElementById('ll-switch').classList.add('used');
     const newQ = allQs.filter(q => !gameQs.includes(q)).sort(() => Math.random() - 0.5)[0];
@@ -370,9 +370,9 @@ function useSwitch() {
       gameQs[currentLvl - 1] = newQ;
       loadQuestion();
     } else {
-      customAlert("คลังข้อสอบไม่มีข้อเหลือแล้ว!", "ล้มเหลว", "❌");
+      showModal("คลังข้อสอบไม่มีข้อเหลือแล้ว!", "ล้มเหลว", "❌");
     }
-  }, 'เปลี่ยนคำถาม', '🔄');
+  });
 }
 
 // === Leaderboard ===
@@ -402,20 +402,20 @@ async function loadLeaderboardData() {
     list.innerHTML = '';
     
     if (res.leaderboard.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-size:13px;">ยังไม่มีผู้ปฏิบัติภารกิจ</div>';
+      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:13px;">ยังไม่มีผู้เข้าแข่งขัน</div>';
     } else {
       res.leaderboard.forEach((e, i) => {
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-        const isMe = e.userId === userId ? 'color:var(--secondary); font-weight:800;' : '';
+        const isMe = e.userId === userId ? 'color:var(--gold); font-weight:800;' : '';
         
         list.innerHTML += `
           <div class="lb-item">
             <div class="lb-rank">${medal}</div>
             <div style="flex:1;">
               <div style="${isMe}">${e.fullName}</div>
-              <div style="font-size:11px; color:var(--muted);">${e.rank} ${e.position}</div>
+              <div style="font-size:11px; color:var(--text-muted);">${e.rank} ${e.position}</div>
             </div>
-            <div class="lb-prize">🪙 ${e.prizeText}</div>
+            <div class="lb-prize">฿${e.prizeText}</div>
           </div>
         `;
       });
@@ -423,11 +423,10 @@ async function loadLeaderboardData() {
     document.getElementById('lb-loading').style.display = 'none';
     list.style.display = 'block';
   } catch(e) {
-    document.getElementById('lb-loading').innerHTML = '<span style="color:var(--danger)">❌ โหลดข้อมูลล้มเหลว</span>';
+    document.getElementById('lb-loading').innerHTML = '<span style="color:#ff5252">❌ โหลดข้อมูลล้มเหลว</span>';
   }
 }
 
-// === API Helper ===
 async function callAPI(method, params, timeoutMs=30000) {
   const ctrl = new AbortController(); const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
