@@ -3,463 +3,394 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Unit School — เกมเศรษฐี</title>
+<title>แฟนพันธุ์แท้กำลังพล</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg-color: #0b0c10;
-  --panel-bg: #121826;
-  --gold: #ffb300;
-  --gold-glow: rgba(255, 179, 0, 0.4);
-  --btn-blue: linear-gradient(180deg, #1e3c72 0%, #1a237e 100%);
-  --btn-gold: linear-gradient(180deg, #ffca28 0%, #ff8f00 100%);
-  --btn-green: linear-gradient(180deg, #43a047 0%, #1b5e20 100%);
-  --btn-red: linear-gradient(180deg, #e53935 0%, #b71c1c 100%);
-  --border: #4a69bd;
-  --text: #ffffff;
-  --red: #ff5252;
+  /* Tactical Theme */
+  --primary: #2e7d32; 
+  --primary-dark: #1b5e20;
+  --secondary: #ffca28;
+  --bg: #0a0a0a; --surface: #121212; --surf2: #1e1e1e;
+  --border: #333333; --text: #e0e0e0; --muted: #888888;
+  --success: #4caf50; --danger: #ff5252; --info: #29b6f6;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg-color); color: var(--text); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-/* Background effect */
-.bg-glow { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 150vw; height: 50vh; background: radial-gradient(ellipse at center, rgba(30,60,114,0.4) 0%, rgba(11,12,16,0) 70%); z-index: -1; pointer-events: none; }
+/* Grid Background */
+.bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(46, 125, 50, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(46, 125, 50, 0.1) 1px, transparent 1px); background-size: 30px 30px; z-index: -1;}
 
-/* Overlays */
-.ov { position: fixed; inset: 0; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 20px; text-align: center; }
-.ov.hidden { display: none !important; }
-.spinner { width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+.screen { display: flex; flex-direction: column; height: 100vh; width: 100%; position: absolute; inset: 0; transition: opacity 0.3s; padding: 20px;}
+.hidden { display: none !important; opacity: 0; pointer-events: none; }
+
+.btn { width: 100%; padding: 14px 16px; border-radius: 10px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; }
+.btn-gold { background: var(--secondary); color: #000; box-shadow: 0 4px 15px rgba(255,202,40,0.2); }
+.btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); box-shadow: none;}
+.btn:active { transform: scale(0.96); box-shadow: none;}
+
+/* Loaders */
+.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+.spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Screen Styles */
-.start-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; width: 100%; max-width: 500px; margin: 0 auto;}
-.start-logo { font-size: 80px; margin-bottom: 20px; text-shadow: 0 0 30px var(--gold-glow); }
-.start-title { font-size: 36px; font-weight: 800; color: var(--gold); margin-bottom: 10px; line-height: 1.2; }
-.start-sub { font-size: 15px; color: #aaa; margin-bottom: 40px; line-height: 1.6; }
+/* Custom Modal Alert */
+.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
+.ca-ov.active { opacity: 1; pointer-events: auto; }
+.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.ca-ov.active .ca-box { transform: scale(1); }
+.ca-icon { font-size: 60px; margin-bottom: 15px; line-height: 1; }
+.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
+.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.ca-btn-group { display: flex; gap: 12px; justify-content: center; }
+.ca-btn { flex: 1; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
+.ca-btn-cancel { background: var(--surf2); border: 1px solid var(--border); color: var(--text); }
+.ca-btn-confirm { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(46,125,50,0.3); }
+.ca-btn:active { transform: scale(0.96); }
 
-/* Buttons */
-.action-btn { background: var(--gold); color: #000; border: none; padding: 16px 32px; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; width: 100%; max-width: 320px; font-family: 'Sarabun', sans-serif; transition: 0.2s; }
-.action-btn:active { transform: scale(0.96); }
-.btn-outline { background: transparent; border: 2px solid var(--gold); color: var(--gold); }
-.btn-outline:active { background: rgba(255, 215, 0, 0.1); }
+/* Main Menu */
+.panel-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 30px 24px; text-align: center; margin: auto; width: 100%; max-width: 360px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);}
+.title { font-size: 28px; font-weight: 800; margin-bottom: 5px; color: var(--secondary); text-transform: uppercase;}
+.subtitle { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+
+/* In-Game UI */
+.top-hud { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.hud-level { font-size: 14px; font-weight: 800; color: var(--secondary); text-transform: uppercase; border: 1px solid var(--secondary); padding: 4px 10px; border-radius: 20px; background: rgba(255,202,40,0.1);}
+.hud-prize { font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 800; color: var(--text); }
+
+/* Lifelines */
+.lifelines { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+.lifeline-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--surf2); border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 15px rgba(46,125,50,0.2);}
+.lifeline-btn:active { transform: scale(0.9); }
+.lifeline-btn.used { opacity: 0.3; pointer-events: none; border-color: var(--border); filter: grayscale(100%); }
+
+.q-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px; min-height: 120px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5);}
+.q-text { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.5; }
+
+.choices-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.choice-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: left; display: flex; gap: 12px; align-items: center; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; color: var(--text); }
+.c-label { color: var(--secondary); font-family: 'IBM Plex Mono'; font-weight: 800; }
+.choice-btn:active { transform: scale(0.98); background: var(--surf2); }
+.choice-btn.selected { background: rgba(255,202,40,0.15); border-color: var(--secondary); }
+.choice-btn.correct { background: rgba(76,175,80,0.2); border-color: var(--success); color: var(--success); }
+.choice-btn.wrong { background: rgba(255,82,82,0.15); border-color: var(--danger); color: var(--danger); }
+.choice-btn.hidden-choice { visibility: hidden; opacity: 0; }
 
 /* Leaderboard */
-.lb-container { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; margin-bottom: 20px; }
-.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.lb-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; width: 100%; max-height: 60vh; overflow-y: auto; text-align: left; margin-bottom: 15px; }
+.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px dashed var(--border); }
 .lb-item:last-child { border-bottom: none; }
-.lb-rank { font-size: 18px; font-weight: 800; color: var(--gold); width: 40px; text-align: left; }
-.lb-name { flex: 1; text-align: left; font-size: 15px; color: var(--text); }
-.lb-prize { font-size: 17px; font-weight: 800; color: var(--green); font-family: 'IBM Plex Mono', monospace; text-align: right; }
-
-/* Game UI */
-.game-container { max-width: 600px; margin: 0 auto; width: 100%; padding: 20px 16px; flex: 1; display: flex; flex-direction: column; }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-
-/* Timer UI */
-.timer-box { font-size: 24px; font-weight: 800; font-family: 'IBM Plex Mono', monospace; color: var(--gold); border: 3px solid var(--gold); border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px var(--gold-glow); transition: 0.3s; background: var(--panel-bg); flex-shrink: 0; }
-.timer-box.warning { border-color: var(--red); color: var(--red); box-shadow: 0 0 20px rgba(229,57,53,0.6); animation: pulse-red 0.5s infinite alternate; }
-@keyframes pulse-red { from { transform: scale(1); } to { transform: scale(1.15); } }
-
-.lifelines { display: flex; gap: 12px; }
-.lifeline-btn { background: var(--panel-bg); border: 2px solid var(--gold); color: var(--gold); width: 50px; height: 35px; border-radius: 20px; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 10px var(--gold-glow); transition: 0.3s; }
-.lifeline-btn.used { opacity: 0.3; border-color: #555; color: #555; pointer-events: none; box-shadow: none; text-decoration: line-through; }
-.quit-btn { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
-
-/* Prize Ladder */
-.ladder-container { background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 20px; display: flex; flex-direction: column-reverse; gap: 4px; height: 180px; overflow-y: hidden; position: relative; }
-.ladder-step { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; color: #888; font-weight: bold; border-radius: 4px; transition: 0.3s; }
-.ladder-step.safe { color: var(--text); }
-.ladder-step.active { background: var(--gold); color: #000; font-size: 14px; box-shadow: 0 0 10px var(--gold-glow); }
-.ladder-step.passed { color: var(--gold); }
-
-/* Question Box */
-.question-box { background: var(--btn-blue); border: 2px solid var(--gold); border-radius: 16px; padding: 24px 20px; text-align: center; font-size: 18px; font-weight: 600; line-height: 1.6; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-
-/* Choices */
-.choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 480px) { .choices-grid { grid-template-columns: 1fr; } }
-.choice-btn { background: var(--panel-bg); border: 2px solid var(--border); border-radius: 30px; padding: 16px; color: var(--text); font-size: 15px; font-family: 'Sarabun', sans-serif; cursor: pointer; display: flex; align-items: center; transition: all 0.2s; position: relative; overflow: hidden; text-align: left; }
-.choice-letter { color: var(--gold); font-weight: 800; font-family: 'IBM Plex Mono', monospace; margin-right: 12px; font-size: 16px; }
-.choice-text { flex: 1; pointer-events: none; }
-
-/* Choice States */
-.choice-btn.selected { background: var(--btn-gold); border-color: #fff; color: #000; animation: pulse 0.5s infinite alternate; }
-.choice-btn.selected .choice-letter { color: #000; }
-.choice-btn.correct { background: var(--btn-green); border-color: #fff; color: #fff; animation: none; box-shadow: 0 0 20px rgba(0,200,83,0.6); }
-.choice-btn.correct .choice-letter { color: #fff; }
-.choice-btn.wrong { background: var(--btn-red); border-color: #fff; color: #fff; animation: none; }
-.choice-btn.wrong .choice-letter { color: #fff; }
-.choice-btn.hidden-choice { visibility: hidden; pointer-events: none; }
-
-@keyframes pulse { from { box-shadow: 0 0 5px var(--gold-glow); } to { box-shadow: 0 0 20px var(--gold-glow); } }
-
-/* Game Over / Win UI */
-.end-screen { text-align: center; padding: 40px 20px; width: 100%; max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;}
-.end-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; }
-.end-prize { font-size: 48px; font-weight: 800; color: var(--gold); font-family: 'IBM Plex Mono', monospace; margin: 20px 0; text-shadow: 0 0 20px var(--gold-glow); }
+.lb-rank { font-size: 16px; font-weight: 800; width: 30px; color: var(--muted); }
+.lb-prize { font-size: 16px; font-weight: 800; color: var(--secondary); font-family: 'IBM Plex Mono'; }
 </style>
 </head>
 <body>
-<div class="bg-glow"></div>
+<div class="bg-grid"></div>
 
 <!-- Loading -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <h2 style="color:var(--gold);">เตรียมข้อมูล...</h2>
-  <p style="color:#aaa; margin-top:10px;" id="load-msg">ระบบกำลังเตรียมความพร้อม</p>
+  <div style="font-weight:700; color:var(--muted);">กำลังเชื่อมต่อศูนย์ข้อมูล...</div>
 </div>
 
-<!-- Start UI -->
-<div id="start-ui" class="ov hidden">
-  <div class="start-screen">
-    <div class="start-logo">💰</div>
-    <div class="start-title">เกมเศรษฐี<br>Unit School</div>
-    <div class="start-sub">ตอบคำถาม 12 ข้อ เพื่อชิงเงินรางวัลจำลองสูงสุด<br>1,000,000 บาท! วัดความรู้ ท้าทายความสามารถ</div>
-    
-    <button class="action-btn" onclick="startRealGame()" style="margin-bottom:14px;">🎮 เริ่มเล่นเกม</button>
-    <button class="action-btn btn-outline" onclick="showLeaderboard()">🏆 ดูทำเนียบเศรษฐี</button>
-    
-    <button class="quit-btn" style="margin-top:36px; font-size:14px; border:none;" onclick="liff.closeWindow()">← ปิดหน้าต่าง</button>
+<!-- Custom Alert -->
+<div id="custom-alert" class="ca-ov">
+  <div class="ca-box">
+    <div id="ca-icon" class="ca-icon">⚠️</div>
+    <div id="ca-title" class="ca-title">แจ้งเตือน</div>
+    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <div id="ca-btn-group" class="ca-btn-group"></div>
   </div>
 </div>
 
-<!-- Leaderboard UI -->
-<div id="lb-ui" class="ov hidden" style="align-items: stretch; padding: 40px 20px;">
-  <div class="start-screen" style="justify-content: flex-start; height: auto;">
-    <div class="start-title" style="font-size: 28px;">🏆 ทำเนียบเศรษฐี</div>
-    <div class="start-sub" style="margin-bottom: 16px;">จัดอันดับจากเงินรางวัลสะสมสูงสุด</div>
+<!-- Start Screen -->
+<div id="start-ui" class="screen hidden" style="justify-content:center;">
+  <div class="panel-box">
+    <div style="font-size: 60px; margin-bottom: 10px; filter: drop-shadow(0 0 15px rgba(255,202,40,0.5));">🚁</div>
+    <div class="title">แฟนพันธุ์แท้</div>
+    <div class="subtitle">ตอบคำถาม 15 ระดับ เพื่อชิงเหรียญ PX<br>คุณมี 3 ตัวช่วยในการทำภารกิจ</div>
     
-    <div id="lb-loading" style="color:var(--gold); margin: 20px 0;">กำลังโหลดข้อมูลทำเนียบ...</div>
-    <div class="lb-container" id="lb-list" style="display:none;"></div>
-    
-    <button class="action-btn btn-outline" style="margin-top: auto;" onclick="closeLeaderboard()">ย้อนกลับ</button>
+    <button class="btn btn-primary" style="margin-bottom:12px;" onclick="startGame()">▶️ เริ่มปฏิบัติภารกิจ</button>
+    <button class="btn btn-outline" style="margin-bottom:12px;" onclick="showLeaderboard()">🏆 ทำเนียบยอดฝีมือ</button>
+    <button class="btn" style="background:transparent; border:none; color:var(--muted); font-size:14px;" onclick="liff.closeWindow()">กลับสู่เมนูหลัก</button>
   </div>
 </div>
 
-<!-- Main Game -->
-<div id="game-ui" class="game-container" style="display:none;">
-  <div class="header">
-    <button class="quit-btn" onclick="quitGame()">🚪 เลิกเล่น</button>
-    <div class="timer-box" id="q-timer">60</div> <!-- ระบบจับเวลาใหม่ -->
-    <div class="lifelines">
-      <button id="btn-5050" class="lifeline-btn" onclick="useFiftyFifty()">50:50</button>
-    </div>
+<!-- Game Screen -->
+<div id="game-ui" class="screen hidden" style="padding-top: 30px;">
+  <div class="top-hud">
+    <div class="hud-level" id="g-level">ภารกิจที่ 1</div>
+    <div class="hud-prize" id="g-prize">🪙 0</div>
   </div>
 
-  <div class="ladder-container" id="ladder">
-    <!-- Rendered via JS -->
+  <div class="lifelines">
+    <div class="lifeline-btn" id="ll-50" onclick="use5050()">✂️</div>
+    <div class="lifeline-btn" id="ll-phone" onclick="usePhone()">📻</div>
+    <div class="lifeline-btn" id="ll-switch" onclick="useSwitch()">🔄</div>
   </div>
 
-  <div class="question-box" id="q-text">
-    คำถามจะแสดงที่นี่?
-  </div>
+  <div class="q-box"><div class="q-text" id="q-text">กำลังโหลดภารกิจ...</div></div>
 
   <div class="choices-grid">
-    <button class="choice-btn" id="btn-A" onclick="selectAnswer('A')"><span class="choice-letter">A:</span><span class="choice-text" id="txt-A">-</span></button>
-    <button class="choice-btn" id="btn-B" onclick="selectAnswer('B')"><span class="choice-letter">B:</span><span class="choice-text" id="txt-B">-</span></button>
-    <button class="choice-btn" id="btn-C" onclick="selectAnswer('C')"><span class="choice-letter">C:</span><span class="choice-text" id="txt-C">-</span></button>
-    <button class="choice-btn" id="btn-D" onclick="selectAnswer('D')"><span class="choice-letter">D:</span><span class="choice-text" id="txt-D">-</span></button>
+    <div class="choice-btn" id="c-A" onclick="selectAnswer('A')"><span class="c-label">A:</span><span id="t-A">-</span></div>
+    <div class="choice-btn" id="c-B" onclick="selectAnswer('B')"><span class="c-label">B:</span><span id="t-B">-</span></div>
+    <div class="choice-btn" id="c-C" onclick="selectAnswer('C')"><span class="c-label">C:</span><span id="t-C">-</span></div>
+    <div class="choice-btn" id="c-D" onclick="selectAnswer('D')"><span class="c-label">D:</span><span id="t-D">-</span></div>
   </div>
+  
+  <button class="btn btn-danger" style="margin-top:auto;" onclick="confirmWalkAway()">🏳️ ขอยุติภารกิจ (รับรางวัลปัจจุบัน)</button>
 </div>
 
 <!-- End Screen -->
-<div id="end-ui" class="ov hidden">
-  <div class="end-screen">
-    <div id="end-icon" style="font-size: 80px; margin-bottom: 10px;">🏆</div>
-    <div class="end-title" id="end-title">ยินดีด้วย!</div>
-    <div style="color:#aaa;">คุณได้รับเงินรางวัลจำลองกลับบ้าน</div>
-    <div class="end-prize" id="end-prize">฿0</div>
+<div id="end-ui" class="screen hidden" style="justify-content:center;">
+  <div class="panel-box">
+    <div style="font-size: 60px; margin-bottom: 10px;" id="end-icon">🎯</div>
+    <div class="title" style="color:var(--secondary);" id="end-title">จบภารกิจ!</div>
+    <div class="subtitle" id="end-sub">คุณได้รับรางวัล</div>
     
-    <button class="action-btn" onclick="startRealGame()" style="margin-bottom:12px;">🔄 เล่นใหม่อีกครั้ง</button>
-    <button class="action-btn btn-outline" onclick="showLeaderboard()">🏆 ดูทำเนียบเศรษฐี</button>
-    <button class="quit-btn" style="margin-top:24px; font-size:14px; border:none;" onclick="liff.closeWindow()">← ปิดหน้าต่าง</button>
+    <div style="font-size:36px; font-weight:800; color:var(--success); font-family:'IBM Plex Mono'; margin-bottom:24px;" id="end-prize">🪙 0 PX</div>
+    
+    <button class="btn btn-primary" style="margin-bottom:12px;" onclick="resetGame()">🔄 เริ่มภารกิจใหม่</button>
+    <button class="btn btn-outline" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบ</button>
+  </div>
+</div>
+
+<!-- Leaderboard Screen -->
+<div id="lb-ui" class="screen hidden" style="justify-content:center;">
+  <div class="panel-box" style="max-width:100%; padding:20px 15px; height:85vh; display:flex; flex-direction:column;">
+    <div class="title" style="font-size:20px; margin-bottom:5px;">🏆 ทำเนียบยอดฝีมือ</div>
+    <div class="subtitle" style="margin-bottom:15px;">จัดอันดับจากผลงานสูงสุด</div>
+    
+    <div id="lb-loading" style="color:var(--secondary); font-weight:700;">กำลังรวบรวมข้อมูล...</div>
+    <div class="lb-container" id="lb-list" style="display:none;"></div>
+    
+    <button class="btn btn-outline" style="margin-top:auto;" onclick="closeLeaderboard()">← กลับสู่เมนูหลัก</button>
   </div>
 </div>
 
 <script>
-// ==============================================
-// CONFIG
-// ==============================================
 const LIFF_ID = '2009717287-qTXoc8Mw';   // << LIFF ID ของเกมเศรษฐี
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-// Game State
-const PRIZES = ['1,000', '2,000', '3,000', '5,000', '10,000', '20,000', '40,000', '80,000', '150,000', '300,000', '500,000', '1,000,000'];
-let allQs = [];
-let questions = [];
-let currentLevel = 0;
-let isAnswerLocked = false;
-let currentCorrectAnswer = '';
-let currentShuffledKeys = [];
-let userId = '';
+const PRIZES = ['0', '100', '200', '300', '500', '1,000', '2,000', '4,000', '8,000', '16,000', '32,000', '64,000', '125,000', '250,000', '500,000', '1,000,000'];
 
-// Timer State
-let qTimerInterval = null;
-let qTimeLeft = 60;
-const MAX_Q_TIME = 60;
+let userId = '';
+let allQs = [];
+let gameQs = [];
+let currentLvl = 1;
+let isAnswerLocked = false;
+let guaranteedPrizeIndex = 0;
+
+// Lifelines state
+let used50 = false;
+let usedPhone = false;
+let usedSwitch = false;
+
+function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
+  document.getElementById('ca-icon').textContent = icon;
+  document.getElementById('ca-title').textContent = title;
+  document.getElementById('ca-msg').innerHTML = msg;
+  document.getElementById('ca-btn-group').innerHTML = `<button class="ca-btn ca-btn-confirm" onclick="closeCustomAlert()">รับทราบ</button>`;
+  document.getElementById('custom-alert').classList.add('active');
+}
+function customConfirm(msg, callback, title="ยืนยันคำสั่ง", icon="❓", btnClass="ca-btn-confirm") {
+  document.getElementById('ca-icon').textContent = icon;
+  document.getElementById('ca-title').textContent = title;
+  document.getElementById('ca-msg').innerHTML = msg;
+  document.getElementById('ca-btn-group').innerHTML = `
+    <button class="ca-btn ca-btn-cancel" onclick="closeCustomAlert()">ยกเลิก</button>
+    <button class="ca-btn ${btnClass}" id="btn-ca-ok">ยืนยัน</button>
+  `;
+  document.getElementById('btn-ca-ok').onclick = () => { closeCustomAlert(); callback(); };
+  document.getElementById('custom-alert').classList.add('active');
+}
+function closeCustomAlert() { document.getElementById('custom-alert').classList.remove('active'); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
 
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
     
-    const profile = await liff.getProfile();
-    userId = profile.userId;
-    
+    userId = (await liff.getProfile()).userId;
     const data = await callAPI('GET', { action:'get_questions', userId: userId });
-
-    if (data.status === 'error') throw new Error(data.message);
-
-    allQs = data.questions || [];
-    if (allQs.length < PRIZES.length) throw new Error(`ข้อสอบในระบบมีน้อยกว่า ${PRIZES.length} ข้อ (ปัจจุบันมี ${allQs.length} ข้อ)`);
     
-    if (!allQs[0].correctAnswer) {
-       throw new Error("⚠️ ไม่พบข้อมูลเฉลย! กรุณาไปที่ Google Apps Script แล้วกด Deploy -> New version อีกครั้งครับ");
-    }
+    if (data.status === 'error') throw new Error(data.message);
+    allQs = data.questions || [];
+    if (allQs.length < 15) throw new Error(`ข้อสอบในระบบมีไม่พอ (มี ${allQs.length} ข้อ / ต้องการ 15 ข้อ)`);
 
-    // พร้อมเล่น! ซ่อนหน้าโหลด โชว์หน้าเริ่มเกม
     document.getElementById('ov-load').classList.add('hidden');
-    document.getElementById('start-ui').classList.remove('hidden');
-
+    showScreen('start-ui');
   } catch(e) {
-    document.getElementById('ov-load').innerHTML = `<h2 style="color:var(--gold);font-size:24px;margin-bottom:10px">พบข้อผิดพลาด</h2><p style="color:#ff5252;padding:0 20px;line-height:1.6">${e.message}</p><button class="action-btn" style="margin-top:30px; font-size: 16px" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>`;
+    document.getElementById('ov-load').innerHTML = `<div style="font-size:50px;">⚠️</div><p style="color:var(--danger); margin-top:10px;">${e.message}</p>`;
   }
 }
 
-// เริ่มเกมแบบจริงๆ
-function startRealGame() {
-  document.getElementById('start-ui').classList.add('hidden');
-  document.getElementById('end-ui').classList.add('hidden');
-  document.getElementById('game-ui').style.display = 'flex';
+function resetGame() {
+  currentLvl = 1;
+  guaranteedPrizeIndex = 0;
+  used50 = false; usedPhone = false; usedSwitch = false;
   
-  // สุ่มข้อสอบ 12 ข้อทุกครั้งที่เริ่มเกมใหม่
-  questions = allQs.sort(() => Math.random() - 0.5).slice(0, PRIZES.length);
+  document.getElementById('ll-50').classList.remove('used');
+  document.getElementById('ll-phone').classList.remove('used');
+  document.getElementById('ll-switch').classList.remove('used');
   
-  // รีเซ็ตตัวช่วย
-  document.getElementById('btn-5050').classList.remove('used');
-
-  buildLadder();
-  loadQuestion(0);
+  showScreen('start-ui');
 }
 
-function buildLadder() {
-  const ladder = document.getElementById('ladder');
-  ladder.innerHTML = '';
-  PRIZES.forEach((prize, idx) => {
-    const isSafe = (idx + 1) % 4 === 0 || idx === PRIZES.length - 1; // ทุกๆ 4 ข้อเป็นจุด Save
-    const div = document.createElement('div');
-    div.className = `ladder-step ${isSafe ? 'safe' : ''}`;
-    div.id = `step-${idx}`;
-    div.innerHTML = `<span>${idx + 1}</span><span>฿${prize}</span>`;
-    ladder.appendChild(div);
-  });
+function startGame() {
+  gameQs = [...allQs].sort(() => Math.random() - 0.5).slice(0, 15);
+  showScreen('game-ui');
+  loadQuestion();
 }
 
-function updateLadder() {
-  PRIZES.forEach((_, idx) => {
-    const el = document.getElementById(`step-${idx}`);
-    el.classList.remove('active', 'passed');
-    if (idx < currentLevel) el.classList.add('passed');
-    if (idx === currentLevel) el.classList.add('active');
-  });
-}
-
-// ==============================================
-// QUESTION & TIMER LOGIC
-// ==============================================
-function startQTimer() {
-  clearInterval(qTimerInterval);
-  qTimeLeft = MAX_Q_TIME;
-  updateQTimerUI();
-  
-  qTimerInterval = setInterval(() => {
-    qTimeLeft--;
-    updateQTimerUI();
-    if (qTimeLeft <= 0) {
-      timeIsUp();
-    }
-  }, 1000);
-}
-
-function updateQTimerUI() {
-  const el = document.getElementById('q-timer');
-  el.textContent = qTimeLeft;
-  if (qTimeLeft <= 10) {
-    el.classList.add('warning');
-  } else {
-    el.classList.remove('warning');
-  }
-}
-
-function stopQTimer() {
-  clearInterval(qTimerInterval);
-}
-
-function timeIsUp() {
-  stopQTimer();
-  if (isAnswerLocked) return;
-  isAnswerLocked = true;
-
-  const correctDisplayLetter = ['A','B','C','D'].find(l => {
-    const b = document.getElementById(`btn-${l}`);
-    return b && b.getAttribute('data-real-key') === currentCorrectAnswer;
-  });
-
-  if(correctDisplayLetter) {
-     document.getElementById(`btn-${correctDisplayLetter}`).classList.add('correct');
-  }
-
-  const qTextBox = document.getElementById('q-text');
-  qTextBox.innerHTML = `<span style="color:var(--red); font-size:24px; display:block; margin-bottom:10px;">⏰ หมดเวลา!</span>` + qTextBox.innerHTML;
-
-  setTimeout(() => { endGame(false, false, true); }, 2500);
-}
-
-function loadQuestion(level) {
+function loadQuestion() {
   isAnswerLocked = false;
-  currentLevel = level;
-  updateLadder();
-
-  const displayLetters = ['A', 'B', 'C', 'D'];
-
-  displayLetters.forEach(l => {
-    const btn = document.getElementById(`btn-${l}`);
-    btn.className = 'choice-btn';
-    btn.style.display = 'none'; 
-    document.getElementById(`txt-${l}`).textContent = '-';
-  });
-
-  const q = questions[level];
+  const q = gameQs[currentLvl - 1];
+  
+  document.getElementById('g-level').textContent = `ภารกิจที่ ${currentLvl} / 15`;
+  document.getElementById('g-prize').textContent = `🪙 ${PRIZES[currentLvl]}`;
   document.getElementById('q-text').textContent = q.questionText;
   
-  currentCorrectAnswer = (q.correctAnswer || '').toUpperCase();
-  currentShuffledKeys = displayLetters.filter(k => q.choices && q.choices[k]).sort(() => Math.random() - 0.5);
-
-  currentShuffledKeys.forEach((key, index) => {
-    const letter = displayLetters[index];
-    const btn = document.getElementById(`btn-${letter}`);
-    btn.style.display = 'flex'; 
-    document.getElementById(`txt-${letter}`).textContent = q.choices[key];
-    btn.setAttribute('data-real-key', key);
+  ['A','B','C','D'].forEach(k => {
+    const btn = document.getElementById(`c-${k}`);
+    btn.className = 'choice-btn';
+    btn.style.display = 'flex';
+    document.getElementById(`t-${k}`).textContent = q.choices[k] || '';
   });
-
-  startQTimer();
 }
 
-function selectAnswer(displayLetter) {
+function selectAnswer(ans) {
   if (isAnswerLocked) return;
   isAnswerLocked = true;
-  stopQTimer(); 
-
-  const btn = document.getElementById(`btn-${displayLetter}`);
-  const realKey = btn.getAttribute('data-real-key');
+  
+  const q = gameQs[currentLvl - 1];
+  const btn = document.getElementById(`c-${ans}`);
   btn.classList.add('selected');
-
+  
   setTimeout(() => {
-    btn.classList.remove('selected');
-    
-    const correctDisplayLetter = ['A','B','C','D'].find(l => {
-      const b = document.getElementById(`btn-${l}`);
-      return b && b.getAttribute('data-real-key') === currentCorrectAnswer;
-    });
-
-    if (realKey === currentCorrectAnswer) {
-      btn.classList.add('correct');
-      setTimeout(() => {
-        if (currentLevel === PRIZES.length - 1) {
-          endGame(true); 
-        } else {
-          loadQuestion(currentLevel + 1); 
-        }
-      }, 1500);
+    if (ans === q.correctAnswer) {
+      btn.classList.replace('selected', 'correct');
+      setTimeout(() => { handleCorrect(); }, 1200);
     } else {
-      btn.classList.add('wrong');
-      if(correctDisplayLetter) {
-         document.getElementById(`btn-${correctDisplayLetter}`).classList.add('correct');
-      }
-      setTimeout(() => { endGame(false); }, 2000);
+      btn.classList.replace('selected', 'wrong');
+      document.getElementById(`c-${q.correctAnswer}`).classList.add('correct');
+      setTimeout(() => { handleWrong(); }, 2000);
     }
-  }, 2000);
+  }, 1500);
 }
 
-function useFiftyFifty() {
-  if (isAnswerLocked) return;
-  const btn5050 = document.getElementById('btn-5050');
-  if (btn5050.classList.contains('used')) return;
+function handleCorrect() {
+  if (currentLvl === 5) guaranteedPrizeIndex = 5;
+  if (currentLvl === 10) guaranteedPrizeIndex = 10;
   
-  btn5050.classList.add('used');
-
-  const displayLetters = ['A','B','C','D'].filter(l => document.getElementById(`btn-${l}`).style.display !== 'none');
-  const wrongLetters = displayLetters.filter(l => document.getElementById(`btn-${l}`).getAttribute('data-real-key') !== currentCorrectAnswer);
-  
-  wrongLetters.sort(() => Math.random() - 0.5).slice(0, 2).forEach(l => {
-    document.getElementById(`btn-${l}`).classList.add('hidden-choice');
-  });
-}
-
-function quitGame() {
-  if (confirm('คุณต้องการเลิกเล่นและรับเงินรางวัลเท่าที่สะสมได้ตอนนี้หรือไม่?')) {
-    stopQTimer();
-    endGame(false, true);
-  }
-}
-
-function endGame(isWin, isQuit = false, isTimeout = false) {
-  stopQTimer(); 
-  document.getElementById('game-ui').style.display = 'none';
-  const endUI = document.getElementById('end-ui');
-  endUI.classList.remove('hidden');
-
-  let finalPrizeIndex = -1;
-  let finalPrizeText = '0';
-  let title = 'จบเกม!';
-  let icon = '❌';
-
-  if (isWin) {
-    title = 'สุดยอดอัจฉริยะ!';
-    icon = '👑';
-    finalPrizeIndex = PRIZES.length - 1;
-  } else if (isQuit) {
-    title = 'รับเงินกลับบ้าน!';
-    icon = '💰';
-    finalPrizeIndex = currentLevel - 1;
+  if (currentLvl === 15) {
+    endGame(15, "สุดยอด! ภารกิจสมบูรณ์", "🏆");
   } else {
-    title = isTimeout ? 'หมดเวลา!' : 'ตอบผิด!';
-    icon = isTimeout ? '⏰' : '💀';
-    let safeLevel = -1;
-    for (let i = currentLevel - 1; i >= 0; i--) {
-      if ((i + 1) % 4 === 0) { safeLevel = i; break; }
-    }
-    finalPrizeIndex = safeLevel;
-  }
-
-  finalPrizeText = finalPrizeIndex >= 0 ? PRIZES[finalPrizeIndex] : '0';
-
-  document.getElementById('end-title').textContent = title;
-  document.getElementById('end-icon').textContent = icon;
-  document.getElementById('end-prize').textContent = `฿${finalPrizeText}`;
-
-  // 📡 ส่งคะแนนเกมไปเก็บที่ระบบหลังบ้านแบบ Background
-  if (finalPrizeIndex >= 0) {
-    callAPI('POST', { 
-      action: 'submit_game_score', 
-      userId: userId,
-      prizeIndex: finalPrizeIndex,
-      prizeText: finalPrizeText
-    }).catch(e => console.error("Error saving game score:", e));
+    currentLvl++;
+    loadQuestion();
   }
 }
 
-// ==============================================
-// LEADERBOARD
-// ==============================================
-async function showLeaderboard() {
-  document.getElementById('start-ui').classList.add('hidden');
-  document.getElementById('end-ui').classList.add('hidden');
-  document.getElementById('game-ui').style.display = 'none';
+function handleWrong() {
+  endGame(guaranteedPrizeIndex, "ภารกิจล้มเหลว!", "💀");
+}
+
+function confirmWalkAway() {
+  if (isAnswerLocked) return;
+  customConfirm(`ยืนยันขอยุติภารกิจ?<br><span style="color:var(--muted)">คุณจะได้รับรางวัลในระดับที่ผ่านมาแล้ว</span>`, () => {
+    endGame(currentLvl - 1, "ยุติภารกิจสำเร็จ", "🏳️");
+  }, 'ขอยุติภารกิจ', '⚠️');
+}
+
+function endGame(prizeIndex, title, icon) {
+  showScreen('end-ui');
+  document.getElementById('end-icon').textContent = icon;
+  document.getElementById('end-title').textContent = title;
   
-  document.getElementById('lb-ui').classList.remove('hidden');
+  const prizeText = PRIZES[prizeIndex];
+  document.getElementById('end-prize').textContent = `🪙 ${prizeText} PX`;
+  
+  if (prizeIndex > 0) {
+    callAPI('POST', { action: 'submit_game_score', userId: userId, prizeIndex: prizeIndex, prizeText: prizeText });
+  }
+}
+
+// === Lifelines ===
+function use5050() {
+  if (used50 || isAnswerLocked) return;
+  customConfirm("ขออนุญาตตัด 2 ตัวเลือกที่ผิดทิ้ง?", () => {
+    used50 = true;
+    document.getElementById('ll-50').classList.add('used');
+    const q = gameQs[currentLvl - 1];
+    let wrongKeys = ['A','B','C','D'].filter(k => k !== q.correctAnswer);
+    wrongKeys = wrongKeys.sort(() => Math.random() - 0.5).slice(0, 2);
+    wrongKeys.forEach(k => { document.getElementById(`c-${k}`).classList.add('hidden-choice'); });
+  }, 'ตัวช่วย 50:50', '✂️');
+}
+
+function usePhone() {
+  if (usedPhone || isAnswerLocked) return;
+  customConfirm("ขออนุญาตวิทยุสอบถามศูนย์บัญชาการ?", () => {
+    usedPhone = true;
+    document.getElementById('ll-phone').classList.add('used');
+    
+    document.getElementById('ov-load').classList.remove('hidden');
+    document.querySelector('.spinner').style.display = 'none';
+    document.querySelector('#ov-load div:last-child').textContent = '📻 กำลังเชื่อมต่อวิทยุสื่อสาร...';
+    
+    setTimeout(() => {
+      document.getElementById('ov-load').classList.add('hidden');
+      document.querySelector('.spinner').style.display = 'block';
+      const q = gameQs[currentLvl - 1];
+      const isCorrect = Math.random() > 0.15; // โอกาสถูก 85%
+      let ans = q.correctAnswer;
+      if (!isCorrect) {
+        let wrongKeys = ['A','B','C','D'].filter(k => k !== q.correctAnswer && !document.getElementById(`c-${k}`).classList.contains('hidden-choice'));
+        if (wrongKeys.length > 0) ans = wrongKeys[Math.floor(Math.random() * wrongKeys.length)];
+      }
+      customAlert(`ศปก. แจ้งว่า:<br><br><b style="color:var(--secondary); font-size:16px;">"น่าจะเป็นข้อ ${ans} นะ แต่ผมก็ไม่ค่อยแน่ใจ"</b>`, 'วิทยุสื่อสาร', '📻');
+    }, 2000);
+  }, 'ขอความช่วยเหลือ', '📻');
+}
+
+function useSwitch() {
+  if (usedSwitch || isAnswerLocked) return;
+  customConfirm("ขอเปลี่ยนคำสั่งภารกิจ (เปลี่ยนคำถาม)?", () => {
+    usedSwitch = true;
+    document.getElementById('ll-switch').classList.add('used');
+    const newQ = allQs.filter(q => !gameQs.includes(q)).sort(() => Math.random() - 0.5)[0];
+    if (newQ) {
+      gameQs[currentLvl - 1] = newQ;
+      loadQuestion();
+    } else {
+      customAlert("คลังข้อสอบไม่มีข้อเหลือแล้ว!", "ล้มเหลว", "❌");
+    }
+  }, 'เปลี่ยนคำถาม', '🔄');
+}
+
+// === Leaderboard ===
+async function showLeaderboard() {
+  showScreen('lb-ui');
+  loadLeaderboardData();
+}
+
+function showLeaderboardFromEnd() {
+  showScreen('lb-ui');
+  loadLeaderboardData();
+}
+
+function closeLeaderboard() {
+  showScreen('start-ui');
+}
+
+async function loadLeaderboardData() {
   document.getElementById('lb-loading').style.display = 'block';
   document.getElementById('lb-list').style.display = 'none';
 
@@ -471,60 +402,41 @@ async function showLeaderboard() {
     list.innerHTML = '';
     
     if (res.leaderboard.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:30px; color:#aaa;">ยังไม่มีผู้พิชิตเงินรางวัล<br><br>เริ่มเล่นเป็นคนแรกเลย!</div>';
+      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-size:13px;">ยังไม่มีผู้ปฏิบัติภารกิจ</div>';
     } else {
       res.leaderboard.forEach((e, i) => {
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-        const isMe = e.userId === userId ? 'font-weight:800; color:var(--gold);' : 'font-weight:700;';
+        const isMe = e.userId === userId ? 'color:var(--secondary); font-weight:800;' : '';
         
         list.innerHTML += `
           <div class="lb-item">
             <div class="lb-rank">${medal}</div>
-            <div class="lb-name">
-              <div style="${isMe}">${e.fullName} ${e.userId === userId ? '(คุณ)' : ''}</div>
-              <div style="font-size:11px; color:#888;">${e.rank} ${e.position}</div>
+            <div style="flex:1;">
+              <div style="${isMe}">${e.fullName}</div>
+              <div style="font-size:11px; color:var(--muted);">${e.rank} ${e.position}</div>
             </div>
-            <div class="lb-prize">฿${e.prizeText}</div>
+            <div class="lb-prize">🪙 ${e.prizeText}</div>
           </div>
         `;
       });
     }
     document.getElementById('lb-loading').style.display = 'none';
     list.style.display = 'block';
-
   } catch(e) {
-    document.getElementById('lb-loading').innerHTML = '<span style="color:var(--red)">❌ โหลดข้อมูลล้มเหลว</span>';
+    document.getElementById('lb-loading').innerHTML = '<span style="color:var(--danger)">❌ โหลดข้อมูลล้มเหลว</span>';
   }
 }
 
-function closeLeaderboard() {
-  document.getElementById('lb-ui').classList.add('hidden');
-  document.getElementById('start-ui').classList.remove('hidden');
-}
-
-// API Helper
+// === API Helper ===
 async function callAPI(method, params, timeoutMs=30000) {
-  const ctrl = new AbortController();
-  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  const ctrl = new AbortController(); const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') {
-      url += '?' + new URLSearchParams(params).toString();
-      opts.method = 'GET';
-    } else {
-      opts.method  = 'POST';
-      opts.headers = { 'Content-Type':'text/plain' };
-      opts.body    = JSON.stringify(params);
-    }
-    const resp = await fetch(url, opts);
-    clearTimeout(tid);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return await resp.json();
-  } catch(e) {
-    clearTimeout(tid);
-    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ โปรดลองใหม่');
-    throw e;
-  }
+    if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; } 
+    else { opts.method  = 'POST'; opts.headers = { 'Content-Type':'text/plain' }; opts.body = JSON.stringify(params); }
+    const resp = await fetch(url, opts); clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status); return await resp.json();
+  } catch(e) { clearTimeout(tid); throw e; }
 }
 
 init();
