@@ -3,94 +3,92 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>แฟลชการ์ดฝึกทบทวน</title>
+<title>Unit School — Flashcard</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Tactical Theme */
-  --primary: #2e7d32; 
-  --secondary: #ffca28;
-  --bg: #0a0a0a; --surface: #121212; --surf2: #1e1e1e;
-  --border: #333333; --text: #e0e0e0; --muted: #888888;
-  --success: #4caf50; --danger: #ff5252;
+  --config-primary: #00d2ff;
+  --bg: #090e17; --panel: #151b29;
+  --primary: var(--config-primary); 
+  --success: #00e676; --danger: #ff3d00;
+  --text: #ffffff; --muted: #8892b0;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-/* Radar Background */
-.bg-radar { position: fixed; inset: 0; background: radial-gradient(circle at center, rgba(46, 125, 50, 0.15) 0%, rgba(0,0,0,0) 70%); z-index: -1; }
-.bg-radar::after { content:''; position:absolute; inset:0; background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(46, 125, 50, 0.05) 1px, rgba(46, 125, 50, 0.05) 2px); background-size: 100% 4px; z-index:-1;}
+/* Background effect */
+.bg-glow { position: fixed; inset: 0; background: radial-gradient(circle at 50% -20%, rgba(0, 210, 255, 0.15) 0%, rgba(0,0,0,0) 70%); z-index: -1; }
 
 .screen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100vh; position: absolute; inset: 0; padding: 20px; transition: 0.3s; }
 .hidden { display: none !important; opacity: 0; pointer-events: none; }
 
 /* Setup & End Screen */
-.panel-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 30px 24px; text-align: center; width: 100%; max-width: 340px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; overflow: hidden;}
+.panel-box { background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 30px 24px; text-align: center; width: 100%; max-width: 340px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; overflow: hidden;}
 .panel-box::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--primary); }
-.app-icon { font-size: 60px; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(46,125,50,0.5));}
+.app-icon { font-size: 60px; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(0,210,255,0.5));}
 .title { font-size: 26px; font-weight: 800; margin-bottom: 5px; color: var(--text); text-transform: uppercase; letter-spacing: 1px;}
 .subtitle { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
 
-.btn { width: 100%; padding: 14px 16px; border-radius: 10px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-.btn-primary { background: linear-gradient(135deg, var(--primary), #1b5e20); color: #fff; }
-.btn-outline { background: var(--surf2); border: 1px solid var(--border); color: var(--text); box-shadow: none;}
+.btn { width: 100%; padding: 14px 16px; border-radius: 12px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.btn-primary { background: linear-gradient(135deg, var(--primary), #007bb5); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);}
+.btn-outline { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text); box-shadow: none;}
 .btn:active { transform: scale(0.96); box-shadow: none;}
 
 /* Game UI */
-.top-hud { position: absolute; top: 0; left: 0; right: 0; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);}
-.hud-score { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 800; color: var(--secondary); text-shadow: 0 0 10px rgba(255,202,40,0.4);}
+.top-hud { position: absolute; top: 0; left: 0; right: 0; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; background: linear-gradient(180deg, rgba(9,14,23,0.9) 0%, transparent 100%);}
+.hud-score { font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 800; color: var(--primary); text-shadow: 0 0 10px rgba(0,210,255,0.4);}
 .hud-count { font-size: 14px; color: var(--muted); font-weight: 700; }
 
-.card-container { position: relative; width: 100%; max-width: 320px; height: 400px; perspective: 1000px; margin-top: 20px;}
-.flashcard { position: absolute; width: 100%; height: 100%; background: var(--surface); border: 2px solid var(--border); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); cursor: grab; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-origin: 50% 100%; user-select: none; }
+.card-container { position: relative; width: 100%; max-width: 320px; height: 420px; perspective: 1000px; margin-top: 20px;}
+.flashcard { position: absolute; width: 100%; height: 100%; background: #1c2333; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); cursor: grab; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-origin: 50% 100%; user-select: none; }
 .flashcard:active { cursor: grabbing; }
 
-.fc-category { position: absolute; top: 16px; left: 16px; font-size: 11px; font-weight: 800; color: var(--secondary); background: rgba(255,202,40,0.1); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,202,40,0.3);}
+.fc-category { position: absolute; top: 16px; left: 16px; font-size: 11px; font-weight: 800; color: var(--primary); background: rgba(0,210,255,0.1); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(0,210,255,0.2);}
 .fc-hint { position: absolute; bottom: 16px; font-size: 12px; color: var(--muted); animation: pulse 2s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
 .fc-front { font-size: 22px; font-weight: 800; color: var(--text); }
 .fc-back { display: none; flex-direction: column; gap: 12px; width: 100%; }
-.fc-ans-item { background: var(--surf2); border: 1px solid var(--border); padding: 12px; border-radius: 10px; font-size: 15px; color: var(--muted); }
-.fc-ans-correct { border-color: var(--success); color: var(--success); font-weight: 800; background: rgba(76,175,80,0.1); }
+.fc-ans-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; font-size: 15px; color: var(--muted); }
+.fc-ans-correct { border-color: var(--success); color: var(--success); font-weight: 800; background: rgba(0,230,118,0.1); }
 
 .flashcard.flipped .fc-front { display: none; }
 .flashcard.flipped .fc-back { display: flex; }
 .flashcard.flipped .fc-hint { display: none; }
 
 .controls-hud { position: absolute; bottom: 40px; left: 0; right: 0; display: flex; justify-content: center; gap: 40px; padding: 0 20px; z-index: 10;}
-.ctrl-btn { width: 70px; height: 70px; border-radius: 50%; border: none; font-size: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: 0.2s; color: #fff;}
-.btn-bad { background: linear-gradient(135deg, var(--danger), #b71c1c); border: 2px solid #ff8a80;}
-.btn-good { background: linear-gradient(135deg, var(--success), #1b5e20); border: 2px solid #b9f6ca;}
+.ctrl-btn { width: 64px; height: 64px; border-radius: 50%; border: none; font-size: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: 0.2s; color: #fff;}
+.btn-bad { background: linear-gradient(135deg, var(--danger), #b22a00); }
+.btn-good { background: linear-gradient(135deg, var(--success), #00a152); }
 .ctrl-btn:active { transform: scale(0.9) translateY(4px); box-shadow: none; }
 
 /* Leaderboard */
-.lb-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; width: 100%; max-height: 50vh; overflow-y: auto; margin-bottom: 20px; text-align: left; }
-.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px dashed var(--border); }
+.lb-container { background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; width: 100%; max-height: 50vh; overflow-y: auto; margin-bottom: 20px; text-align: left; }
+.lb-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
 .lb-item:last-child { border-bottom: none; }
+.lb-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin: 0 10px; border: 1px solid rgba(255,255,255,0.2);}
 
-/* Loader */
+/* Loader & Modal */
 .ov-load { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+.spinner { width: 45px; height: 45px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
 
-/* Custom Modal */
-.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
+.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.ca-box { background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s; }
 .ca-ov.active .ca-box { transform: scale(1); }
-.ca-icon { font-size: 50px; margin-bottom: 15px; line-height: 1; }
+.ca-icon { font-size: 50px; margin-bottom: 15px; }
 .ca-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
 .ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
 .ca-btn { width: 100%; padding: 12px 0; border-radius: 10px; font-size: 14px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; border: none; background: var(--primary); color: #fff;}
 </style>
 </head>
 <body>
-<div class="bg-radar"></div>
+<div class="bg-glow"></div>
 
 <div id="ov-load" class="ov-load">
   <div class="spinner"></div>
-  <div style="color:var(--muted); font-weight:700;">กำลังรวบรวมข้อมูลฝึกทบทวน...</div>
+  <div style="color:var(--muted); font-weight:700;">กำลังโหลดข้อมูล...</div>
 </div>
 
 <div id="custom-alert" class="ca-ov">
@@ -105,13 +103,13 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 <!-- Start Screen -->
 <div id="start-ui" class="screen hidden">
   <div class="panel-box">
-    <div class="app-icon">🪖</div>
-    <div class="title">แฟลชการ์ดประจัญบาน</div>
-    <div class="subtitle">ปัดขวา "จำได้" ปัดซ้าย "จำไม่ได้"<br>ทบทวนความรู้และ รปป. ยิ่งจำได้มากยิ่งได้แต้มยุทธวิธีสูง!</div>
+    <div class="app-icon">⚡</div>
+    <div class="title">แฟลชการ์ด</div>
+    <div class="subtitle">ปัดขวา "จำได้" ปัดซ้าย "จำไม่ได้"<br>ทบทวนความรู้ ยิ่งจำได้มากยิ่งได้แต้มสูง!</div>
     
-    <button class="btn btn-primary" onclick="startGame()">▶️ เริ่มฝึกทบทวน</button>
-    <button class="btn btn-outline" onclick="showLeaderboard()">🏆 ทำเนียบผู้เชี่ยวชาญ</button>
-    <button class="btn btn-outline" style="background:transparent; border-color:transparent; margin-top:5px; font-size:14px;" onclick="liff.closeWindow()">กลับศูนย์ข้อมูล</button>
+    <button class="btn btn-primary" onclick="startGame()">▶️ เริ่มทบทวนความรู้</button>
+    <button class="btn btn-outline" onclick="showLeaderboard()">🏆 ดูทำเนียบ</button>
+    <button class="btn btn-outline" style="background:transparent; border-color:transparent; margin-top:5px; font-size:14px;" onclick="liff.closeWindow()">กลับสู่หน้าหลัก</button>
   </div>
 </div>
 
@@ -133,26 +131,26 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 <!-- End Screen -->
 <div id="end-ui" class="screen hidden">
   <div class="panel-box">
-    <div class="app-icon" style="font-size:70px;">🎯</div>
-    <div class="title" style="color:var(--secondary);">เสร็จสิ้นการฝึก</div>
-    <div class="subtitle" style="margin-bottom:10px;">แต้มยุทธวิธีที่ทำได้</div>
+    <div class="app-icon" style="font-size:60px;">🎯</div>
+    <div class="title" style="color:var(--primary);">เสร็จสิ้นการทบทวน</div>
+    <div class="subtitle" style="margin-bottom:10px;">คะแนนความจำที่คุณทำได้</div>
     
-    <div style="font-size:50px; font-weight:800; color:var(--success); font-family:'IBM Plex Mono'; text-shadow:0 0 20px rgba(76,175,80,0.5); margin-bottom:24px;" id="end-score">0</div>
+    <div style="font-size:50px; font-weight:800; color:var(--success); font-family:'IBM Plex Mono'; text-shadow:0 0 20px rgba(0,230,118,0.5); margin-bottom:24px;" id="end-score">0</div>
     
-    <button class="btn btn-primary" onclick="startGame()">🔄 ฝึกทบทวนอีกครั้ง</button>
-    <button class="btn btn-outline" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบผู้เชี่ยวชาญ</button>
+    <button class="btn btn-primary" onclick="startGame()">🔄 ทบทวนอีกครั้ง</button>
+    <button class="btn btn-outline" onclick="showLeaderboardFromEnd()">🏆 ดูทำเนียบ</button>
   </div>
 </div>
 
 <!-- Leaderboard Screen -->
 <div id="lb-ui" class="screen hidden">
-  <div class="title" style="font-size:22px; margin-bottom:5px;">🏆 ทำเนียบผู้เชี่ยวชาญ</div>
-  <div class="subtitle">จัดอันดับจากแต้มการทบทวนสูงสุด</div>
+  <div class="title" style="font-size:22px; margin-bottom:5px;">🏆 ทำเนียบยอดฝีมือ</div>
+  <div class="subtitle">จัดอันดับจากคะแนนการทบทวนสูงสุด</div>
   
-  <div id="lb-loading" style="color:var(--secondary); margin: 20px 0; font-weight:700;">กำลังตรวจสอบข้อมูล...</div>
+  <div id="lb-loading" style="color:var(--primary); margin: 20px 0; font-weight:700;">กำลังรวบรวมข้อมูล...</div>
   <div class="lb-container" id="lb-list" style="display:none;"></div>
   
-  <button class="btn btn-outline" onclick="closeLeaderboard()">← กลับสู่เมนูหลัก</button>
+  <button class="btn btn-outline" onclick="closeLeaderboard()">← กลับสู่หน้าหลัก</button>
 </div>
 
 <script>
@@ -236,7 +234,7 @@ function renderCard() {
   });
 
   el.innerHTML = `
-    <div class="fc-category">${q.category || 'รปป.'}</div>
+    <div class="fc-category">${q.category || 'ทั่วไป'}</div>
     <div class="fc-front">${q.questionText}</div>
     <div class="fc-back">
       <div style="font-size:13px; color:var(--muted); text-transform:uppercase; font-weight:800;">เฉลย</div>
@@ -279,8 +277,8 @@ function dragMove(e) {
   currentCardEl.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotate}deg)`;
   
   // สี Feedback ซ้าย/ขวา
-  if (currentX > 50) currentCardEl.style.boxShadow = '20px 0 30px rgba(76,175,80,0.3)';
-  else if (currentX < -50) currentCardEl.style.boxShadow = '-20px 0 30px rgba(255,82,82,0.3)';
+  if (currentX > 50) currentCardEl.style.boxShadow = '20px 0 30px rgba(0,230,118,0.3)';
+  else if (currentX < -50) currentCardEl.style.boxShadow = '-20px 0 30px rgba(255,61,0,0.3)';
   else currentCardEl.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
 }
 
@@ -374,20 +372,23 @@ async function loadLeaderboardData() {
     list.innerHTML = '';
     
     if (res.leaderboard.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-size:13px;">ยังไม่มีผู้เข้าทดสอบทบทวน</div>';
+      list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-size:13px;">ยังไม่มีข้อมูลการทบทวน</div>';
     } else {
       res.leaderboard.forEach((e, i) => {
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-        const isMe = e.userId === userId ? 'color:var(--secondary); font-weight:800;' : '';
+        const isMe = e.userId === userId ? 'color:var(--primary); font-weight:800;' : '';
+        // หากผู้ใช้มีภาพโปรไฟล์ จะแสดงรูปด้วย
+        const pic = e.pictureUrl ? e.pictureUrl : 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
         
         list.innerHTML += `
           <div class="lb-item">
             <div style="font-size:16px; font-weight:800; width:30px; color:var(--muted);">${medal}</div>
+            <img src="${pic}" class="lb-avatar" onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'">
             <div style="flex:1; ${isMe}">
               <div>${e.fullName}</div>
-              <div style="font-size:11px; color:var(--muted);">${e.rank} ${e.position}</div>
+              <div style="font-size:11px; color:#888;">${e.rank} ${e.position}</div>
             </div>
-            <div style="font-size:20px; font-weight:800; color:var(--success); font-family:'IBM Plex Mono';">${e.score}</div>
+            <div style="font-size:18px; font-weight:800; color:var(--success); font-family:monospace;">${e.score}</div>
           </div>
         `;
       });
@@ -405,8 +406,14 @@ async function callAPI(method, params, timeoutMs=20000) {
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; } 
-    else { opts.method  = 'POST'; opts.headers = { 'Content-Type':'text/plain' }; opts.body = JSON.stringify(params); }
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
     const resp = await fetch(url, opts);
     clearTimeout(tid);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
