@@ -29,7 +29,7 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; display: fl
 /* Buttons */
 .btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: 'Sarabun'; }
 .btn:active { transform: scale(0.96); }
-.btn-primary { background: linear-gradient(135deg, var(--primary), #1b5e20); color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.btn-primary { background: linear-gradient(135deg, var(--primary), #1b5e20); color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid #4caf50;}
 .btn-secondary { background: var(--surf2); border: 1px solid var(--border); color: var(--text); }
 .btn-danger { background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.3); color: var(--red); }
 .btn-success { background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.3); color: var(--green); }
@@ -76,9 +76,9 @@ select.form-control { cursor: pointer; }
 .list-header { display: flex; justify-content: space-between; align-items: flex-start; }
 .list-title { font-size: 15px; font-weight: 700; color: var(--text); }
 .list-sub { font-size: 12px; color: var(--muted); }
-.badge { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: var(--surf2); border: 1px solid var(--border); color: var(--secondary); }
+.badge { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: var(--surf2); border: 1px solid var(--border); color: var(--secondary); display: inline-block;}
 
-/* Custom Modal */
+/* Custom Modal Window */
 .modal-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(2px);}
 .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
 .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 16px; color: var(--secondary); border-bottom: 1px dashed var(--border); padding-bottom: 10px; text-transform: uppercase;}
@@ -94,8 +94,8 @@ select.form-control { cursor: pointer; }
 .ca-btn-group { display: flex; gap: 12px; justify-content: center; }
 .ca-btn { flex: 1; padding: 12px 0; border-radius: 8px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
 .ca-btn-cancel { background: var(--surf2); border: 1px solid var(--border); color: var(--text); }
-.ca-btn-confirm { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(46,125,50,0.3); }
-.ca-btn-danger { background: var(--red); color: #fff; box-shadow: 0 4px 15px rgba(255,82,82,0.3); }
+.ca-btn-confirm { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(46,125,50,0.3); border: 1px solid #4caf50;}
+.ca-btn-danger { background: var(--red); color: #fff; box-shadow: 0 4px 15px rgba(255,82,82,0.3); border: 1px solid #ff1744;}
 .ca-btn:active { transform: scale(0.96); }
 </style>
 </head>
@@ -121,10 +121,10 @@ select.form-control { cursor: pointer; }
 <div id="ov-login" class="ov hidden">
   <div class="login-box">
     <div style="font-size: 60px; margin-bottom: 10px;">🎖️</div>
-    <h2 style="margin-bottom: 5px; color: var(--secondary);" class="dynamic-app-name">Command Center</h2>
-    <div style="font-size: 13px; color: var(--muted); margin-bottom: 24px;" class="dynamic-org-name">Organization</div>
+    <h2 style="margin-bottom: 5px; color: var(--secondary);">Command Center</h2>
+    <div style="font-size: 13px; color: var(--muted); margin-bottom: 24px;">ศูนย์บัญชาการส่วนกลาง</div>
     <input type="password" id="inp-pin" class="form-control" style="text-align:center; font-size:20px; letter-spacing:4px;" placeholder="รหัสผ่านผู้บังคับบัญชา">
-    <button class="btn btn-primary" style="width: 100%;" onclick="doLogin()">ยืนยันตัวตน</button>
+    <button class="btn btn-primary" style="width: 100%;" onclick="doLogin()">ยืนยันตัวตนเข้าสู่ระบบ</button>
   </div>
 </div>
 
@@ -132,12 +132,12 @@ select.form-control { cursor: pointer; }
 <div id="app" class="hidden">
   <div class="app-header">
     <div>
-      <div class="app-title dynamic-app-name">Command Center</div>
-      <div class="app-org dynamic-org-name">System</div>
+      <div class="app-title">Command Center</div>
+      <div class="app-org">ผู้ดูแลระบบ</div>
     </div>
     <div class="flex gap-2">
       <button class="btn btn-secondary btn-sm" onclick="loadData()">🔄 รีเฟรช</button>
-      <button class="btn btn-secondary btn-sm" onclick="liff.closeWindow()">❌ ปิด</button>
+      <button class="btn btn-danger btn-sm" onclick="liff.closeWindow()">❌ ปิด</button>
     </div>
   </div>
 
@@ -155,7 +155,7 @@ select.form-control { cursor: pointer; }
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-val" id="stat-members">0</div>
-        <div class="stat-label">ยอด<span class="dynamic-term-user">กำลังพล</span>รวม</div>
+        <div class="stat-label">ยอดกำลังพลรวม</div>
       </div>
       <div class="stat-card">
         <div class="stat-val" id="stat-examed" style="color: var(--secondary);">0</div>
@@ -175,7 +175,7 @@ select.form-control { cursor: pointer; }
   <!-- TAB: Members -->
   <div class="tab-content" id="tab-members">
     <div class="flex justify-between items-center mb-2">
-      <h3 style="font-size:16px;">บัญชีรายชื่อ<span class="dynamic-term-user">กำลังพล</span></h3>
+      <h3 style="font-size:16px;">บัญชีรายชื่อกำลังพล</h3>
       <input type="text" id="search-member" class="form-control" style="width: 150px; margin:0; padding:6px 12px;" placeholder="ค้นหาชื่อ..." onkeyup="renderMembers()">
     </div>
     <div id="list-members" class="flex flex-col gap-2"></div>
@@ -204,7 +204,6 @@ select.form-control { cursor: pointer; }
     <div class="flex justify-between items-center mb-2">
       <h3 style="font-size:16px;">คลังตำรา / รปป.</h3>
       <div class="flex gap-2">
-        <button class="btn btn-secondary btn-sm" onclick="openBroadcastModal()">📢 แจ้งเตือน</button>
         <button class="btn btn-primary btn-sm" onclick="openLibraryModal()">+ เพิ่มสื่อ</button>
       </div>
     </div>
@@ -240,34 +239,6 @@ select.form-control { cursor: pointer; }
 </div>
 
 <!-- ================= MODALS ================= -->
-
-<!-- 📢 Modal: Broadcast Message -->
-<div id="modal-broadcast" class="modal-ov hidden" onclick="closeModal(event)">
-  <div class="modal-box" onclick="event.stopPropagation()">
-    <div class="modal-title">📢 ประกาศคำสั่งศูนย์บัญชาการ</div>
-    <div class="stat-label mb-2">คำสั่งนี้จะถูกส่งตรงไปยังแชท LINE ของกำลังพล</div>
-    
-    <label class="stat-label mt-2">กลุ่มเป้าหมาย</label>
-    <select id="inp-broadcast-target-type" class="form-control" onchange="updateBroadcastTargetOptions()">
-      <option value="ALL">กำลังพลทั้งหมดในระบบ</option>
-      <option value="LEVEL">แยกตาม ยศ/ชั้น</option>
-      <option value="POSITION">แยกตาม สังกัด/ตำแหน่ง</option>
-    </select>
-    
-    <div id="wrap-broadcast-target-val" class="hidden">
-      <label class="stat-label">เลือกกลุ่มเป้าหมายย่อย</label>
-      <select id="inp-broadcast-target-val" class="form-control"></select>
-    </div>
-    
-    <label class="stat-label mt-2">พิมพ์ข้อความคำสั่ง</label>
-    <textarea id="inp-broadcast-msg" class="form-control" rows="5" placeholder="ตัวอย่าง: ประกาศ! ให้กำลังพลทุกนายเข้ารับการทดสอบ..."></textarea>
-    
-    <div class="flex gap-2 mt-4">
-      <button class="btn btn-secondary" style="flex:1;" onclick="closeAllModal()">ยกเลิก</button>
-      <button class="btn btn-primary" style="flex:1; background:var(--secondary); color:#000;" id="btn-send-broadcast" onclick="sendBroadcast()">🚀 ยืนยันส่งคำสั่ง</button>
-    </div>
-  </div>
-</div>
 
 <!-- Modal: Add/Edit Question -->
 <div id="modal-q" class="modal-ov hidden" onclick="closeModal(event)">
@@ -345,7 +316,7 @@ select.form-control { cursor: pointer; }
     <input type="text" id="mr-desc" class="form-control">
     <div class="flex gap-2">
       <div style="flex:1;">
-        <label class="stat-label">ราคา (<span class="dynamic-term-coin">Coin</span>)</label>
+        <label class="stat-label">ราคา (เหรียญ PX)</label>
         <input type="number" id="mr-price" class="form-control">
       </div>
       <div style="flex:1;">
@@ -371,8 +342,12 @@ const GAS_URL  = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI
 
 let adminSecret = '';
 let appData = {};
-let appConfig = null;
 let activeQuestionSubject = 'ALL'; 
+
+// Memory maps to prevent string escaping issues in HTML
+window.qMap = {};
+window.libMap = {};
+window.rewardMap = {};
 
 // Alert & Confirm Functions
 function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
@@ -402,29 +377,15 @@ async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     
-    const configRes = await callAPI('GET', { action: 'get_config' });
-    if(configRes.status === 'ok') { 
-      appConfig = configRes.config; 
-      applyTemplate(appConfig); 
-    }
+    // เรานำการโหลด get_config ออกไปก่อน เพื่อหลีกเลี่ยง JSON Parse Error หากฝั่ง GAS ไม่มีฟังก์ชันนี้
+    // ธีมทหารได้ถูกฝังไว้ใน CSS เรียบร้อยแล้ว จึงทำงานได้ปกติ
     
     document.getElementById('ov-load').classList.add('hidden');
     document.getElementById('ov-login').classList.remove('hidden');
   } catch(e) {
     customAlert('Liff Error: ' + e.message, 'เกิดข้อผิดพลาด', '❌');
+    document.getElementById('ov-load').classList.add('hidden');
   }
-}
-
-function applyTemplate(config) {
-  if(!config) return;
-  document.documentElement.style.setProperty('--primary', config.colorPrimary);
-  document.documentElement.style.setProperty('--secondary', config.colorSecondary);
-  
-  document.title = `${config.appName} - ศูนย์บัญชาการ`;
-  document.querySelectorAll('.dynamic-app-name').forEach(el => el.textContent = config.appName);
-  document.querySelectorAll('.dynamic-org-name').forEach(el => el.textContent = config.orgName);
-  document.querySelectorAll('.dynamic-term-user').forEach(el => el.textContent = config.termUser || 'กำลังพล');
-  document.querySelectorAll('.dynamic-term-coin').forEach(el => el.textContent = config.termCoin || 'เหรียญ PX');
 }
 
 async function doLogin() {
@@ -455,7 +416,6 @@ async function loadData() {
     const res = await callAPI('GET', { action: 'admin_data', secret: adminSecret });
     if(res.status === 'ok') {
       appData = res;
-      if(res.config) { appConfig = res.config; applyTemplate(appConfig); }
       renderAll();
     } else { throw new Error(res.message); }
   } catch(e) { customAlert(e.message, 'เชื่อมต่อข้อมูลล้มเหลว', '📡'); }
@@ -504,7 +464,7 @@ function renderMembers() {
         <div class="list-header">
           <div>
             <div class="list-title">${m.fullName}${nickText}</div>
-            <div class="list-sub">${appConfig ? appConfig.termLevel : 'ยศ'}: ${m.rank} | ${appConfig ? appConfig.termPosition : 'สังกัด'}: ${m.position}</div>
+            <div class="list-sub">ยศ: ${m.rank} | สังกัด: ${m.position}</div>
             <div class="list-sub mt-2">ผลประเมิน: ${sText}</div>
           </div>
           <button class="btn btn-danger btn-sm" onclick="resetUserExam('${m.userId}', '${m.fullName}')">ล้างประวัติ</button>
@@ -517,6 +477,8 @@ function renderMembers() {
 function renderQuestions() {
   const list = document.getElementById('list-questions'); const subTabs = document.getElementById('q-sub-tabs'); const subjCtrl = document.getElementById('q-subject-control');
   list.innerHTML = ''; subTabs.innerHTML = ''; subjCtrl.innerHTML = '';
+  window.qMap = {}; // Reset Map
+
   const qs = appData.questions || [];
 
   if (qs.length === 0) { list.innerHTML = '<div class="text-center text-muted">ไม่มีข้อมูลในคลัง</div>'; subjCtrl.classList.add('hidden'); return; }
@@ -549,6 +511,7 @@ function renderQuestions() {
   const filteredQs = activeQuestionSubject === 'ALL' ? qs : qs.filter(q => (q.category||'ทั่วไป') === activeQuestionSubject);
 
   filteredQs.forEach(q => {
+    window.qMap[q.questionId] = q; // Save to Memory
     list.innerHTML += `
       <div class="list-card">
         <div class="list-header">
@@ -558,7 +521,7 @@ function renderQuestions() {
             <div class="list-sub mt-2" style="color:var(--green)">✅ เฉลย ${q.correctAnswer}: ${q.choices ? q.choices[q.correctAnswer] : '-'}</div>
           </div>
           <div class="flex flex-col gap-2">
-            <button class="btn btn-secondary btn-sm" onclick='editQuestion(${JSON.stringify(q).replace(/'/g, "&#39;")})'>แก้ไข</button>
+            <button class="btn btn-secondary btn-sm" onclick="editQuestion('${q.questionId}')">แก้ไข</button>
             <button class="btn btn-danger btn-sm" onclick="delQuestion('${q.questionId}')">ลบ</button>
           </div>
         </div>
@@ -571,10 +534,13 @@ window.setQuestionFilter = function(cat) { activeQuestionSubject = cat; renderQu
 
 function renderLibrary() {
   const list = document.getElementById('list-library'); list.innerHTML = '';
+  window.libMap = {}; // Reset Map
+
   const libs = appData.library || [];
   if (libs.length === 0) return list.innerHTML = '<div class="text-center text-muted">ยังไม่มีเอกสาร/สื่อ</div>';
 
   libs.forEach(l => {
+    window.libMap[l.id] = l; // Save to Memory
     list.innerHTML += `
       <div class="list-card">
         <div class="list-header">
@@ -584,7 +550,7 @@ function renderLibrary() {
             <div class="list-sub mt-2" style="word-break: break-all;">🔗 ${l.url}</div>
           </div>
           <div class="flex flex-col gap-2">
-            <button class="btn btn-secondary btn-sm" onclick='editLibrary(${JSON.stringify(l).replace(/'/g, "&#39;")})'>แก้ไข</button>
+            <button class="btn btn-secondary btn-sm" onclick="editLibrary('${l.id}')">แก้ไข</button>
             <button class="btn btn-danger btn-sm" onclick="delLibrary('${l.id}')">ลบ</button>
           </div>
         </div>
@@ -596,19 +562,21 @@ function renderLibrary() {
 function renderStore() {
   const rList = document.getElementById('list-rewards'); const dList = document.getElementById('list-redemptions');
   rList.innerHTML = ''; dList.innerHTML = '';
+  window.rewardMap = {}; // Reset Map
 
   const rewards = appData.rewards || [];
   if(rewards.length === 0) rList.innerHTML = '<div class="text-muted">ยังไม่มีสินค้า PX</div>';
   rewards.forEach(r => {
+    window.rewardMap[r.id] = r; // Save to Memory
     rList.innerHTML += `
       <div class="list-card flex" style="flex-direction:row; align-items:center;">
-        <img src="${r.image}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;background:#fff;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/10398/10398492.png'">
+        <img src="${r.image || r.imageUrl}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;background:#fff;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/10398/10398492.png'">
         <div style="flex:1;">
           <div class="list-title">${r.name}</div>
           <div class="list-sub">ราคา: ${r.price} | คงคลัง: <span style="color:var(--secondary);font-weight:700;">${r.stock}</span></div>
         </div>
         <div class="flex flex-col gap-2">
-          <button class="btn btn-secondary btn-sm" onclick='editReward(${JSON.stringify(r).replace(/'/g, "&#39;")})'>แก้ไข</button>
+          <button class="btn btn-secondary btn-sm" onclick="editReward('${r.id}')">แก้ไข</button>
           <button class="btn btn-danger btn-sm" onclick="delReward('${r.id}')">ลบ</button>
         </div>
       </div>
@@ -623,7 +591,7 @@ function renderStore() {
         <div class="list-header">
           <div>
             <div class="list-title">${r.userName}</div>
-            <div class="list-sub">ขอเบิก: <b style="color:var(--secondary)">${r.rewardName}</b> (${r.price} ${appConfig ? appConfig.termCoin : ''})</div>
+            <div class="list-sub">ขอเบิก: <b style="color:var(--secondary)">${r.rewardName}</b> (${r.price} PX)</div>
             <div class="list-sub mt-2 text-muted">เวลา: ${r.timestamp}</div>
           </div>
           <div class="flex flex-col gap-2">
@@ -650,7 +618,8 @@ function openQuestionModal() {
   document.getElementById('mq-c').value = ''; document.getElementById('mq-d').value = ''; document.getElementById('mq-ans').value = 'A';
   openModal('modal-q');
 }
-function editQuestion(q) {
+function editQuestion(qId) {
+  const q = window.qMap[qId]; if(!q) return;
   document.getElementById('mq-title').textContent = 'แก้ไขแบบทดสอบ'; document.getElementById('mq-id').value = q.questionId;
   document.getElementById('mq-cat').value = q.category; document.getElementById('mq-text').value = q.questionText;
   document.getElementById('mq-a').value = q.choiceA; document.getElementById('mq-b').value = q.choiceB;
@@ -688,7 +657,8 @@ function openLibraryModal() {
   document.getElementById('ml-title').textContent = 'เพิ่มยุทโธปกรณ์/สื่อ'; document.getElementById('ml-id').value = ''; document.getElementById('ml-name').value = '';
   document.getElementById('ml-cat').value = ''; document.getElementById('ml-url').value = ''; openModal('modal-lib');
 }
-function editLibrary(l) {
+function editLibrary(lId) {
+  const l = window.libMap[lId]; if(!l) return;
   document.getElementById('ml-title').textContent = 'แก้ไขข้อมูลสื่อ'; document.getElementById('ml-id').value = l.id; document.getElementById('ml-name').value = l.title;
   document.getElementById('ml-cat').value = l.category; document.getElementById('ml-type').value = l.type; document.getElementById('ml-url').value = l.url; openModal('modal-lib');
 }
@@ -702,39 +672,12 @@ function delLibrary(id) {
   }, 'ยืนยันการลบ', '🗑️', 'ca-btn-danger');
 }
 
-function openBroadcastModal() {
-  document.getElementById('inp-broadcast-target-type').value = 'ALL'; document.getElementById('wrap-broadcast-target-val').classList.add('hidden'); document.getElementById('inp-broadcast-msg').value = ''; updateBroadcastTargetOptions(); openModal('modal-broadcast');
-}
-function updateBroadcastTargetOptions() {
-  const type = document.getElementById('inp-broadcast-target-type').value; const wrap = document.getElementById('wrap-broadcast-target-val'); const select = document.getElementById('inp-broadcast-target-val');
-  if (type === 'ALL') { wrap.classList.add('hidden'); return; }
-  wrap.classList.remove('hidden'); select.innerHTML = '';
-  const members = appData.members || []; let options = new Set();
-  if (type === 'LEVEL') { members.forEach(m => { if(m.rank) options.add(m.rank); }); } else if (type === 'POSITION') { members.forEach(m => { if(m.position) options.add(m.position); }); }
-  if(options.size === 0) { select.innerHTML = '<option value="">ไม่มีข้อมูล</option>'; } else { [...options].sort().forEach(opt => { select.innerHTML += `<option value="${opt}">${opt}</option>`; }); }
-}
-function sendBroadcast() {
-  const msg = document.getElementById('inp-broadcast-msg').value.trim(); const targetType = document.getElementById('inp-broadcast-target-type').value; const targetValue = document.getElementById('inp-broadcast-target-val').value;
-  if(!msg) return customAlert('กรุณาพิมพ์ข้อความคำสั่งที่ต้องการส่ง', 'แจ้งเตือน', '⚠️');
-  
-  let confirmMsg = 'ยืนยันส่งคำสั่งไปยัง <b>"กำลังพลทั้งหมด"</b> ใช่หรือไม่?';
-  if(targetType === 'LEVEL') confirmMsg = `ยืนยันส่งคำสั่งไปยังชั้นยศ <b>"${targetValue}"</b> ใช่หรือไม่?`;
-  if(targetType === 'POSITION') confirmMsg = `ยืนยันส่งคำสั่งไปยังสังกัด <b>"${targetValue}"</b> ใช่หรือไม่?`;
-
-  customConfirm(confirmMsg, async () => {
-    const btn = document.getElementById('btn-send-broadcast'); btn.disabled = true; btn.textContent = 'กำลังส่ง...';
-    try {
-      const res = await callAPI('POST', { action: 'broadcast_message', secret: adminSecret, textMessage: msg, targetType: targetType, targetValue: targetValue });
-      if(res.status === 'ok') { customAlert(res.message, 'ส่งคำสั่งสำเร็จ', '🚀'); closeAllModal(); } else { throw new Error(res.message); }
-    } catch(e) { customAlert(e.message, 'ส่งล้มเหลว', '❌'); } finally { btn.disabled = false; btn.textContent = '🚀 ยืนยันส่งคำสั่ง'; }
-  }, 'ส่งประกาศคำสั่ง', '📢');
-}
-
 function openRewardModal() {
   document.getElementById('mr-title').textContent = 'เพิ่มสินค้า PX'; document.getElementById('mr-id').value = ''; document.getElementById('mr-name').value = ''; document.getElementById('mr-desc').value = ''; document.getElementById('mr-price').value = '100'; document.getElementById('mr-stock').value = '10'; document.getElementById('mr-img').value = ''; openModal('modal-rew');
 }
-function editReward(r) {
-  document.getElementById('mr-title').textContent = 'แก้ไขสินค้า PX'; document.getElementById('mr-id').value = r.id; document.getElementById('mr-name').value = r.name; document.getElementById('mr-desc').value = r.desc; document.getElementById('mr-price').value = r.price; document.getElementById('mr-stock').value = r.stock; document.getElementById('mr-img').value = r.image; openModal('modal-rew');
+function editReward(rId) {
+  const r = window.rewardMap[rId]; if(!r) return;
+  document.getElementById('mr-title').textContent = 'แก้ไขสินค้า PX'; document.getElementById('mr-id').value = r.id; document.getElementById('mr-name').value = r.name; document.getElementById('mr-desc').value = r.desc; document.getElementById('mr-price').value = r.price; document.getElementById('mr-stock').value = r.stock; document.getElementById('mr-img').value = (r.image || r.imageUrl || ''); openModal('modal-rew');
 }
 async function saveReward() {
   const payload = { action: 'save_reward', secret: adminSecret, id: document.getElementById('mr-id').value, name: document.getElementById('mr-name').value, desc: document.getElementById('mr-desc').value, price: Number(document.getElementById('mr-price').value), stock: Number(document.getElementById('mr-stock').value), image: document.getElementById('mr-img').value };
