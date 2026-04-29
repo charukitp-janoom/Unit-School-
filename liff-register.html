@@ -3,357 +3,263 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Unit School — ลงทะเบียน</title>
+<title>รายงานตัวกำลังพล</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy:   #1a237e;
-  --navy2:  #283593;
-  --gold:   #ffd700;
-  --gold2:  #ffb300;
-  --bg:     #0f1322;
-  --surface:#161c36;
-  --surf2:  #1e2647;
-  --border: #2a3558;
-  --text:   #e8ecf8;
-  --muted:  #6e7aa0;
-  --green:  #00c853;
-  --red:    #ff5252;
-  --blue:   #4fc3f7;
-  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  /* ธีมทหาร: Army Green & Gold */
+  --primary: #2e7d32;
+  --primary-dark: #1b5e20;
+  --secondary: #ffca28;
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --border: #333333;
+  --text: #e0e0e0;
+  --muted: #888888;
+  --danger: #ff5252;
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
 
-/* LOADING OVERLAY */
-.ov{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:9999;padding:32px;text-align:center}
-.ov.hidden{display:none!important}
-.ov-spinner{width:70px;height:70px;border:3px solid var(--surf2);border-top:3px solid var(--gold);border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.ov-title{font-size:20px;font-weight:700;color:var(--gold)}
-.ov-sub{font-size:14px;color:var(--muted)}
+.header-title { font-size: 26px; font-weight: 800; color: var(--secondary); margin-bottom: 5px; text-align: center; text-transform: uppercase; letter-spacing: 1px;}
+.header-sub { text-align: center; color: var(--muted); margin-bottom: 15px; font-size: 14px; }
 
-/* SUCCESS OVERLAY */
-.ov-success{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9998;padding:32px;text-align:center}
-.ov-success.hidden{display:none!important}
-.success-badge{width:90px;height:90px;background:linear-gradient(135deg,#00c853,#00897b);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:46px;box-shadow:0 0 40px rgba(0,200,83,0.4)}
-.success-title{font-size:24px;font-weight:800;color:var(--green)}
-.success-name{font-size:20px;font-weight:700;color:var(--text)}
-.success-sub{font-size:14px;color:var(--muted)}
+.container { width: 100%; max-width: 420px; background: var(--surface); padding: 24px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 10px;}
 
-/* HEADER */
-.hdr{background:linear-gradient(135deg,var(--navy),var(--navy2));padding:16px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
-.hdr-badge{width:44px;height:44px;background:var(--gold);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.hdr-title{font-size:17px;font-weight:800;color:var(--gold)}
-.hdr-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px}
+/* Profile Display Section */
+.profile-card { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px dashed var(--border); }
+.profile-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); margin-bottom: 12px; box-shadow: 0 0 15px rgba(46, 125, 50, 0.4); background: #111; }
+.profile-name { font-size: 18px; font-weight: 700; color: var(--text); }
+.profile-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-/* STEPS BAR */
-.steps{display:flex;margin:20px 16px 0;background:var(--surface);border-radius:12px;border:1px solid var(--border);overflow:hidden}
-.step-item{flex:1;padding:12px 6px;text-align:center;font-size:10px;color:var(--muted);transition:all .3s;border-right:1px solid var(--border);position:relative}
-.step-item:last-child{border-right:none}
-.step-item.active{background:rgba(255,215,0,0.08);color:var(--gold);font-weight:700}
-.step-item.done{color:var(--green)}
-.step-num{display:block;font-size:16px;font-weight:800;margin-bottom:3px;font-family:'IBM Plex Mono',monospace}
+/* Form Elements */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; margin-bottom: 6px; font-size: 14px; color: var(--muted); font-weight: 600; }
+.form-control { width: 100%; background: #0a0a0a; border: 1px solid var(--border); color: #fff; padding: 14px 16px; border-radius: 8px; font-family: 'Sarabun'; font-size: 16px; transition: 0.2s; outline: none; }
+.form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2); }
 
-/* CONTENT */
-.content{padding:16px 16px 80px;max-width:480px;margin:0 auto}
+select.form-control { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
 
-/* CARD */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;animation:fadeUp .35s ease}
-.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;color:var(--gold);background:rgba(255,215,0,0.04)}
-.card-body{padding:20px 18px;display:flex;flex-direction:column;gap:18px}
+.btn { width: 100%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);}
+.btn:active { transform: scale(0.96); box-shadow: none; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* HERO BANNER */
-.hero{background:linear-gradient(135deg,rgba(26,35,126,0.8),rgba(40,53,147,0.6));border:1px solid rgba(255,215,0,0.2);border-radius:16px;padding:24px 20px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden}
-.hero::before{content:'🎖️';position:absolute;top:-10px;right:10px;font-size:80px;opacity:0.06}
-.hero-title{font-size:20px;font-weight:800;color:var(--gold);margin-bottom:6px}
-.hero-sub{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.7}
+/* Overlay Loading */
+.ov { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.hidden { display: none !important; }
 
-/* FORM */
-.field{display:flex;flex-direction:column;gap:8px}
-.field-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:flex;gap:6px;align-items:center}
-.field-label .req{color:var(--red)}
-input,select{width:100%;background:var(--surf2);border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;font-family:'Sarabun',sans-serif;font-size:16px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
-input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,0.1)}
-input::placeholder{color:var(--muted)}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%236e7aa0' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:14px;padding-right:40px}
-select option{background:var(--surf2);color:var(--text)}
-
-/* RANK GRID */
-.rank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.rank-pill{background:var(--surf2);border:1.5px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;user-select:none;color:var(--text)}
-.rank-pill:active{transform:scale(.95)}
-.rank-pill.selected{background:rgba(255,215,0,0.1);border-color:var(--gold);color:var(--gold)}
-
-/* CONFIRM CARD */
-.confirm-box{background:rgba(255,215,0,0.04);border:1.5px solid rgba(255,215,0,0.2);border-radius:14px;overflow:hidden}
-.confirm-hdr{padding:12px 16px;background:rgba(255,215,0,0.08);border-bottom:1px solid rgba(255,215,0,0.15);font-weight:700;font-size:13px;color:var(--gold)}
-.confirm-row{display:flex;align-items:center;padding:11px 16px;border-bottom:1px solid rgba(255,215,0,0.08);gap:12px}
-.confirm-row:last-child{border-bottom:none}
-.confirm-key{font-size:12px;color:var(--muted);width:80px;flex-shrink:0}
-.confirm-val{font-size:15px;font-weight:700;word-break:break-all}
-
-/* ALERT */
-.alert{border-radius:10px;padding:12px 14px;font-size:13px;display:flex;gap:10px;align-items:flex-start;line-height:1.6;margin-bottom:12px}
-.alert.hidden{display:none!important}
-.alert.error{background:rgba(255,82,82,0.1);border:1px solid rgba(255,82,82,0.3);color:var(--red)}
-.alert.success{background:rgba(0,200,83,0.1);border:1px solid rgba(0,200,83,0.3);color:var(--green)}
-.alert.info{background:rgba(79,195,247,0.1);border:1px solid rgba(79,195,247,0.3);color:var(--blue)}
-
-/* BUTTONS */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;-webkit-appearance:none}
-.btn:active{transform:scale(.97)}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn-primary{background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold);box-shadow:0 4px 16px rgba(26,35,126,0.5)}
-.btn-secondary{background:var(--surf2);color:var(--text);border:1px solid var(--border)}
-.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1a1a;box-shadow:0 4px 16px rgba(255,215,0,0.3)}
-.btn-row{display:flex;gap:10px}
-.btn-row .btn{flex:1}
-.btn-sm{padding:11px;font-size:14px}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.hidden{display:none!important}
+/* Custom Modal Alert */
+.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(2px);}
+.ca-ov.active { opacity: 1; pointer-events: auto; }
+.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.ca-ov.active .ca-box { transform: scale(1); }
+.ca-icon { font-size: 60px; margin-bottom: 15px; line-height: 1; }
+.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.ca-btn { width: 100%; padding: 12px 0; border-radius: 10px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; border: none; background: var(--primary); color: #fff; transition: 0.2s;}
+.ca-btn:active { transform: scale(0.96); }
 </style>
 </head>
 <body>
 
+<!-- Loading Screen -->
 <div id="ov-load" class="ov">
-  <div class="ov-spinner"></div>
-  <div class="ov-title">🎖️ Unit School</div>
-  <div class="ov-sub" id="load-txt">กำลังเชื่อมต่อระบบ...</div>
+  <div class="spinner"></div>
+  <div id="load-text" style="color:var(--muted); font-weight:600;">กำลังเชื่อมต่อศูนย์ข้อมูล...</div>
 </div>
 
-<div id="ov-success" class="ov-success hidden">
-  <div class="success-badge">✅</div>
-  <div class="success-title">ลงทะเบียนสำเร็จ!</div>
-  <div class="success-name" id="ok-name">—</div>
-  <div class="success-sub" id="ok-rank">—</div>
-  <div style="font-size:13px;color:var(--muted);margin-top:4px">พร้อมทำข้อสอบแล้วครับ</div>
-  <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;margin-top:8px">
-    <button class="btn btn-gold" onclick="liff.closeWindow()">✅ กลับหน้าหลัก</button>
+<!-- Custom Alert Modal -->
+<div id="custom-alert" class="ca-ov">
+  <div class="ca-box">
+    <div id="ca-icon" class="ca-icon">⚠️</div>
+    <div id="ca-title" class="ca-title">แจ้งเตือน</div>
+    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <button class="ca-btn" onclick="closeCustomAlert()">รับทราบ</button>
   </div>
 </div>
 
-<div class="hdr">
-  <div class="hdr-badge">🎖️</div>
-  <div>
-    <div class="hdr-title">ลงทะเบียน Unit School</div>
-    <div class="hdr-sub">ห้องเรียนอัจฉริยะ กำลังพล</div>
-  </div>
-</div>
+<div class="header-title dynamic-app-name">Smart Soldier Online</div>
+<div class="header-sub">แบบฟอร์มรายงานตัวกำลังพล (รปจ.)</div>
 
-<div class="steps">
-  <div class="step-item active" id="step1"><span class="step-num">①</span>ข้อมูล</div>
-  <div class="step-item" id="step2"><span class="step-num">②</span>ยืนยัน</div>
-</div>
-
-<div class="content">
-
-  <div id="sec-form">
-    <div class="hero" style="margin-top:16px">
-      <div class="hero-title">ยินดีต้อนรับ กำลังพล</div>
-      <div class="hero-sub">กรอกข้อมูลของคุณเพื่อเข้าสู่ระบบ<br>ห้องเรียนอัจฉริยะ Unit School</div>
-    </div>
-
-    <div class="card">
-      <div class="card-hdr">🪖 ยศกำลังพล <span style="color:var(--red);font-size:16px"> *</span></div>
-      <div class="card-body">
-        <div class="rank-grid" id="rank-grid">
-          <div class="rank-pill" onclick="selectRank(this,'พล.อ.')">พล.อ.</div>
-          <div class="rank-pill" onclick="selectRank(this,'พล.ท.')">พล.ท.</div>
-          <div class="rank-pill" onclick="selectRank(this,'พล.ต.')">พล.ต.</div>
-          <div class="rank-pill" onclick="selectRank(this,'พ.อ.')">พ.อ.</div>
-          <div class="rank-pill" onclick="selectRank(this,'พ.ท.')">พ.ท.</div>
-          <div class="rank-pill" onclick="selectRank(this,'พ.ต.')">พ.ต.</div>
-          <div class="rank-pill" onclick="selectRank(this,'ร.อ.')">ร.อ.</div>
-          <div class="rank-pill" onclick="selectRank(this,'ร.ท.')">ร.ท.</div>
-          <div class="rank-pill" onclick="selectRank(this,'ร.ต.')">ร.ต.</div>
-          <div class="rank-pill" onclick="selectRank(this,'จ.ส.อ.')">จ.ส.อ.</div>
-          <div class="rank-pill" onclick="selectRank(this,'จ.ส.ท.')">จ.ส.ท.</div>
-          <div class="rank-pill" onclick="selectRank(this,'จ.ส.ต.')">จ.ส.ต.</div>
-          <div class="rank-pill" onclick="selectRank(this,'ส.อ.')">ส.อ.</div>
-          <div class="rank-pill" onclick="selectRank(this,'ส.ท.')">ส.ท.</div>
-          <div class="rank-pill" onclick="selectRank(this,'ส.ต.')">ส.ต.</div>
-          <div class="rank-pill" onclick="selectRank(this,'พลฯ')">พลฯ</div>
-          <div class="rank-pill" onclick="selectRank(this,'อื่นๆ')">อื่นๆ</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-hdr">👤 ชื่อ-นามสกุล และตำแหน่ง</div>
-      <div class="card-body">
-        <div class="field">
-          <div class="field-label">ชื่อ-นามสกุล <span class="req">*</span></div>
-          <input id="inp-name" type="text" placeholder="เช่น สมชาย ใจดี" autocomplete="off">
-        </div>
-        <div class="field">
-          <div class="field-label">ตำแหน่ง <span class="req">*</span></div>
-          <input id="inp-pos" type="text" placeholder="เช่น พลขับ, ธุรการ, ราชการ" autocomplete="off">
-        </div>
-      </div>
-    </div>
-
-    <div id="alert1" class="alert hidden"><span id="a1-icon"></span><span id="a1-txt"></span></div>
-    <button class="btn btn-primary" id="btn-next" onclick="goConfirm()">ถัดไป →</button>
+<div class="container hidden" id="main-ui">
+  <!-- Profile Section -->
+  <div class="profile-card">
+    <img src="" id="p-img" class="profile-img" alt="Profile" onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'">
+    <div id="p-name" class="profile-name">-</div>
+    <div class="profile-sub">ดึงข้อมูลจาก LINE อัตโนมัติ</div>
   </div>
 
-  <div id="sec-confirm" class="hidden">
-    <div class="card" style="margin-top:16px">
-      <div class="card-hdr">📋 ตรวจสอบข้อมูลก่อนลงทะเบียน</div>
-      <div class="card-body" style="padding:0">
-        <div class="confirm-box">
-          <div class="confirm-hdr">🎖️ ข้อมูลกำลังพล</div>
-          <div class="confirm-row">
-            <div class="confirm-key">LINE</div>
-            <div class="confirm-val" id="c-linename">—</div>
-          </div>
-          <div class="confirm-row">
-            <div class="confirm-key">ยศ</div>
-            <div class="confirm-val" id="c-rank">—</div>
-          </div>
-          <div class="confirm-row">
-            <div class="confirm-key">ชื่อ-สกุล</div>
-            <div class="confirm-val" id="c-name">—</div>
-          </div>
-          <div class="confirm-row">
-            <div class="confirm-key">ตำแหน่ง</div>
-            <div class="confirm-val" id="c-pos">—</div>
-          </div>
-        </div>
-      </div>
+  <form id="reg-form" onsubmit="submitForm(event)">
+    <div class="form-group">
+      <label class="form-label">ยศ (Rank) <span style="color:var(--danger)">*</span></label>
+      <select id="i-rank" class="form-control" required>
+        <option value="" disabled selected>-- เลือกยศ --</option>
+        <option value="พลฯ">พลทหาร (พลฯ)</option>
+        <option value="ส.ต.">สิบตรี (ส.ต.)</option>
+        <option value="ส.ท.">สิบโท (ส.ท.)</option>
+        <option value="ส.อ.">สิบเอก (ส.อ.)</option>
+        <option value="จ.ส.ต.">จ่าสิบตรี (จ.ส.ต.)</option>
+        <option value="จ.ส.ท.">จ่าสิบโท (จ.ส.ท.)</option>
+        <option value="จ.ส.อ.">จ่าสิบเอก (จ.ส.อ.)</option>
+        <option value="ร.ต.">ร้อยตรี (ร.ต.)</option>
+        <option value="ร.ท.">ร้อยโท (ร.ท.)</option>
+        <option value="ร.อ.">ร้อยเอก (ร.อ.)</option>
+        <option value="พ.ต.">พันตรี (พ.ต.)</option>
+        <option value="พ.ท.">พันโท (พ.ท.)</option>
+        <option value="พ.อ.">พันเอก (พ.อ.)</option>
+        <option value="นชท.">นักเรียนช่างฝีมือทหาร (นชท.)</option>
+        <option value="นนส.">นักเรียนนายสิบ (นนส.)</option>
+        <option value="นนร.">นักเรียนนายร้อย (นนร.)</option>
+        <option value="นาย">นาย (พลเรือน)</option>
+        <option value="นาง">นาง (พลเรือน)</option>
+        <option value="นางสาว">นางสาว (พลเรือน)</option>
+      </select>
     </div>
 
-    <div id="alert2" class="alert hidden"><span id="a2-icon"></span><span id="a2-txt"></span></div>
-    <div class="btn-row">
-      <button class="btn btn-secondary btn-sm" onclick="goForm()">← แก้ไข</button>
-      <button class="btn btn-gold" id="btn-submit" onclick="submitReg()">🎖️ ยืนยันลงทะเบียน</button>
+    <div class="form-group">
+      <label class="form-label">ชื่อ - นามสกุล (ไม่ต้องใส่ยศ) <span style="color:var(--danger)">*</span></label>
+      <input type="text" id="i-fullname" class="form-control" placeholder="เช่น ใจดี มีสุข" required>
     </div>
-  </div>
 
+    <div class="form-group">
+      <label class="form-label">ชื่อเล่น (Nickname)</label>
+      <input type="text" id="i-nickname" class="form-control" placeholder="เช่น ผู้กองเบิร์ด, จ่าแดง (ถ้ามี)">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">ตำแหน่ง / สังกัด <span style="color:var(--danger)">*</span></label>
+      <input type="text" id="i-position" class="form-control" placeholder="เช่น ผบ.หมู่ ร.1 พัน.1" required>
+    </div>
+
+    <button type="submit" id="btn-submit" class="btn">ยืนยันการรายงานตัว</button>
+  </form>
 </div>
 
 <script>
-// ==============================================
-// CONFIG
-// ==============================================
+// >>> เปลี่ยน LIFF_ID และ GAS_URL ให้ตรงกับของคุณ <<<
 const LIFF_ID = '2009717287-28e2ynXL';   
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-const S = { rank:'', name:'', pos:'', userId:'', displayName:'', submitting:false };
+let profileData = null;
+
+// Custom Alert Function
+function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
+  document.getElementById('ca-icon').textContent = icon;
+  document.getElementById('ca-title').textContent = title;
+  document.getElementById('ca-msg').innerHTML = msg;
+  document.getElementById('custom-alert').classList.add('active');
+}
+function closeCustomAlert() { 
+  document.getElementById('custom-alert').classList.remove('active'); 
+}
 
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
-    const profile = await liff.getProfile();
-    S.userId      = profile.userId;
-    S.displayName = profile.displayName;
+    
+    // ดึง Config เพื่อโหลดสีและชื่อแอป
+    try {
+      const configRes = await callAPI('GET', { action: 'get_config' });
+      if(configRes.status === 'ok' && configRes.config) {
+        const c = configRes.config;
+        document.documentElement.style.setProperty('--primary', c.colorPrimary);
+        document.documentElement.style.setProperty('--secondary', c.colorSecondary);
+        document.querySelectorAll('.dynamic-app-name').forEach(el => el.textContent = c.appName);
+        document.title = "รายงานตัว - " + c.appName;
+      }
+    } catch(e) { console.log('Config Load Warning:', e); }
 
-    const res = await callGAS('GET', { action:'get_member', userId: S.userId });
-    if (res && res.member) {
-      const m = res.member;
-      const rankPrefix = m.rank && m.fullName.startsWith(m.rank)
-        ? m.fullName.slice(m.rank.length).trim()
-        : m.fullName;
-      document.getElementById('inp-name').value = rankPrefix;
-      document.getElementById('inp-pos').value  = m.position;
-      document.querySelectorAll('.rank-pill').forEach(p => {
-        if (p.textContent.trim() === m.rank) { p.classList.add('selected'); S.rank = m.rank; }
-      });
-      setAlert('alert1','info','a1-icon','a1-txt','ℹ️','คุณเคยลงทะเบียนแล้ว — กรอกข้อมูลใหม่เพื่ออัปเดต');
+    // ดึงข้อมูลโปรไฟล์จาก LINE
+    profileData = await liff.getProfile();
+    
+    // อัปเดตรูปภาพโปรไฟล์และชื่อลงในหน้าจอ
+    document.getElementById('p-img').src = profileData.pictureUrl || 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
+    document.getElementById('p-name').textContent = profileData.displayName;
+
+    document.getElementById('load-text').textContent = 'ตรวจสอบประวัติกำลังพล...';
+    
+    // ตรวจสอบประวัติการลงทะเบียน
+    const res = await callAPI('GET', { action: 'get_member', userId: profileData.userId });
+    
+    if (res.status === 'ok' && res.member) {
+      // หากเคยลงทะเบียนแล้ว ให้ดึงข้อมูลมาแสดงเป็นค่า Default 
+      document.getElementById('i-rank').value = res.member.rank;
+      document.getElementById('i-fullname').value = res.member.fullName;
+      document.getElementById('i-nickname').value = res.member.nickname || '';
+      document.getElementById('i-position').value = res.member.position;
+      document.getElementById('btn-submit').textContent = 'อัปเดตประวัติกำลังพล';
     }
 
+    // ปิดหน้าโหลดและแสดงฟอร์ม
     document.getElementById('ov-load').classList.add('hidden');
+    document.getElementById('main-ui').classList.remove('hidden');
+
   } catch(e) {
-    document.getElementById('load-txt').textContent = '❌ ' + e.message;
+    document.getElementById('ov-load').classList.add('hidden');
+    customAlert(e.message, 'เชื่อมต่อล้มเหลว', '❌');
   }
 }
 
-function selectRank(el, rank) {
-  document.querySelectorAll('.rank-pill').forEach(p => p.classList.remove('selected'));
-  el.classList.add('selected');
-  S.rank = rank;
-}
+async function submitForm(e) {
+  e.preventDefault();
+  if(!profileData) return;
 
-function setStep(n) {
-  document.querySelectorAll('.step-item').forEach((s, i) => {
-    s.classList.toggle('active', i+1 === n);
-    s.classList.toggle('done',   i+1 < n);
-  });
-}
-
-function goConfirm() {
-  clearAlert('alert1');
-  if (!S.rank) { setAlert('alert1','error','a1-icon','a1-txt','❌','กรุณาเลือกยศก่อน'); return; }
-  const name = document.getElementById('inp-name').value.trim();
-  const pos  = document.getElementById('inp-pos').value.trim();
-  if (!name) { setAlert('alert1','error','a1-icon','a1-txt','❌','กรุณากรอกชื่อ-นามสกุล'); return; }
-  if (!pos)  { setAlert('alert1','error','a1-icon','a1-txt','❌','กรุณากรอกตำแหน่ง'); return; }
-
-  S.name = name;
-  S.pos  = pos;
-
-  document.getElementById('c-linename').textContent = S.displayName;
-  document.getElementById('c-rank').textContent     = S.rank;
-  document.getElementById('c-name').textContent     = name;
-  document.getElementById('c-pos').textContent      = pos;
-
-  document.getElementById('sec-form').classList.add('hidden');
-  document.getElementById('sec-confirm').classList.remove('hidden');
-  setStep(2);
-  window.scrollTo(0,0);
-}
-
-function goForm() {
-  clearAlert('alert2');
-  document.getElementById('sec-confirm').classList.add('hidden');
-  document.getElementById('sec-form').classList.remove('hidden');
-  setStep(1);
-}
-
-async function submitReg() {
-  if (S.submitting) return;
-  S.submitting = true;
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
-  btn.textContent = '⏳ กำลังบันทึก...';
-  clearAlert('alert2');
+  btn.textContent = 'กำลังส่งข้อมูล...';
+  document.getElementById('ov-load').classList.remove('hidden');
+  document.getElementById('load-text').textContent = 'กำลังบันทึกลงฐานข้อมูล...';
 
-  const fullName = (!S.rank || S.rank === 'อื่นๆ') ? S.name.trim() : `${S.rank} ${S.name}`.trim();
+  // เตรียมข้อมูลส่งไปที่ GAS (มีช่อง nickname เพิ่มเข้ามา)
+  const payload = {
+    action: 'liff_register',
+    userId: profileData.userId,
+    displayName: profileData.displayName,
+    pictureUrl: profileData.pictureUrl || '', 
+    rank: document.getElementById('i-rank').value,
+    fullName: document.getElementById('i-fullname').value,
+    nickname: document.getElementById('i-nickname').value,
+    position: document.getElementById('i-position').value
+  };
 
   try {
-    await callGAS('POST', {
-      action:      'liff_register',
-      userId:      S.userId,
-      displayName: S.displayName,
-      rank:        S.rank,
-      fullName:    fullName,
-      position:    S.pos,
-    });
-
-    document.getElementById('ok-name').textContent = fullName;
-    document.getElementById('ok-rank').textContent = S.pos;
-    document.getElementById('ov-success').classList.remove('hidden');
-
-  } catch(e) {
-    setAlert('alert2','error','a2-icon','a2-txt','❌', e.message + ' — กรุณาลองใหม่');
+    const res = await callAPI('POST', payload);
+    document.getElementById('ov-load').classList.add('hidden');
+    
+    if(res.status === 'ok') {
+      document.getElementById('main-ui').innerHTML = `
+        <div style="text-align:center; padding: 40px 0;">
+          <div style="font-size:70px; margin-bottom:10px; color:var(--primary);">🎖️</div>
+          <h2 style="color:var(--text); margin-bottom:10px;">รายงานตัวสำเร็จ!</h2>
+          <p style="color:var(--muted); margin-bottom:30px; line-height:1.6;">ระบบได้บันทึกประวัติกำลังพล<br>ของคุณเข้าสู่ฐานข้อมูลเรียบร้อยแล้ว</p>
+          <button class="btn" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>
+        </div>
+      `;
+    } else {
+      customAlert(res.message, 'เกิดข้อผิดพลาด', '⚠️');
+      btn.disabled = false;
+      btn.textContent = 'ยืนยันการรายงานตัว';
+    }
+  } catch(err) {
+    document.getElementById('ov-load').classList.add('hidden');
+    customAlert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่', 'เชื่อมต่อล้มเหลว', '📡');
     btn.disabled = false;
-    btn.textContent = '🎖️ ยืนยันลงทะเบียน';
-  } finally {
-    S.submitting = false;
+    btn.textContent = 'ยืนยันการรายงานตัว';
   }
 }
 
-async function callGAS(method, params, timeoutMs=25000) {
+// API Helper 
+async function callAPI(method, params, timeoutMs=15000) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    let url = GAS_URL, opts = { signal: ctrl.signal, redirect:'follow' };
+    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
     if (method === 'GET') {
-      const qs = new URLSearchParams(params).toString();
-      url += (url.includes('?') ? '&' : '?') + qs;
+      url += '?' + new URLSearchParams(params).toString();
       opts.method = 'GET';
     } else {
       opts.method  = 'POST';
@@ -363,27 +269,14 @@ async function callGAS(method, params, timeoutMs=25000) {
     const resp = await fetch(url, opts);
     clearTimeout(tid);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
-    if (data.status === 'error') throw new Error(data.message || 'เกิดข้อผิดพลาด');
-    return data;
+    return await resp.json();
   } catch(e) {
     clearTimeout(tid);
-    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ');
     throw e;
   }
 }
 
-function setAlert(id, type, iconId, txtId, icon, text) {
-  const el = document.getElementById(id);
-  el.className = 'alert ' + type;
-  document.getElementById(iconId).textContent = icon;
-  document.getElementById(txtId).textContent  = text;
-}
-function clearAlert(id) { document.getElementById(id).className = 'alert hidden'; }
-
-window.onerror = (msg,_,line) => { document.getElementById('load-txt').textContent = '❌ '+msg; };
 init();
 </script>
 </body>
 </html>
-
