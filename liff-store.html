@@ -3,99 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ร้านค้าสวัสดิการ PX</title>
+<title>ร้านค้าสวัสดิการ (Store)</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=IBM+Plex+Mono:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Tactical Theme */
-  --primary: #2e7d32; 
-  --primary-dark: #1b5e20;
-  --secondary: #ffca28;
-  --bg: #050505; --surface: #121212; --surf2: #1e1e1e;
-  --border: #333333; --text: #e0e0e0; --muted: #888888;
-  --success: #388e3c; --danger: #d32f2f; --info: #1976d2;
+  --primary: #4fc3f7; 
+  --primary-dark: #0288d1;
+  --secondary: #ffd700;
+  --bg: #0f1322; --surface: #161c36; --surf2: #1e2647;
+  --border: #2a3558; --text: #e8ecf8; --muted: #8b949e;
+  --success: #00e676; --danger: #ff5252; --warning: #ffb300;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-/* Effects */
-.bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(46, 125, 50, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(46, 125, 50, 0.05) 1px, transparent 1px); background-size: 20px 20px; z-index: -1;}
-
 /* Top Bar */
-.top-bar { background: var(--surface); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.5);}
-.t-app { font-weight: 800; font-size: 16px; color: var(--secondary); display: flex; align-items: center; gap: 6px; text-transform: uppercase;}
-.t-coin { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 700; color: var(--secondary); background: rgba(255,202,40,0.1); border: 1px solid rgba(255,202,40,0.3); padding: 4px 12px; border-radius: 20px;}
+.top-bar { background: var(--surface); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.3);}
+.t-app { font-weight: 800; font-size: 18px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+.t-coin { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 700; color: #000; background: linear-gradient(135deg, var(--secondary), #f59e0b); padding: 4px 14px; border-radius: 20px; box-shadow: 0 2px 10px rgba(255,215,0,0.3);}
 
 /* Tabs */
 .tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); }
-.tab { flex: 1; padding: 14px; text-align: center; font-size: 14px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s;}
-.tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(46,125,50,0.1); }
+.tab { flex: 1; padding: 14px; text-align: center; font-size: 15px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s;}
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(79, 195, 247, 0.1); }
 
 .main-area { flex: 1; padding: 20px; overflow-y: auto; max-width: 600px; margin: 0 auto; width: 100%;}
 .tab-content { display: none; flex-direction: column; gap: 16px; }
 .tab-content.active { display: flex; }
 
-/* Cards (Store) */
+/* Store Item Cards */
 .item-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;}
-.item-img-wrap { width: 100%; height: 160px; background: #fff; position: relative; border-bottom: 1px solid var(--border);}
+.item-img-wrap { width: 100%; height: 180px; background: #fff; position: relative; border-bottom: 1px solid var(--border);}
 .item-img { width: 100%; height: 100%; object-fit: cover; }
-.item-stock { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 800; border: 1px solid var(--border);}
+.item-stock { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px);}
 .item-stock.low { color: var(--danger); border-color: var(--danger); }
-.item-info { padding: 16px; display: flex; flex-direction: column; gap: 8px;}
+.item-info { padding: 18px; display: flex; flex-direction: column; gap: 8px;}
 .item-title { font-size: 18px; font-weight: 800; color: var(--text); }
-.item-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 8px;}
-.item-price { font-family: 'IBM Plex Mono'; font-size: 18px; font-weight: 800; color: var(--secondary); }
+.item-desc { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 8px;}
+.item-price { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 800; color: var(--secondary); }
 
 /* Buttons */
-.btn { width: 100%; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; text-transform: uppercase;}
+.btn { width: 100%; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
 .btn:active { transform: scale(0.96); }
-.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 15px rgba(2, 136, 209, 0.3); }
 .btn-disabled { background: var(--surf2); color: var(--muted); border: 1px solid var(--border); pointer-events: none; }
 
-/* Cards (History) */
-.hist-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);}
+/* History Cards */
+.hist-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);}
 .hist-header { display: flex; justify-content: space-between; align-items: flex-start; }
-.hist-title { font-size: 15px; font-weight: 700; color: var(--text); }
-.hist-price { font-family: 'IBM Plex Mono'; font-size: 13px; color: var(--secondary); font-weight: 800;}
-.hist-time { font-size: 11px; color: var(--muted); margin-top: 6px;}
+.hist-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.hist-price { font-family: 'IBM Plex Mono'; font-size: 14px; color: var(--secondary); font-weight: 800;}
+.hist-time { font-size: 12px; color: var(--muted); margin-top: 6px;}
 
-.status-badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase;}
-.st-pending { background: rgba(255,202,40,0.15); color: var(--secondary); border: 1px solid rgba(255,202,40,0.3); }
-.st-approved { background: rgba(56,142,60,0.15); color: var(--success); border: 1px solid rgba(56,142,60,0.3); }
-.st-rejected { background: rgba(211,47,47,0.15); color: var(--danger); border: 1px solid rgba(211,47,47,0.3); }
+.status-badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
+.st-pending { background: rgba(255, 179, 0, 0.15); color: var(--warning); border: 1px solid rgba(255, 179, 0, 0.3); }
+.st-approved { background: rgba(0, 230, 118, 0.15); color: var(--success); border: 1px solid rgba(0, 230, 118, 0.3); }
+.st-rejected { background: rgba(255, 82, 82, 0.15); color: var(--danger); border: 1px solid rgba(255, 82, 82, 0.3); }
 
-/* Custom Modal */
+/* Modals & Loaders */
+.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+.spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hidden { display: none !important; opacity: 0; pointer-events: none; }
+
 .ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
 .ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.6); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .ca-ov.active .ca-box { transform: scale(1); }
 .ca-icon { font-size: 50px; margin-bottom: 15px; line-height: 1; }
-.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
+.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
 .ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
 .ca-btn-group { display: flex; gap: 12px; justify-content: center; }
 .ca-btn { flex: 1; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
 .ca-btn-cancel { background: var(--surf2); border: 1px solid var(--border); color: var(--text); }
-.ca-btn-confirm { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(46,125,50,0.3); }
+.ca-btn-confirm { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(2, 136, 209, 0.3); }
 .ca-btn:active { transform: scale(0.96); }
-
-/* Loaders */
-.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.hidden { display: none !important; opacity: 0; pointer-events: none; }
 </style>
 </head>
 <body>
-<div class="bg-grid"></div>
 
-<!-- Loading -->
+<!-- Loading screen -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <div style="font-weight:700; color:var(--muted);" id="load-msg">กำลังเชื่อมต่อคลังสวัสดิการ...</div>
+  <div style="font-weight:700; color:var(--muted);" id="load-msg">กำลังโหลดข้อมูลร้านค้า...</div>
 </div>
 
-<!-- Custom Alert -->
+<!-- Custom Alert Modal -->
 <div id="custom-alert" class="ca-ov">
   <div class="ca-box">
     <div id="ca-icon" class="ca-icon">⚠️</div>
@@ -106,13 +100,13 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 </div>
 
 <div class="top-bar">
-  <div class="t-app">🛒 สวัสดิการ PX</div>
+  <div class="t-app">🛒 ร้านค้าสวัสดิการ</div>
   <div class="t-coin" id="u-coin">🪙 0</div>
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('store')">รายการสวัสดิการ</div>
-  <div class="tab" onclick="switchTab('history')">ประวัติการเบิก</div>
+  <div class="tab active" onclick="switchTab('store')">คลังของรางวัล</div>
+  <div class="tab" onclick="switchTab('history')">ประวัติการแลก</div>
 </div>
 
 <div class="main-area">
@@ -120,10 +114,10 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
   <!-- Store Tab -->
   <div id="tab-store" class="tab-content active">
     <div style="text-align:center; margin-bottom:10px;">
-      <div style="font-size:13px; color:var(--muted);">นำเหรียญ PX ยื่นคำขอเบิกสวัสดิการได้ที่นี่</div>
+      <div style="font-size:14px; color:var(--muted);">นำเหรียญที่ได้จากห้องเรียนมาแลกของรางวัล</div>
     </div>
     <div id="list-items" style="display:flex; flex-direction:column; gap:16px;"></div>
-    <button class="btn" style="background:transparent; border:1px solid var(--border); color:var(--muted); margin-top:10px;" onclick="liff.closeWindow()">← กลับศูนย์บัญชาการ</button>
+    <button class="btn" style="background:transparent; border:1px solid var(--border); color:var(--muted); margin-top:20px; box-shadow:none;" onclick="liff.closeWindow()">กลับสู่เมนูหลัก</button>
   </div>
   
   <!-- History Tab -->
@@ -139,7 +133,9 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2
 
 let userId = '';
 let currentBalance = 0;
+let isProcessing = false; // ป้องกันการกดเบิ้ล (Lock State)
 
+// === Custom Modals ===
 function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
   document.getElementById('ca-icon').textContent = icon;
   document.getElementById('ca-title').textContent = title;
@@ -147,18 +143,33 @@ function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
   document.getElementById('ca-btn-group').innerHTML = `<button class="ca-btn ca-btn-confirm" onclick="closeCustomAlert()">รับทราบ</button>`;
   document.getElementById('custom-alert').classList.add('active');
 }
-function customConfirm(msg, callback, title="ยืนยันคำสั่ง", icon="❓", btnClass="ca-btn-confirm") {
+
+function customConfirm(msg, onConfirm, title="ยืนยันคำสั่ง", icon="❓") {
   document.getElementById('ca-icon').textContent = icon;
   document.getElementById('ca-title').textContent = title;
   document.getElementById('ca-msg').innerHTML = msg;
-  document.getElementById('ca-btn-group').innerHTML = `
-    <button class="ca-btn ca-btn-cancel" onclick="closeCustomAlert()">ยกเลิก</button>
-    <button class="ca-btn ${btnClass}" id="btn-ca-ok">ยืนยัน</button>
+  
+  const group = document.getElementById('ca-btn-group');
+  group.innerHTML = `
+    <button class="ca-btn ca-btn-cancel" id="btn-ca-cancel">ยกเลิก</button>
+    <button class="ca-btn ca-btn-confirm" id="btn-ca-ok">ยืนยัน</button>
   `;
-  document.getElementById('btn-ca-ok').onclick = () => { closeCustomAlert(); callback(); };
+  
+  document.getElementById('btn-ca-cancel').onclick = () => {
+    closeCustomAlert();
+  };
+  
+  document.getElementById('btn-ca-ok').onclick = () => {
+    closeCustomAlert();
+    if(onConfirm) onConfirm();
+  };
+  
   document.getElementById('custom-alert').classList.add('active');
 }
-function closeCustomAlert() { document.getElementById('custom-alert').classList.remove('active'); }
+
+function closeCustomAlert() { 
+  document.getElementById('custom-alert').classList.remove('active'); 
+}
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -192,10 +203,10 @@ async function loadStoreData() {
     renderStore(res.rewards || []);
     renderHistory(res.history || []);
     
-    document.getElementById('ov-load').classList.add('hidden');
   } catch(e) {
-    document.getElementById('ov-load').classList.add('hidden');
     customAlert(e.message, 'การเชื่อมต่อล้มเหลว', '📡');
+  } finally {
+    document.getElementById('ov-load').classList.add('hidden');
   }
 }
 
@@ -204,7 +215,7 @@ function renderStore(items) {
   list.innerHTML = '';
   
   if(items.length === 0) {
-    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">PX ยังไม่มีสินค้านำเข้า</div>';
+    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; border:1px dashed var(--border); border-radius:12px;">ร้านค้ายังไม่มีสินค้าในขณะนี้</div>';
     return;
   }
   
@@ -214,11 +225,13 @@ function renderStore(items) {
     
     let btnHtml = '';
     if(isOutOfStock) {
-      btnHtml = `<button class="btn btn-disabled">สินค้าหมด</button>`;
+      btnHtml = `<button class="btn btn-disabled">สินค้าหมด (Out of Stock)</button>`;
     } else if(!canAfford) {
-      btnHtml = `<button class="btn btn-disabled">เหรียญ PX ไม่พอ</button>`;
+      btnHtml = `<button class="btn btn-disabled">เหรียญไม่เพียงพอ</button>`;
     } else {
-      btnHtml = `<button class="btn btn-primary" onclick="reqRedeem('${r.id}', '${r.name}', ${r.price})">🛒 ยื่นคำขอเบิก (${r.price} PX)</button>`;
+      // ใช้ escape string ป้องกันบั๊ก XSS
+      const safeName = String(r.name).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+      btnHtml = `<button class="btn btn-primary" onclick="reqRedeem('${r.id}', '${safeName}', ${r.price})">🛒 แลกรางวัล (${r.price} เหรียญ)</button>`;
     }
     
     const stockClass = r.stock <= 5 ? 'low' : '';
@@ -246,56 +259,70 @@ function renderHistory(history) {
   list.innerHTML = '';
   
   if(history.length === 0) {
-    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">ยังไม่มีประวัติการเบิกสวัสดิการ</div>';
+    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; border:1px dashed var(--border); border-radius:12px;">ยังไม่มีประวัติการแลกรางวัล</div>';
     return;
   }
   
   history.forEach(h => {
     let stClass = '', stText = '';
-    if(h.status === 'PENDING') { stClass = 'st-pending'; stText = 'รออนุมัติ'; }
-    else if(h.status === 'APPROVED') { stClass = 'st-approved'; stText = 'อนุมัติแล้ว'; }
-    else if(h.status === 'REJECTED') { stClass = 'st-rejected'; stText = 'ถูกปฏิเสธ (คืนเหรียญ)'; }
+    if(h.status === 'PENDING') { stClass = 'st-pending'; stText = 'รอผู้ดูแลอนุมัติ'; }
+    else if(h.status === 'APPROVED') { stClass = 'st-approved'; stText = 'อนุมัติเรียบร้อย'; }
+    else if(h.status === 'REJECTED') { stClass = 'st-rejected'; stText = 'ไม่อนุมัติ (คืนเหรียญ)'; }
     
     list.innerHTML += `
       <div class="hist-card">
         <div class="hist-header">
           <div>
             <div class="hist-title">${h.rewardName}</div>
-            <div class="hist-price">- ${h.price} PX</div>
+            <div class="hist-price">- ${h.price} เหรียญ</div>
           </div>
           <div class="status-badge ${stClass}">${stText}</div>
         </div>
-        <div class="hist-time">เวลาทำรายการ: ${h.timestamp}</div>
+        <div class="hist-time">วันที่ทำรายการ: ${h.timestamp}</div>
       </div>
     `;
   });
 }
 
 function reqRedeem(id, name, price) {
-  customConfirm(`ยืนยันการขอเบิกสวัสดิการ<br><b style="color:var(--secondary); font-size:16px;">"${name}"</b><br>ระบบจะหัก <b style="color:var(--danger);">${price} PX</b> จากบัญชีของท่าน`, () => {
+  if (isProcessing) return; // ป้องกันการกดเบิ้ล
+  
+  customConfirm(`ยืนยันการแลก <b>"${name}"</b><br>ระบบจะหัก <b style="color:var(--secondary);">${price} เหรียญ</b> จากกระเป๋าของคุณ`, () => {
     processRedeem(id);
-  }, 'ยื่นคำขอเบิกสวัสดิการ', '🛒');
+  }, 'ยืนยันการแลกรางวัล', '🎁');
 }
 
 async function processRedeem(rewardId) {
+  if (isProcessing) return;
+  isProcessing = true;
+  
   document.getElementById('ov-load').classList.remove('hidden');
-  document.getElementById('load-msg').textContent = 'กำลังส่งคำสั่งเบิกสวัสดิการ...';
+  document.getElementById('load-msg').textContent = 'กำลังดำเนินการส่งคำขอ...';
+  
   try {
     const res = await callAPI('POST', { action: 'redeem_reward', userId: userId, rewardId: rewardId });
     if(res.status === 'ok') {
-      customAlert('ส่งคำขอสำเร็จ! โปรดรอการอนุมัติจากศูนย์บัญชาการ', 'ภารกิจสำเร็จ', '✅');
-      await loadStoreData(); // โหลดข้อมูลใหม่เพื่ออัปเดตยอดเงิน
-      switchTab('history'); // สลับไปหน้าประวัติ
+      customAlert('ระบบได้รับคำขอแล้ว โปรดรอผู้ดูแลตรวจสอบและอนุมัติ', 'แลกรางวัลสำเร็จ', '✅');
+      await loadStoreData(); // โหลดข้อมูลใหม่ทั้งหมดเพื่ออัปเดตยอดคงเหลือให้ตรงกัน 100%
+      
+      // สลับไปหน้าประวัติการแลกอัตโนมัติ
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tab')[1].classList.add('active'); // Tab History
+      document.getElementById('tab-history').classList.add('active');
+      
     } else {
       throw new Error(res.message);
     }
   } catch(e) {
-    document.getElementById('ov-load').classList.add('hidden');
     customAlert(e.message, 'ผิดพลาด', '❌');
+  } finally {
+    isProcessing = false;
+    document.getElementById('ov-load').classList.add('hidden');
   }
 }
 
-async function callAPI(method, params, timeoutMs=20000) {
+async function callAPI(method, params, timeoutMs=25000) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
