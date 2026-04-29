@@ -8,13 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&family=IBM+Plex+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #46178f; 
-  --primary-hover: #321066;
-  --secondary: #ffd700;
+  --config-primary: #46178f; 
+  --config-secondary: #ffd700;
   --bg: #f2f2f2; --panel: #ffffff; --text: #333333;
   --muted: #777777;
   
-  /* Answer Shapes Colors */
+  /* Answer Shapes Colors (Kahoot Style) */
   --shape-red: #e21b3c;
   --shape-blue: #1368ce;
   --shape-yellow: #d89e00;
@@ -23,101 +22,125 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
+/* Utilities */
 .hidden { display: none !important; }
 .btn { padding: 14px 28px; border: none; border-radius: 8px; font-size: 20px; font-weight: 800; cursor: pointer; font-family: 'Sarabun'; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);}
-.btn-primary { background: var(--primary); color: #fff;}
-.btn-primary:active { transform: scale(0.96); background: var(--primary-hover);}
-.btn-gold { background: var(--secondary); color: #000; }
+.btn:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-primary { background: var(--config-primary); color: #fff;}
+.btn-gold { background: var(--config-secondary); color: #000; }
 
 /* Layout */
-.screen { flex: 1; display: flex; flex-direction: column; width: 100%; height: 100%; position: absolute; inset: 0; z-index: 10;}
-.top-bar { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: #fff; border-bottom: 1px solid #ddd; box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
-.pin-display { font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 800; color: var(--primary); letter-spacing: 1px;}
-.player-count { font-size: 24px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 10px; background: #f8f9fa; padding: 8px 20px; border-radius: 30px; border: 1px solid #ddd;}
+.screen { flex: 1; display: flex; flex-direction: column; width: 100%; height: 100%; position: absolute; inset: 0; z-index: 10; background: var(--bg);}
+.top-bar { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: #fff; border-bottom: 1px solid #ddd; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 50;}
+.pin-display { font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 800; color: var(--config-primary); letter-spacing: 1px;}
+.player-count { font-size: 20px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 10px; background: #f8f9fa; padding: 8px 20px; border-radius: 30px; border: 1px solid #ddd;}
 
 /* Setup Screen */
 .setup-box { margin: auto; background: var(--panel); padding: 40px; border-radius: 16px; text-align: center; width: 100%; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);}
-.setup-title { font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 20px;}
-.form-control { width: 100%; padding: 16px; font-size: 18px; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #333; margin-bottom: 20px; text-align: center; font-family: 'Sarabun'; outline: none;}
-.form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(70,23,143,0.1);}
+.setup-title { font-size: 32px; font-weight: 800; color: var(--config-primary); margin-bottom: 20px;}
+.form-control { width: 100%; padding: 16px; font-size: 18px; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #333; margin-bottom: 20px; text-align: center; font-family: 'Sarabun'; outline: none; transition: 0.2s;}
+.form-control:focus { border-color: var(--config-primary); box-shadow: 0 0 0 3px rgba(70,23,143,0.1);}
+select.form-control { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; padding-right: 40px;}
 
 /* Lobby Screen */
 .lobby-main { flex: 1; display: flex; flex-direction: column; padding: 40px; text-align: center; align-items: center; overflow-y: auto;}
-.join-instruction { font-size: 36px; font-weight: 800; margin-bottom: 40px; color: var(--text);}
+.join-instruction { font-size: 36px; font-weight: 800; margin-bottom: 30px; color: var(--text);}
 .players-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; max-width: 1000px; margin-bottom: 40px;}
-.player-tag { background: #fff; padding: 12px 24px; border-radius: 30px; font-size: 22px; font-weight: 700; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
+.player-tag { background: #fff; padding: 10px 24px; border-radius: 30px; font-size: 20px; font-weight: 700; color: var(--config-primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 10px;}
+.player-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--config-primary); background: #eee;}
 @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 /* Question Screen */
-.q-container { flex: 1; display: flex; flex-direction: column; padding: 20px 40px 40px; }
+.q-container { flex: 1; display: flex; flex-direction: column; padding: 20px 40px 40px; max-width: 1400px; margin: 0 auto; width: 100%;}
 .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.timer { font-family: 'IBM Plex Mono', monospace; font-size: 50px; font-weight: 800; background: var(--primary); width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 8px 20px rgba(70,23,143,0.3);}
+.timer { font-family: 'IBM Plex Mono', monospace; font-size: 50px; font-weight: 800; background: var(--config-primary); width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 8px 20px rgba(70,23,143,0.3); transition: 0.3s;}
+.timer.hurry { background: var(--shape-red); box-shadow: 0 8px 20px rgba(226,27,60,0.4); animation: pulse 0.5s infinite alternate;}
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+
 .ans-count { font-size: 24px; font-weight: 800; color: var(--muted); background: #fff; padding: 10px 20px; border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-.q-text-box { flex: 1; background: #fff; border-radius: 16px; padding: 30px; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.08); margin-bottom: 20px;}
+.q-layout { display: flex; flex: 1; flex-direction: column; gap: 20px; }
+.q-text-box { flex: 1; background: #fff; border-radius: 16px; padding: 30px; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.08); min-height: 150px;}
 .q-text { font-size: 40px; font-weight: 800; line-height: 1.4; color: var(--text);}
 
-.answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.ans-box { border-radius: 12px; padding: 20px 25px; display: flex; align-items: center; gap: 20px; font-size: 30px; font-weight: 700; color: #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.15); transition: 0.3s; position: relative;}
-.ans-icon { width: 50px; height: 50px; background: #fff; flex-shrink: 0; }
+.answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: auto; }
+.ans-box { border-radius: 12px; padding: 20px 25px; display: flex; align-items: center; gap: 20px; font-size: 30px; font-weight: 700; color: #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.15); transition: 0.3s; position: relative; overflow: hidden; min-height: 100px;}
+.ans-icon { width: 45px; height: 45px; background: #fff; flex-shrink: 0; }
+.ans-text { flex: 1; word-break: break-word; }
+
+/* Chart Overlay (For Reveal) */
+.chart-bar { position: absolute; bottom: 0; left: 0; height: 10px; background: rgba(0,0,0,0.3); transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 0%; z-index: 1;}
+.ans-count-label { position: absolute; right: 20px; font-family: 'IBM Plex Mono'; font-size: 36px; font-weight: 800; opacity: 0; transition: 0.3s; z-index: 2; text-shadow: 0 2px 5px rgba(0,0,0,0.5);}
 
 .s-red { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
 .s-blue { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
 .s-yellow { border-radius: 50%; }
 .s-green { border-radius: 8px; }
 
-.ans-red { background: var(--shape-red); }
-.ans-blue { background: var(--shape-blue); }
-.ans-yellow { background: var(--shape-yellow); }
-.ans-green { background: var(--shape-green); }
+.ans-red { background-color: var(--shape-red); }
+.ans-blue { background-color: var(--shape-blue); }
+.ans-yellow { background-color: var(--shape-yellow); }
+.ans-green { background-color: var(--shape-green); }
 
 /* Reveal States */
 .ans-box.dimmed { opacity: 0.3; filter: grayscale(80%); transform: scale(0.98); }
-.ans-box.correct { box-shadow: 0 0 30px rgba(0,0,0,0.3); z-index: 2; animation: correct-pulse 1s infinite alternate;}
-@keyframes correct-pulse { from { transform: scale(1); } to { transform: scale(1.02); } }
+.ans-box.correct { box-shadow: 0 0 30px rgba(0,0,0,0.3); z-index: 5; border: 4px solid #fff; animation: correct-pop 0.5s ease-out;}
+@keyframes correct-pop { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+.ans-box.show-results .chart-bar { height: 100%; }
+.ans-box.show-results .ans-count-label { opacity: 1; }
 
 /* Podium / Scoreboard */
-.podium-container { flex: 1; display: flex; flex-direction: column; padding: 40px; align-items: center; background: #fff;}
-.podium-title { font-size: 40px; font-weight: 800; color: var(--primary); margin-bottom: 40px; text-transform: uppercase;}
-.podium-wrap { display: flex; align-items: flex-end; justify-content: center; gap: 20px; height: 400px; width: 100%; max-width: 800px;}
+.sb-screen { background: var(--config-primary); color: #fff; padding-top: 40px; }
+.podium-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px 40px;}
+.podium-title { font-size: 48px; font-weight: 800; margin-bottom: auto; text-transform: uppercase; text-shadow: 0 4px 10px rgba(0,0,0,0.3); text-align: center;}
+.podium-wrap { display: flex; align-items: flex-end; justify-content: center; gap: 15px; height: 50vh; width: 100%;}
 .podium-place { display: flex; flex-direction: column; align-items: center; width: 30%; position: relative;}
-.p-name { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.p-score { font-family: 'IBM Plex Mono'; font-size: 22px; font-weight: 700; color: var(--muted); margin-bottom: 15px; }
-.p-block { width: 100%; background: var(--primary); border-radius: 12px 12px 0 0; display: flex; justify-content: center; font-size: 60px; font-weight: 800; color: #fff; padding-top: 20px; box-shadow: inset 0 10px 20px rgba(0,0,0,0.2);}
 
-.p-1 .p-block { height: 260px; background: var(--secondary); color: #fff;}
-.p-2 .p-block { height: 190px; background: #3f51b5;}
-.p-3 .p-block { height: 130px; background: #00897b;}
+.pod-avatar-wrap { position: relative; z-index: 10; display: flex; justify-content: center; margin-bottom: -30px; }
+.p-1 .pod-avatar-wrap { margin-bottom: -45px; }
+
+.pod-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 4px solid var(--config-primary); background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.p-1 .pod-avatar { width: 120px; height: 120px; border-color: #ffd700; }
+
+.p-name { font-size: 20px; font-weight: 800; color: #fff; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(255,255,255,0.15); padding: 40px 10px 10px; border-radius: 12px; width: 100%; margin-bottom: 10px; position: relative; z-index: 1; border: 1px solid rgba(255,255,255,0.1);}
+.p-1 .p-name { padding-top: 55px; font-size: 26px; background: rgba(255,215,0,0.2); border-color: rgba(255,215,0,0.5); color: #ffd700; }
+
+.p-score { font-family: 'IBM Plex Mono'; font-size: 22px; font-weight: 700; color: rgba(255,255,255,0.8); margin-bottom: 10px; }
+.p-1 .p-score { font-size: 28px; color: #fff; }
+
+.p-block { width: 100%; background: rgba(0,0,0,0.2); border-radius: 16px 16px 0 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 15px; font-size: 48px; font-weight: 800; color: rgba(255,255,255,0.5); box-shadow: inset 0 10px 20px rgba(0,0,0,0.3); transition: height 0.5s ease-out;}
+.p-1 .p-block { height: 35vh; background: linear-gradient(180deg, #ffd700, #b8860b); color: #fff; box-shadow: 0 0 30px rgba(255,215,0,0.4); text-shadow: 0 2px 4px rgba(0,0,0,0.3);}
+.p-2 .p-block { height: 25vh; background: #3f51b5; color: #fff;}
+.p-3 .p-block { height: 18vh; background: #00897b; color: #fff;}
 
 /* Loaders & Modals */
 .ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-.spinner { width: 60px; height: 60px; border: 5px solid #ccc; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+.spinner { width: 60px; height: 60px; border: 5px solid #ccc; border-top-color: var(--config-primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;}
+.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(2px);}
 .ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: #fff; border-radius: 16px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.2s; }
+.ca-box { background: #fff; border-radius: 16px; padding: 32px 24px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .ca-ov.active .ca-box { transform: scale(1); }
-.ca-icon { font-size: 50px; margin-bottom: 15px; }
-.ca-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 10px;}
-.ca-msg { font-size: 15px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.ca-icon { font-size: 60px; margin-bottom: 15px; line-height: 1; }
+.ca-title { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 10px;}
+.ca-msg { font-size: 16px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
 .ca-btn-group { display: flex; gap: 12px; justify-content: center; }
-.ca-btn { flex: 1; padding: 12px 0; border-radius: 8px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
+.ca-btn { flex: 1; padding: 14px 0; border-radius: 10px; font-size: 18px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
 .ca-btn-cancel { background: #f2f2f2; color: #333; }
-.ca-btn-confirm { background: var(--primary); color: #fff; }
+.ca-btn-confirm { background: var(--config-primary); color: #fff; }
 .ca-btn-danger { background: #e21b3c; color: #fff; }
 .ca-btn:active { transform: scale(0.96); }
 </style>
 </head>
 <body>
 
-<!-- Loading Overlay -->
-<div id="ov-load" class="ov">
+<div id="ov-load" class="ov" style="background: #fff;">
   <div class="spinner"></div>
-  <div style="font-weight:700; color:var(--muted);" id="load-msg">กำลังโหลดระบบ...</div>
+  <div style="font-weight:800; font-size:18px; color:var(--muted);" id="load-msg">กำลังเชื่อมต่อฐานข้อมูล...</div>
 </div>
 
-<!-- Custom Alert Modal -->
 <div id="custom-alert" class="ca-ov">
   <div class="ca-box">
     <div id="ca-icon" class="ca-icon">⚠️</div>
@@ -127,39 +150,40 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
   </div>
 </div>
 
-<!-- Login Screen -->
 <div id="screen-login" class="screen hidden" style="justify-content: center;">
   <div class="setup-box">
     <div style="font-size:60px; margin-bottom:10px;">👨‍🏫</div>
-    <div class="setup-title">เข้าสู่ระบบผู้สอน</div>
-    <input type="password" id="admin-pin" class="form-control" placeholder="รหัสผ่าน Admin">
+    <div class="setup-title">แผงควบคุมการสอนสด</div>
+    <input type="password" id="admin-pin" class="form-control" placeholder="รหัสผ่านผู้ดูแลระบบ">
     <button class="btn btn-primary" style="width:100%;" id="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
   </div>
 </div>
 
-<!-- Setup Screen -->
 <div id="screen-setup" class="screen hidden" style="justify-content: center;">
   <div class="setup-box">
-    <div style="font-size:60px; margin-bottom:10px;">📡</div>
-    <div class="setup-title">เปิดห้องสอบสด</div>
-    <select id="inp-subject" class="form-control" style="text-align:center;">
+    <div style="font-size:60px; margin-bottom:10px;">📚</div>
+    <div class="setup-title">สร้างห้องเรียน</div>
+    <select id="inp-subject" class="form-control">
       <option value="">กำลังโหลดวิชา...</option>
     </select>
     <button class="btn btn-primary" style="width:100%;" id="btn-start" onclick="startRoom()">เปิดห้องสอบ</button>
   </div>
 </div>
 
-<!-- TOP BAR (Shared) -->
+<!-- TOP BAR -->
 <div id="top-bar" class="top-bar hidden">
   <div class="pin-display">PIN: <span id="room-pin">...</span></div>
-  <div class="player-count">👤 นักเรียน: <span id="p-count">0</span></div>
-  <button class="btn btn-primary" id="btn-next-step" onclick="handleNextStep()">เริ่มการสอบ</button>
+  <div class="player-count">👥 นักเรียน: <span id="p-count">0</span></div>
+  <div style="display:flex; gap:10px;">
+    <button class="btn" style="background:#f2f2f2; color:#e21b3c; font-size:16px; padding:10px 20px; box-shadow:none; border:1px solid #ccc;" onclick="closeRoom()">ปิดห้อง</button>
+    <button class="btn btn-primary" id="btn-next-step" style="padding:10px 24px; font-size:18px;" onclick="handleNextStep()">เริ่มการสอบ</button>
+  </div>
 </div>
 
 <!-- LOBBY SCREEN -->
 <div id="screen-lobby" class="screen hidden" style="padding-top: 80px;">
   <div class="lobby-main">
-    <div class="join-instruction">กำลังรอนักเรียนเข้าห้อง...</div>
+    <div class="join-instruction">รอผู้เรียนเชื่อมต่อเข้าสู่ระบบ...</div>
     <div class="players-grid" id="players-grid"></div>
   </div>
 </div>
@@ -168,85 +192,86 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 <div id="screen-question" class="screen hidden" style="padding-top: 80px;">
   <div class="q-container">
     <div class="q-header">
-      <div style="font-size:24px; font-weight:800; color:var(--primary);" id="q-number">ข้อที่ 1 / 10</div>
+      <div style="font-size:26px; font-weight:800; color:var(--config-primary);" id="q-number">ข้อที่ 1 / 10</div>
       <div class="ans-count" id="ans-count-display">0 / 0 ตอบแล้ว</div>
       <div class="timer" id="q-timer">20</div>
     </div>
     
-    <div class="q-text-box">
-      <div class="q-text" id="q-text">กำลังโหลดโจทย์...</div>
-    </div>
-    
-    <div class="answers-grid">
-      <div class="ans-box ans-red" id="ans-0"><div class="ans-icon s-red"></div><div id="ans-text-0">-</div></div>
-      <div class="ans-box ans-blue" id="ans-1"><div class="ans-icon s-blue"></div><div id="ans-text-1">-</div></div>
-      <div class="ans-box ans-yellow" id="ans-2"><div class="ans-icon s-yellow"></div><div id="ans-text-2">-</div></div>
-      <div class="ans-box ans-green" id="ans-3"><div class="ans-icon s-green"></div><div id="ans-text-3">-</div></div>
+    <div class="q-layout">
+      <div class="q-text-box">
+        <div class="q-text" id="q-text">กำลังโหลดคำถาม...</div>
+      </div>
+      
+      <div class="answers-grid">
+        <div class="ans-box ans-red" id="box-A"><div class="chart-bar" id="bar-A"></div><div class="ans-icon s-red"></div><span class="ans-text" id="h-txt-A">-</span><div class="ans-count-label" id="cnt-A">0</div></div>
+        <div class="ans-box ans-blue" id="box-B"><div class="chart-bar" id="bar-B"></div><div class="ans-icon s-blue"></div><span class="ans-text" id="h-txt-B">-</span><div class="ans-count-label" id="cnt-B">0</div></div>
+        <div class="ans-box ans-yellow" id="box-C"><div class="chart-bar" id="bar-C"></div><div class="ans-icon s-yellow"></div><span class="ans-text" id="h-txt-C">-</span><div class="ans-count-label" id="cnt-C">0</div></div>
+        <div class="ans-box ans-green" id="box-D"><div class="chart-bar" id="bar-D"></div><div class="ans-icon s-green"></div><span class="ans-text" id="h-txt-D">-</span><div class="ans-count-label" id="cnt-D">0</div></div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- PODIUM SCREEN -->
-<div id="screen-podium" class="screen hidden" style="padding-top: 80px;">
+<div id="screen-scoreboard" class="screen sb-screen hidden">
+  <h1 id="podium-title">🏆 สรุปคะแนนสูงสุด</h1>
   <div class="podium-container">
-    <div class="podium-title">สรุปคะแนนสูงสุด</div>
-    <div class="podium-wrap" id="podium-wrap">
-      <!-- Generated via JS -->
-    </div>
+    <div class="podium-wrap" id="podium-wrap"></div>
   </div>
 </div>
 
 <script>
-// >>> อย่าลืมเปลี่ยน LIFF_ID และ GAS_URL ให้เป็นของคุณนะครับ <<<
+// >>> เปลี่ยน 2 บรรทัดนี้ให้เป็นข้อมูลของคุณ <<<
 const LIFF_ID = '2009717287-DofMgtKC'; 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec'; 
-  
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
+
 let adminSecret = '';
-let pollInterval = null;
+let isPolling = false;
+let pollTimeout = null;
 let countdownInterval = null;
 let endTime = 0; 
 
 let currentState = {};
 let currentAnswers = [];
 let currentPlayers = [];
+let allMembers = []; 
 let appConfig = null;
 
-// === Custom Alert Functions ===
+// --- Modal Functions ---
 function showModal(icon, title, msg, isConfirm = false, onConfirm = null) {
   document.getElementById('ca-icon').textContent = icon;
   document.getElementById('ca-title').textContent = title;
   document.getElementById('ca-msg').innerHTML = msg;
   
+  const btnGroup = document.getElementById('ca-btn-group');
   if (isConfirm) {
-    document.getElementById('ca-btn-group').innerHTML = `
-      <button class="ca-btn ca-btn-cancel" onclick="document.getElementById('custom-alert').classList.remove('active')">ยกเลิก</button>
-      <button class="ca-btn ca-btn-danger" id="ca-ok-btn">ยืนยันปิดห้อง</button>
+    btnGroup.innerHTML = `
+      <button class="ca-btn ca-btn-cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="ca-btn ca-btn-danger" id="btn-modal-ok">ยืนยันทำรายการ</button>
     `;
-    document.getElementById('ca-ok-btn').onclick = () => {
-      document.getElementById('custom-alert').classList.remove('active');
-      if (onConfirm) onConfirm();
-    };
+    document.getElementById('btn-modal-ok').onclick = () => { closeModal(); if(onConfirm) onConfirm(); };
   } else {
-    document.getElementById('ca-btn-group').innerHTML = `
-      <button class="ca-btn ca-btn-confirm" onclick="document.getElementById('custom-alert').classList.remove('active')">รับทราบ</button>
-    `;
+    btnGroup.innerHTML = `<button class="ca-btn ca-btn-confirm" onclick="closeModal()">รับทราบ</button>`;
   }
   document.getElementById('custom-alert').classList.add('active');
 }
+function closeModal() { document.getElementById('custom-alert').classList.remove('active'); }
 
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
     
-    const configRes = await callAPI('GET', { action: 'get_config' });
-    if(configRes.status === 'ok') { appConfig = configRes.config; applyTemplate(appConfig); }
+    // ดึง Config แค่รอบเดียว ไม่บังคับตายถ้า Error
+    callAPI('GET', { action: 'get_config' }, 10000).then(res => {
+       if(res.status === 'ok') { appConfig = res.config; applyTemplate(res.config); }
+    }).catch(e => console.warn(e));
     
     document.getElementById('ov-load').classList.add('hidden');
     showScreen('screen-login');
-  } catch(e) {
+  } catch(e) { 
     document.getElementById('ov-load').classList.add('hidden');
-    showModal('❌', 'เกิดข้อผิดพลาด', 'Init Error: ' + e.message);
+    showModal('❌', 'ระบบมีปัญหา', 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต<br>' + e.message); 
   }
 }
 
@@ -257,11 +282,27 @@ function applyTemplate(c) {
   document.title = "Live Host - " + c.appName;
 }
 
+function getPicUrl(uid) {
+  if(!uid) return 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
+  const m = allMembers.find(x => String(x.userId) === String(uid));
+  return (m && m.pictureUrl) ? m.pictureUrl : 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
+}
+
+function getDisplayName(uid, fallbackName) {
+  if(!uid) return fallbackName || '-';
+  const m = allMembers.find(x => String(x.userId) === String(uid));
+  return (m && m.nickname && m.nickname.trim() !== '') ? m.nickname : fallbackName;
+}
+
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-  if(id !== 'screen-login' && id !== 'screen-setup') document.getElementById('top-bar').classList.remove('hidden');
-  else document.getElementById('top-bar').classList.add('hidden');
   document.getElementById(id).classList.remove('hidden');
+  
+  if(id === 'screen-login' || id === 'screen-setup') {
+    document.getElementById('top-bar').classList.add('hidden');
+  } else {
+    document.getElementById('top-bar').classList.remove('hidden');
+  }
 }
 
 async function doLogin() {
@@ -269,28 +310,28 @@ async function doLogin() {
   if(!secret) return;
 
   const btn = document.getElementById('btn-login');
-  btn.textContent = 'กำลังตรวจสอบ...'; btn.disabled = true;
+  btn.textContent = 'ตรวจสอบรหัส...'; btn.disabled = true;
 
   try {
-    const res = await callAPI('GET', { action:'admin_data', secret: secret });
+    const res = await callAPI('GET', { action:'admin_data', secret: secret }, 25000);
     if(res.status === 'ok') {
       adminSecret = secret;
+      allMembers = res.members || []; 
       
-      // ดึงหมวดหมู่วิชาจากข้อสอบในคลังมาใส่ Dropdown
       if(res.questions) {
         const categories = [...new Set(res.questions.filter(q => q.active === 'YES').map(q => q.category || 'ทั่วไป'))];
         if (categories.length > 0) {
-          document.getElementById('inp-subject').innerHTML = '<option value="">-- เลือกวิชาที่จะสอบ --</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join('');
+          document.getElementById('inp-subject').innerHTML = '<option value="">-- เลือกวิชาที่จะเปิดสอน --</option>' + categories.map(c => `<option value="${c}">${c}</option>`).join('');
         } else {
-          document.getElementById('inp-subject').innerHTML = `<option value="">ไม่มีข้อสอบในระบบ</option>`;
+          document.getElementById('inp-subject').innerHTML = `<option value="">ไม่มีข้อมูลข้อสอบ</option>`;
         }
       }
       showScreen('screen-setup');
     } else { 
-      showModal('❌', 'เข้าสู่ระบบล้มเหลว', 'รหัสผ่านไม่ถูกต้อง'); 
+      showModal('❌', 'เข้าสู่ระบบล้มเหลว', 'รหัสผ่านแอดมินไม่ถูกต้อง'); 
     }
   } catch (e) { 
-    showModal('❌', 'เกิดข้อผิดพลาด', e.message); 
+    showModal('📡', 'เชื่อมต่อล้มเหลว', 'โปรดตรวจสอบ:<br>1. สัญญาณอินเทอร์เน็ต<br>2. การตั้งค่าสิทธิ์ Web App ให้เป็น "Anyone (ทุกคน)"'); 
   } finally { 
     btn.textContent = 'เข้าสู่ระบบ'; btn.disabled = false; 
   }
@@ -298,13 +339,13 @@ async function doLogin() {
 
 async function startRoom() {
   const subj = document.getElementById('inp-subject').value;
-  if(!subj) return showModal('⚠️', 'แจ้งเตือน', 'กรุณาเลือกวิชาที่จะสอบ');
+  if (!subj) return showModal('⚠️', 'แจ้งเตือน', 'กรุณาเลือกวิชาก่อน');
   
   const btn = document.getElementById('btn-start');
   btn.textContent = 'กำลังเปิดห้อง...'; btn.disabled = true;
 
   try {
-    const res = await callAPI('POST', { action: 'live_host_action', secret: adminSecret, command: 'START', subject: subj });
+    const res = await callAPI('POST', { action: 'live_host_action', secret: adminSecret, command: 'START', subject: subj }, 20000);
     if(res.status === 'ok') {
       currentState = res.state;
       document.getElementById('room-pin').textContent = subj.substring(0, 8); 
@@ -315,27 +356,40 @@ async function startRoom() {
       showModal('❌', 'ข้อผิดพลาด', res.message);
     }
   } catch(e) {
-    showModal('📡', 'การเชื่อมต่อขัดข้อง', 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาลองใหม่');
+    showModal('📡', 'สัญญาณขาดหาย', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่');
   } finally {
-    btn.textContent = 'เปิดห้องสอบ';
-    btn.disabled = false;
+    btn.textContent = 'เปิดห้องเรียน'; btn.disabled = false;
+  }
+}
+
+// 🌟 ระบบ Polling แบบ Recursive ป้องกัน Request ชนกันจนพัง
+async function pollState() {
+  if (!isPolling) return;
+  try {
+    const res = await callAPI('GET', { action:'live_get_state', isHost:'true' }, 8000); 
+    if(res.status === 'ok') {
+      currentState = res.state;
+      currentAnswers = res.answers || [];
+      currentPlayers = res.players || res.participants || []; 
+      updateHostUI();
+    }
+  } catch(e) {
+    // 🔕 ซ่อน Error ไว้ใน Console ป้องกัน Modal เด้งกวนใจเวลานำเสนอ
+    console.warn("Polling Warning: ", e);
+  } finally {
+    if (isPolling) {
+      pollTimeout = setTimeout(pollState, 1500); 
+    }
   }
 }
 
 function startPolling() {
-  clearInterval(pollInterval);
-  pollInterval = setInterval(async () => {
-    try {
-      // ⚡ ใช้ Timeout เพื่อป้องกัน request ค้าง
-      const res = await callAPI('GET', { action:'live_get_state', isHost:'true' }, 5000); 
-      if(res.status === 'ok') {
-        currentState = res.state;
-        currentAnswers = res.answers || [];
-        currentPlayers = res.players || res.participants || []; 
-        updateHostUI();
-      }
-    } catch(e) {} 
-  }, 1500); 
+  isPolling = true;
+  pollState();
+}
+function stopPolling() {
+  isPolling = false;
+  clearTimeout(pollTimeout);
 }
 
 function updateHostUI() {
@@ -343,17 +397,21 @@ function updateHostUI() {
   
   if(currentState.status === 'LOBBY') {
     const grid = document.getElementById('players-grid');
-    grid.innerHTML = '';
-    currentPlayers.forEach(p => {
-      grid.innerHTML += `<div class="player-tag">${p.fullName}</div>`;
-    });
+    const newHtml = currentPlayers.map(p => `
+      <div class="player-tag">
+        <img src="${getPicUrl(p.userId)}" class="player-avatar" onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'">
+        ${getDisplayName(p.userId, p.fullName)}
+      </div>
+    `).join('');
+    
+    if(grid.innerHTML !== newHtml) grid.innerHTML = newHtml;
   } 
   else if (currentState.status === 'QUESTION') {
     const currentAns = currentAnswers.filter(a => a.qIndex === currentState.currentQIndex);
     const answeredCount = currentAns.length;
     document.getElementById('ans-count-display').textContent = `${answeredCount} / ${currentPlayers.length} ตอบแล้ว`;
     
-    // Fast Forward: ถ้านักเรียนตอบครบทุกคน ลดเวลาเหลือ 3 วิ
+    // Fast Forward: ตอบครบ ลดเวลาเหลือ 3 วิ
     if(currentPlayers.length > 0 && answeredCount >= currentPlayers.length) {
        const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
        if (remaining > 3) {
@@ -369,19 +427,21 @@ async function nextState(newStatus) {
     nextQIndex++;
   }
   
-  document.getElementById('btn-next-step').disabled = true;
-  document.getElementById('btn-next-step').textContent = 'รอสักครู่...';
+  const btn = document.getElementById('btn-next-step');
+  btn.disabled = true; btn.textContent = 'รอสักครู่...';
   
   try {
     const res = await callAPI('POST', { action: 'live_host_action', secret: adminSecret, command: 'UPDATE', status: newStatus, qIndex: nextQIndex });
     if(res.status === 'ok') {
        currentState = res.state;
        renderState();
+    } else {
+       showModal('❌', 'ข้อผิดพลาด', res.message);
     }
   } catch(e) {
-    showModal('⚠️', 'ข้อผิดพลาด', 'ไม่สามารถส่งคำสั่งได้');
+    showModal('📡', 'ข้อผิดพลาดเครือข่าย', 'ส่งคำสั่งไม่สำเร็จ กรุณากดปุ่มอีกครั้ง');
   } finally {
-    document.getElementById('btn-next-step').disabled = false;
+    btn.disabled = false;
   }
 }
 
@@ -397,27 +457,36 @@ function renderState() {
     document.getElementById('q-text').textContent = q.questionText;
     document.getElementById('ans-count-display').textContent = `0 / ${currentPlayers.length} ตอบแล้ว`;
     
+    const timerEl = document.getElementById('q-timer');
+    timerEl.classList.remove('hurry');
+    
+    // รีเซ็ตกล่องคำตอบ
     for(let i=0; i<4; i++) {
-       const box = document.getElementById(`ans-${i}`);
+       const box = document.getElementById(`box-${['A','B','C','D'][i]}`);
        box.className = `ans-box ans-${['red','blue','yellow','green'][i]}`;
-       document.getElementById(`ans-text-${i}`).textContent = '-';
+       box.querySelector('.chart-bar').style.width = '0%';
+       box.querySelector('.ans-count-label').style.opacity = '0';
+       document.getElementById(`h-txt-${['A','B','C','D'][i]}`).textContent = '-';
        box.style.display = 'flex';
     }
     
     q.shuffledKeys.forEach((key, i) => {
-       document.getElementById(`ans-text-${i}`).textContent = q.choices[key] || '';
+       const bId = ['A','B','C','D'][i];
+       document.getElementById(`h-txt-${bId}`).textContent = q.choices[key] || '';
+       document.getElementById(`box-${bId}`).setAttribute('data-key', key);
     });
     for(let i=q.shuffledKeys.length; i<4; i++) {
-       document.getElementById(`ans-${i}`).style.display = 'none';
+       document.getElementById(`box-${['A','B','C','D'][i]}`).style.display = 'none';
     }
     
     const timeLimit = 20; 
     endTime = Date.now() + (timeLimit * 1000);
-    document.getElementById('q-timer').textContent = timeLimit;
+    timerEl.textContent = timeLimit;
     
     countdownInterval = setInterval(() => {
        const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
-       document.getElementById('q-timer').textContent = remaining;
+       timerEl.textContent = remaining;
+       if (remaining <= 5) timerEl.classList.add('hurry');
        
        if(remaining <= 0) {
          clearInterval(countdownInterval);
@@ -427,49 +496,71 @@ function renderState() {
   }
   else if(currentState.status === 'REVEAL') {
     const q = currentState.questions[currentState.currentQIndex];
-    const correctIdx = q.shuffledKeys.indexOf(q.correctAnswer);
+    const correctKey = q.correctAnswer;
     
-    for(let i=0; i<4; i++) {
-       const box = document.getElementById(`ans-${i}`);
-       if(i === correctIdx) box.classList.add('correct');
-       else box.classList.add('dimmed');
-    }
-    document.getElementById('btn-next-step').textContent = 'สรุปคะแนน';
+    const counts = { A:0, B:0, C:0, D:0 };
+    let maxCount = 1;
+    
+    currentAnswers.filter(a => a.qIndex === currentState.currentQIndex).forEach(a => {
+       ['A','B','C','D'].forEach(c => {
+         const box = document.getElementById(`box-${c}`);
+         if(box.getAttribute('data-key') === a.answer) {
+           counts[c]++;
+           if(counts[c] > maxCount) maxCount = counts[c];
+         }
+       });
+    });
+
+    ['A','B','C','D'].forEach(c => {
+       const box = document.getElementById(`box-${c}`);
+       const k = box.getAttribute('data-key');
+       
+       if(k !== correctKey) box.classList.add('dimmed');
+       else box.classList.add('correct');
+       
+       box.classList.add('show-results');
+       box.querySelector('.ans-count-label').textContent = counts[c];
+       box.querySelector('.chart-bar').style.width = `${(counts[c]/maxCount)*100}%`;
+    });
+    
+    document.getElementById('btn-next-step').textContent = 'สรุปคะแนน (โพเดียม)';
   }
   else if(currentState.status === 'SCOREBOARD') {
-    showScreen('screen-podium');
-    renderPodium();
+    showScreen('screen-scoreboard');
+    
+    const isLast = currentState.currentQIndex >= currentState.questions.length - 1;
+    document.getElementById('podium-title').textContent = isLast ? '🏆 ผู้ชนะการสอบสด 🏆' : '🔥 อันดับคะแนนชั่วคราว 🔥';
+    
+    const scores = {};
+    currentAnswers.forEach(a => {
+       if(!scores[a.userId]) scores[a.userId] = { userId: a.userId, name: getDisplayName(a.userId, a.fullName), score: 0 };
+       scores[a.userId].score += a.score;
+    });
+    
+    const sorted = Object.values(scores).sort((a,b) => b.score - a.score);
+    const top3 = [sorted[1], sorted[0], sorted[2]]; 
+    
+    let html = '';
+    top3.forEach((p, idx) => {
+       if(p) {
+          html += `
+            <div class="podium-place p-${idx+1}">
+              <div class="pod-avatar-wrap">
+                <img src="${getPicUrl(p.userId)}" class="pod-avatar" onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'">
+              </div>
+              <div class="p-name">${p.name}</div>
+              <div class="p-score">${p.score} pt</div>
+              <div class="p-block">${idx === 0 ? 2 : idx === 1 ? 1 : 3}</div>
+            </div>
+          `;
+       } else {
+          html += `<div class="podium-place p-${idx+1}"></div>`;
+       }
+    });
+    document.getElementById('podium-wrap').innerHTML = html;
+    
+    document.getElementById('btn-next-step').textContent = isLast ? 'จบการสอน (ปิดห้อง)' : 'ทำข้อถัดไป';
   }
-}
-
-async function renderPodium() {
-  const scores = {};
-  currentAnswers.forEach(a => {
-     if(!scores[a.userId]) scores[a.userId] = { name: a.fullName, score: 0 };
-     scores[a.userId].score += a.score;
-  });
-  
-  const sorted = Object.values(scores).sort((a,b) => b.score - a.score);
-  const top3 = [sorted[1], sorted[0], sorted[2]]; 
-  
-  let html = '';
-  top3.forEach((p, idx) => {
-     if(p) {
-        html += `
-          <div class="podium-place p-${idx+1}">
-            <div class="p-name">${p.name}</div>
-            <div class="p-score">${p.score}</div>
-            <div class="p-block">${idx === 0 ? 2 : idx === 1 ? 1 : 3}</div>
-          </div>
-        `;
-     } else {
-        html += `<div class="podium-place p-${idx+1}"></div>`;
-     }
-  });
-  document.getElementById('podium-wrap').innerHTML = html;
-  
-  const isLast = currentState.currentQIndex >= currentState.questions.length - 1;
-  document.getElementById('btn-next-step').textContent = isLast ? 'จบการสอน' : 'ข้อถัดไป';
 }
 
 function handleNextStep() {
@@ -485,42 +576,52 @@ function handleNextStep() {
 }
 
 function closeRoom() {
-  showModal('🚪', 'ยืนยันปิดห้อง', 'ยืนยันยุติการสอบสดและปิดห้องเรียนใช่หรือไม่?', true, async () => {
-    clearInterval(pollInterval);
+  showModal('🚪', 'ยุติการสอน', 'ต้องการปิดห้องสอบและเคลียร์ข้อมูลรอบนี้ทิ้งหรือไม่?', true, async () => {
+    stopPolling();
     clearInterval(countdownInterval);
     await callAPI('POST', { action:'live_host_action', secret:adminSecret, command:'END' });
+    
+    // เคลียร์ UI
     document.getElementById('room-pin').textContent = '...';
     document.getElementById('inp-subject').value = '';
+    document.getElementById('p-count').textContent = '0';
+    document.getElementById('players-grid').innerHTML = '';
     showScreen('screen-setup');
   });
 }
 
-// 🌟 Robust API Call with AbortController to handle Network Errors gracefully
-async function callAPI(method, params, timeoutMs=30000) {
+// 🌟 Robust API Call Helper
+async function callAPI(method, params, timeoutMs=15000) {
   const ctrl = new AbortController(); 
   const tid = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') { 
-      url += '?' + new URLSearchParams(params).toString(); 
-      opts.method = 'GET'; 
-    } else { 
-      opts.method = 'POST'; 
-      opts.headers = { 'Content-Type':'text/plain' }; 
-      opts.body = JSON.stringify(params); 
+    let url = GAS_URL;
+    let opts = { signal: ctrl.signal, redirect: 'follow' };
+    
+    // แปลงพารามิเตอร์ GET ป้องกัน URL มีปัญหา
+    if (method === 'GET') {
+      const searchParams = new URLSearchParams();
+      for (const key in params) { searchParams.append(key, params[key]); }
+      url += '?' + searchParams.toString();
+      opts.method = 'GET';
+    } else {
+      opts.method = 'POST';
+      opts.headers = { 'Content-Type': 'text/plain' };
+      opts.body = JSON.stringify(params);
     }
-    const resp = await fetch(url, opts); 
+    
+    const resp = await fetch(url, opts);
     clearTimeout(tid);
     
-    if (!resp.ok) throw new Error('HTTP ' + resp.status); 
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return await resp.json();
-  } catch(e) { 
-    clearTimeout(tid); 
-    // ตรวจจับข้อผิดพลาด Failed to fetch
-    if (e.name === 'TypeError' || e.message.includes('Failed to fetch') || e.message.includes('NetworkError')) {
-      throw new Error('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบลิงก์ GAS_URL หรือตั้งค่า Web App ให้สิทธิ์การเข้าถึงเป็น "Anyone"');
+  } catch(e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('การเชื่อมต่อใช้เวลานานเกินไป (Timeout)');
+    if (e.message.includes('Failed to fetch') || e.message.includes('NetworkError')) {
+       throw new Error('เบราว์เซอร์บล็อกการเชื่อมต่อ (CORS Error) หรือ อินเทอร์เน็ตหลุด');
     }
-    throw e; 
+    throw e;
   }
 }
 
