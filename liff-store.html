@@ -3,206 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ร้านค้าสวัสดิการ (Store)</title>
+<title>ร้านค้าสวัสดิการ (PX)</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #4fc3f7; 
+  --primary:      #4fc3f7;
   --primary-dark: #0288d1;
-  --secondary: #ffd700;
-  --bg: #0f1322; --surface: #161c36; --surf2: #1e2647;
-  --border: #2a3558; --text: #e8ecf8; --muted: #8b949e;
-  --success: #00e676; --danger: #ff5252; --warning: #ffb300;
+  --secondary:    #ffd700;
+  --bg:           #0f1322;
+  --surface:      #161c36;
+  --surf2:        #1e2647;
+  --border:       #2a3558;
+  --text:         #e8ecf8;
+  --muted:        #8b949e;
+  --success:      #00e676;
+  --danger:       #ff5252;
+  --warning:      #ffb300;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
 
-/* Top Bar */
-.top-bar { background: var(--surface); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.3);}
-.t-app { font-weight: 800; font-size: 18px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-.t-coin { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 700; color: #000; background: linear-gradient(135deg, var(--secondary), #f59e0b); padding: 4px 14px; border-radius: 20px; box-shadow: 0 2px 10px rgba(255,215,0,0.3);}
+/* ── Top bar ── */
+.top-bar { background:var(--surface); padding:14px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; box-shadow:0 4px 15px rgba(0,0,0,0.3); }
+.t-app  { font-weight:800; font-size:17px; color:var(--primary); display:flex; align-items:center; gap:8px; }
+.t-coin { font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:700; color:#000; background:linear-gradient(135deg,var(--secondary),#f59e0b); padding:4px 14px; border-radius:20px; box-shadow:0 2px 10px rgba(255,215,0,0.3); }
 
-/* Tabs */
-.tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); }
-.tab { flex: 1; padding: 14px; text-align: center; font-size: 15px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s;}
-.tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(79, 195, 247, 0.1); }
+/* ── Tabs ── */
+.tabs { display:flex; background:var(--surface); border-bottom:1px solid var(--border); }
+.tab  { flex:1; padding:13px; text-align:center; font-size:15px; font-weight:700; color:var(--muted); cursor:pointer; border-bottom:3px solid transparent; transition:0.2s; user-select:none; }
+.tab.active { color:var(--primary); border-bottom-color:var(--primary); background:rgba(79,195,247,0.08); }
 
-.main-area { flex: 1; padding: 20px; overflow-y: auto; max-width: 600px; margin: 0 auto; width: 100%;}
-.tab-content { display: none; flex-direction: column; gap: 16px; }
-.tab-content.active { display: flex; }
+/* ── Main ── */
+.main-area    { flex:1; padding:18px; overflow-y:auto; max-width:600px; margin:0 auto; width:100%; }
+.tab-content  { display:none; flex-direction:column; gap:14px; }
+.tab-content.active { display:flex; }
 
-/* Store Item Cards */
-.item-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;}
-.item-img-wrap { width: 100%; height: 180px; background: #fff; position: relative; border-bottom: 1px solid var(--border);}
-.item-img { width: 100%; height: 100%; object-fit: cover; }
-.item-stock { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px);}
-.item-stock.low { color: var(--danger); border-color: var(--danger); }
-.item-info { padding: 18px; display: flex; flex-direction: column; gap: 8px;}
-.item-title { font-size: 18px; font-weight: 800; color: var(--text); }
-.item-desc { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 8px;}
-.item-price { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 800; color: var(--secondary); }
+/* ── Item cards ── */
+.item-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 4px 10px rgba(0,0,0,0.3); }
+.item-img-wrap { width:100%; height:170px; background:#fff; position:relative; border-bottom:1px solid var(--border); }
+.item-img { width:100%; height:100%; object-fit:cover; display:block; }
+.item-stock     { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); color:#fff; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:800; border:1px solid rgba(255,255,255,0.2); backdrop-filter:blur(4px); }
+.item-stock.low { color:var(--danger); border-color:var(--danger); }
+.item-info  { padding:16px; display:flex; flex-direction:column; gap:8px; }
+.item-title { font-size:17px; font-weight:800; color:var(--text); }
+.item-desc  { font-size:13px; color:var(--muted); line-height:1.55; }
+.item-price { font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:800; color:var(--secondary); }
 
-/* Buttons */
-.btn { width: 100%; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
-.btn:active { transform: scale(0.96); }
-.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 15px rgba(2, 136, 209, 0.3); }
-.btn-disabled { background: var(--surf2); color: var(--muted); border: 1px solid var(--border); pointer-events: none; }
+/* ── Buttons ── */
+.btn          { width:100%; padding:12px; border-radius:10px; font-size:14px; font-weight:800; font-family:'Sarabun'; cursor:pointer; transition:transform 0.15s; border:none; }
+.btn:active   { transform:scale(0.96); }
+.btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+.btn-primary  { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; box-shadow:0 4px 15px rgba(2,136,209,0.3); }
+.btn-muted    { background:var(--surf2); color:var(--muted); border:1px solid var(--border); pointer-events:none; }
 
-/* History Cards */
-.hist-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);}
-.hist-header { display: flex; justify-content: space-between; align-items: flex-start; }
-.hist-title { font-size: 16px; font-weight: 700; color: var(--text); }
-.hist-price { font-family: 'IBM Plex Mono'; font-size: 14px; color: var(--secondary); font-weight: 800;}
-.hist-time { font-size: 12px; color: var(--muted); margin-top: 6px;}
+/* ── History cards ── */
+.hist-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:15px; display:flex; flex-direction:column; gap:8px; box-shadow:0 4px 10px rgba(0,0,0,0.2); }
+.hist-header { display:flex; justify-content:space-between; align-items:flex-start; }
+.hist-title  { font-size:15px; font-weight:700; color:var(--text); }
+.hist-price  { font-family:'IBM Plex Mono'; font-size:13px; color:var(--secondary); font-weight:800; }
+.hist-time   { font-size:12px; color:var(--muted); margin-top:4px; }
+.status-badge { padding:4px 10px; border-radius:6px; font-size:12px; font-weight:800; white-space:nowrap; flex-shrink:0; }
+.st-pending  { background:rgba(255,179,0,0.15);   color:var(--warning); border:1px solid rgba(255,179,0,0.3); }
+.st-approved { background:rgba(0,230,118,0.15);   color:var(--success); border:1px solid rgba(0,230,118,0.3); }
+.st-rejected { background:rgba(255,82,82,0.15);   color:var(--danger);  border:1px solid rgba(255,82,82,0.3); }
 
-.status-badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; }
-.st-pending { background: rgba(255, 179, 0, 0.15); color: var(--warning); border: 1px solid rgba(255, 179, 0, 0.3); }
-.st-approved { background: rgba(0, 230, 118, 0.15); color: var(--success); border: 1px solid rgba(0, 230, 118, 0.3); }
-.st-rejected { background: rgba(255, 82, 82, 0.15); color: var(--danger); border: 1px solid rgba(255, 82, 82, 0.3); }
+/* ── Overlay / Spinner ── */
+.ov      { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; }
+.spinner { width:48px; height:48px; border:4px solid var(--border); border-top:4px solid var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:18px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.hidden { display:none !important; }
 
-/* Modals & Loaders */
-.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-.spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.hidden { display: none !important; opacity: 0; pointer-events: none; }
+/* ── Custom modal ── */
+.ca-ov { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(3px); }
+.ca-ov.active { opacity:1; pointer-events:auto; }
+.ca-box { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:30px 22px; width:100%; max-width:320px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.6); transform:scale(0.9); transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275); }
+.ca-ov.active .ca-box { transform:scale(1); }
+.ca-icon  { font-size:50px; margin-bottom:14px; line-height:1; }
+.ca-title { font-size:19px; font-weight:800; color:var(--text); margin-bottom:8px; }
+.ca-msg   { font-size:14px; color:var(--muted); margin-bottom:22px; line-height:1.5; }
+.ca-btn-group { display:flex; gap:10px; justify-content:center; }
+.ca-btn         { flex:1; padding:12px 0; border-radius:10px; font-size:14px; font-weight:800; font-family:'Sarabun'; cursor:pointer; transition:0.15s; border:none; }
+.ca-btn-cancel  { background:var(--surf2); border:1px solid var(--border); color:var(--text); }
+.ca-btn-confirm { background:var(--primary); color:#fff; box-shadow:0 4px 15px rgba(2,136,209,0.3); }
+.ca-btn:active  { transform:scale(0.96); }
 
-.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
-.ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.6); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.ca-ov.active .ca-box { transform: scale(1); }
-.ca-icon { font-size: 50px; margin-bottom: 15px; line-height: 1; }
-.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
-.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
-.ca-btn-group { display: flex; gap: 12px; justify-content: center; }
-.ca-btn { flex: 1; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
-.ca-btn-cancel { background: var(--surf2); border: 1px solid var(--border); color: var(--text); }
-.ca-btn-confirm { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(2, 136, 209, 0.3); }
-.ca-btn:active { transform: scale(0.96); }
+/* ── Balance chip ── */
+.balance-chip { background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.2); border-radius:12px; padding:12px 16px; text-align:center; margin-bottom:4px; }
+.balance-chip .bal-num { font-family:'IBM Plex Mono'; font-size:26px; font-weight:800; color:var(--secondary); }
+.balance-chip .bal-lbl { font-size:12px; color:var(--muted); margin-top:2px; }
 </style>
 </head>
 <body>
 
-<!-- Loading screen -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <div style="font-weight:700; color:var(--muted);" id="load-msg">กำลังโหลดข้อมูลร้านค้า...</div>
+  <div id="load-msg" style="font-weight:700;color:var(--muted);">กำลังโหลดข้อมูลร้านค้า...</div>
 </div>
 
-<!-- Custom Alert Modal -->
-<div id="custom-alert" class="ca-ov">
+<div id="custom-alert" class="ca-ov" role="dialog" aria-modal="true">
   <div class="ca-box">
-    <div id="ca-icon" class="ca-icon">⚠️</div>
-    <div id="ca-title" class="ca-title">แจ้งเตือน</div>
-    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <div id="ca-icon"      class="ca-icon">⚠️</div>
+    <div id="ca-title"     class="ca-title">แจ้งเตือน</div>
+    <div id="ca-msg"       class="ca-msg">ข้อความ</div>
     <div id="ca-btn-group" class="ca-btn-group"></div>
   </div>
 </div>
 
 <div class="top-bar">
-  <div class="t-app">🛒 ร้านค้าสวัสดิการ</div>
+  <div class="t-app">🛒 ร้านค้าสวัสดิการ (PX)</div>
   <div class="t-coin" id="u-coin">🪙 0</div>
 </div>
 
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('store')">คลังของรางวัล</div>
-  <div class="tab" onclick="switchTab('history')">ประวัติการแลก</div>
+<div class="tabs" id="tabs-bar">
+  <div class="tab active" data-tab="store"   onclick="switchTab('store',   this)">คลังของรางวัล</div>
+  <div class="tab"        data-tab="history" onclick="switchTab('history', this)">ประวัติการแลก</div>
 </div>
 
 <div class="main-area">
-  
-  <!-- Store Tab -->
+
+  <!-- Store tab -->
   <div id="tab-store" class="tab-content active">
-    <div style="text-align:center; margin-bottom:10px;">
-      <div style="font-size:14px; color:var(--muted);">นำเหรียญที่ได้จากห้องเรียนมาแลกของรางวัล</div>
+    <div class="balance-chip">
+      <div class="bal-num" id="bal-big">0</div>
+      <div class="bal-lbl">เหรียญ PX คงเหลือ</div>
     </div>
-    <div id="list-items" style="display:flex; flex-direction:column; gap:16px;"></div>
-    <button class="btn" style="background:transparent; border:1px solid var(--border); color:var(--muted); margin-top:20px; box-shadow:none;" onclick="liff.closeWindow()">กลับสู่เมนูหลัก</button>
+    <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:4px;">นำเหรียญที่ได้จากห้องเรียนมาแลกของรางวัล</div>
+    <div id="list-items"></div>
+    <button class="btn" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:16px;" onclick="liff.closeWindow()">กลับสู่เมนูหลัก</button>
   </div>
-  
-  <!-- History Tab -->
+
+  <!-- History tab -->
   <div id="tab-history" class="tab-content">
-    <div id="list-history" style="display:flex; flex-direction:column; gap:12px;"></div>
+    <div id="list-history"></div>
   </div>
 
 </div>
 
 <script>
-const LIFF_ID = '2009717287-rli41ASz'; // << [ใส่ LIFF ID ของหน้าร้านค้า PX]
+const LIFF_ID = '2009717287-rli41ASz';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let userId = '';
+let userId         = '';
 let currentBalance = 0;
-let isProcessing = false; // ป้องกันการกดเบิ้ล (Lock State)
+let isProcessing   = false; // [FIX] guard ป้องกัน redeem ซ้ำ
 
-// === Custom Modals ===
-function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
-  document.getElementById('ca-icon').textContent = icon;
+// ── Modal ───────────────────────────────────
+function customAlert(msg, title = 'แจ้งเตือน', icon = '⚠️') {
+  document.getElementById('ca-icon').textContent  = icon;
   document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').innerHTML = msg;
-  document.getElementById('ca-btn-group').innerHTML = `<button class="ca-btn ca-btn-confirm" onclick="closeCustomAlert()">รับทราบ</button>`;
+  // [FIX] textContent ป้องกัน XSS
+  document.getElementById('ca-msg').textContent   = msg;
+  document.getElementById('ca-btn-group').innerHTML =
+    `<button class="ca-btn ca-btn-confirm" onclick="closeAlert()">รับทราบ</button>`;
   document.getElementById('custom-alert').classList.add('active');
 }
 
-function customConfirm(msg, onConfirm, title="ยืนยันคำสั่ง", icon="❓") {
-  document.getElementById('ca-icon').textContent = icon;
+let _confirmCb = null;
+function customConfirm(msg, onConfirm, title = 'ยืนยันคำสั่ง', icon = '❓') {
+  document.getElementById('ca-icon').textContent  = icon;
   document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').innerHTML = msg;
-  
-  const group = document.getElementById('ca-btn-group');
-  group.innerHTML = `
-    <button class="ca-btn ca-btn-cancel" id="btn-ca-cancel">ยกเลิก</button>
-    <button class="ca-btn ca-btn-confirm" id="btn-ca-ok">ยืนยัน</button>
-  `;
-  
-  document.getElementById('btn-ca-cancel').onclick = () => {
-    closeCustomAlert();
-  };
-  
-  document.getElementById('btn-ca-ok').onclick = () => {
-    closeCustomAlert();
-    if(onConfirm) onConfirm();
-  };
-  
+  document.getElementById('ca-msg').textContent   = msg;
+  document.getElementById('ca-btn-group').innerHTML = `
+    <button class="ca-btn ca-btn-cancel"  onclick="closeAlert()">ยกเลิก</button>
+    <button class="ca-btn ca-btn-confirm" id="btn-ca-ok">ยืนยัน</button>`;
+  _confirmCb = onConfirm;
+  document.getElementById('btn-ca-ok').onclick = () => { closeAlert(); if (_confirmCb) _confirmCb(); };
   document.getElementById('custom-alert').classList.add('active');
 }
 
-function closeCustomAlert() { 
-  document.getElementById('custom-alert').classList.remove('active'); 
-}
+function closeAlert() { document.getElementById('custom-alert').classList.remove('active'); }
 
-function switchTab(tab) {
+// ── Tab switch ──────────────────────────────
+function switchTab(tab, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  event.target.classList.add('active');
+  if (el) el.classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
 }
 
+// ── Init ────────────────────────────────────
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
-    
     userId = (await liff.getProfile()).userId;
     await loadStoreData();
-    
   } catch(e) {
-    document.getElementById('ov-load').innerHTML = `<div style="font-size:50px;">⚠️</div><p style="color:var(--danger); margin-top:10px;">${e.message}</p>`;
+    document.getElementById('ov-load').innerHTML =
+      `<div style="font-size:50px;">⚠️</div><p style="color:var(--danger);margin-top:10px;font-family:'Sarabun';">${escH(e.message || 'เชื่อมต่อล้มเหลว')}</p>`;
   }
 }
 
 async function loadStoreData() {
   document.getElementById('ov-load').classList.remove('hidden');
   try {
-    const res = await callAPI('GET', { action: 'get_store_data', userId: userId });
+    const res = await callAPI('GET', { action:'get_store_data', userId });
     if (res.status !== 'ok') throw new Error(res.message);
-    
+
     currentBalance = Number(res.balance || 0);
     document.getElementById('u-coin').textContent = `🪙 ${currentBalance}`;
-    
-    renderStore(res.rewards || []);
+    document.getElementById('bal-big').textContent = currentBalance.toLocaleString();
+
+    renderStore(res.rewards  || []);
     renderHistory(res.history || []);
-    
   } catch(e) {
     customAlert(e.message, 'การเชื่อมต่อล้มเหลว', '📡');
   } finally {
@@ -210,131 +214,177 @@ async function loadStoreData() {
   }
 }
 
+// ── Render store ────────────────────────────
 function renderStore(items) {
   const list = document.getElementById('list-items');
   list.innerHTML = '';
-  
-  if(items.length === 0) {
-    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; border:1px dashed var(--border); border-radius:12px;">ร้านค้ายังไม่มีสินค้าในขณะนี้</div>';
+
+  if (!items.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;border:1px dashed var(--border);border-radius:12px;">ร้านค้ายังไม่มีสินค้าในขณะนี้</div>';
     return;
   }
-  
+
   items.forEach(r => {
-    const canAfford = currentBalance >= r.price;
-    const isOutOfStock = r.stock <= 0;
-    
-    let btnHtml = '';
-    if(isOutOfStock) {
-      btnHtml = `<button class="btn btn-disabled">สินค้าหมด (Out of Stock)</button>`;
-    } else if(!canAfford) {
-      btnHtml = `<button class="btn btn-disabled">เหรียญไม่เพียงพอ</button>`;
+    const canAfford   = currentBalance >= r.price;
+    const outOfStock  = r.stock <= 0;
+    const imgUrl      = r.image || 'https://cdn-icons-png.flaticon.com/512/10398/10398492.png';
+
+    // [FIX] สร้าง card ผ่าน DOM API ทั้งหมด ป้องกัน XSS
+    const card = document.createElement('div');
+    card.className = 'item-card';
+
+    // ── Image ──
+    const imgWrap = document.createElement('div'); imgWrap.className = 'item-img-wrap';
+    const img     = document.createElement('img');
+    img.className = 'item-img'; img.alt = escH(r.name);
+    img.src = imgUrl;
+    img.onerror = () => { img.src = 'https://cdn-icons-png.flaticon.com/512/10398/10398492.png'; };
+    const stockBadge = document.createElement('div');
+    stockBadge.className = `item-stock${r.stock <= 5 ? ' low' : ''}`;
+    stockBadge.textContent = `คงเหลือ: ${r.stock}`;
+    imgWrap.appendChild(img);
+    imgWrap.appendChild(stockBadge);
+
+    // ── Info ──
+    const info  = document.createElement('div');  info.className  = 'item-info';
+    const title = document.createElement('div');  title.className = 'item-title';  title.textContent = r.name;
+    const desc  = document.createElement('div');  desc.className  = 'item-desc';   desc.textContent  = r.desc;
+    const price = document.createElement('div');  price.className = 'item-price';  price.textContent = `🪙 ${r.price}`;
+
+    const btnWrap = document.createElement('div'); btnWrap.style.marginTop = '8px';
+    const btn     = document.createElement('button');
+    if (outOfStock) {
+      btn.className   = 'btn btn-muted';
+      btn.textContent = 'สินค้าหมด (Out of Stock)';
+      btn.disabled    = true;
+    } else if (!canAfford) {
+      btn.className   = 'btn btn-muted';
+      btn.textContent = `เหรียญไม่เพียงพอ (ต้องการ ${r.price})`;
+      btn.disabled    = true;
     } else {
-      // ใช้ escape string ป้องกันบั๊ก XSS
-      const safeName = String(r.name).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
-      btnHtml = `<button class="btn btn-primary" onclick="reqRedeem('${r.id}', '${safeName}', ${r.price})">🛒 แลกรางวัล (${r.price} เหรียญ)</button>`;
+      btn.className   = 'btn btn-primary';
+      btn.textContent = `🛒 แลกรางวัล (${r.price} เหรียญ)`;
+      // [FIX] ผูก event listener แทน onclick attribute — ไม่ต้อง escape ชื่อ
+      btn.addEventListener('click', () => reqRedeem(r.id, r.name, r.price));
     }
-    
-    const stockClass = r.stock <= 5 ? 'low' : '';
-    const imgUrl = r.image || 'https://cdn-icons-png.flaticon.com/512/10398/10398492.png';
-    
-    list.innerHTML += `
-      <div class="item-card">
-        <div class="item-img-wrap">
-          <img src="${imgUrl}" class="item-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/10398/10398492.png'">
-          <div class="item-stock ${stockClass}">คงเหลือ: ${r.stock}</div>
-        </div>
-        <div class="item-info">
-          <div class="item-title">${r.name}</div>
-          <div class="item-desc">${r.desc}</div>
-          <div class="item-price">🪙 ${r.price}</div>
-          <div style="margin-top:8px;">${btnHtml}</div>
-        </div>
-      </div>
-    `;
+    btnWrap.appendChild(btn);
+    info.appendChild(title);
+    info.appendChild(desc);
+    info.appendChild(price);
+    info.appendChild(btnWrap);
+
+    card.appendChild(imgWrap);
+    card.appendChild(info);
+    list.appendChild(card);
   });
 }
 
+// ── Render history ──────────────────────────
 function renderHistory(history) {
   const list = document.getElementById('list-history');
   list.innerHTML = '';
-  
-  if(history.length === 0) {
-    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; border:1px dashed var(--border); border-radius:12px;">ยังไม่มีประวัติการแลกรางวัล</div>';
+
+  if (!history.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;border:1px dashed var(--border);border-radius:12px;">ยังไม่มีประวัติการแลกรางวัล</div>';
     return;
   }
-  
+
   history.forEach(h => {
-    let stClass = '', stText = '';
-    if(h.status === 'PENDING') { stClass = 'st-pending'; stText = 'รอผู้ดูแลอนุมัติ'; }
-    else if(h.status === 'APPROVED') { stClass = 'st-approved'; stText = 'อนุมัติเรียบร้อย'; }
-    else if(h.status === 'REJECTED') { stClass = 'st-rejected'; stText = 'ไม่อนุมัติ (คืนเหรียญ)'; }
-    
-    list.innerHTML += `
-      <div class="hist-card">
-        <div class="hist-header">
-          <div>
-            <div class="hist-title">${h.rewardName}</div>
-            <div class="hist-price">- ${h.price} เหรียญ</div>
-          </div>
-          <div class="status-badge ${stClass}">${stText}</div>
-        </div>
-        <div class="hist-time">วันที่ทำรายการ: ${h.timestamp}</div>
-      </div>
-    `;
+    const statusMap = {
+      'PENDING':  { cls:'st-pending',  label:'รอผู้ดูแลอนุมัติ' },
+      'APPROVED': { cls:'st-approved', label:'อนุมัติเรียบร้อย' },
+      'REJECTED': { cls:'st-rejected', label:'ไม่อนุมัติ (คืนเหรียญ)' }
+    };
+    const st = statusMap[h.status] || { cls:'', label: h.status };
+
+    const card = document.createElement('div');
+    card.className = 'hist-card';
+
+    const hdr = document.createElement('div'); hdr.className = 'hist-header';
+    const left = document.createElement('div');
+    const nameEl  = document.createElement('div'); nameEl.className  = 'hist-title';  nameEl.textContent  = h.rewardName;
+    const priceEl = document.createElement('div'); priceEl.className = 'hist-price';  priceEl.textContent = `- ${h.price} เหรียญ`;
+    left.appendChild(nameEl); left.appendChild(priceEl);
+
+    const badge = document.createElement('div');
+    badge.className = `status-badge ${st.cls}`;
+    badge.textContent = st.label;
+
+    hdr.appendChild(left); hdr.appendChild(badge);
+
+    const timeEl = document.createElement('div'); timeEl.className = 'hist-time';
+    timeEl.textContent = `วันที่ทำรายการ: ${h.timestamp}`;
+
+    card.appendChild(hdr);
+    card.appendChild(timeEl);
+    list.appendChild(card);
   });
 }
 
+// ── Redeem flow ──────────────────────────────
 function reqRedeem(id, name, price) {
-  if (isProcessing) return; // ป้องกันการกดเบิ้ล
-  
-  customConfirm(`ยืนยันการแลก <b>"${name}"</b><br>ระบบจะหัก <b style="color:var(--secondary);">${price} เหรียญ</b> จากกระเป๋าของคุณ`, () => {
-    processRedeem(id);
-  }, 'ยืนยันการแลกรางวัล', '🎁');
+  if (isProcessing) return; // [FIX] guard ก่อน confirm dialog
+  customConfirm(
+    `ยืนยันการแลก "${name}"\nระบบจะหัก ${price} เหรียญ จากกระเป๋าของคุณ\n(ยอดคงเหลือ: ${currentBalance} เหรียญ)`,
+    () => processRedeem(id),
+    'ยืนยันการแลกรางวัล', '🎁'
+  );
 }
 
 async function processRedeem(rewardId) {
+  // [FIX] double-guard — ป้องกัน race condition จาก rapid-tap
   if (isProcessing) return;
   isProcessing = true;
-  
+
   document.getElementById('ov-load').classList.remove('hidden');
   document.getElementById('load-msg').textContent = 'กำลังดำเนินการส่งคำขอ...';
-  
+
   try {
-    const res = await callAPI('POST', { action: 'redeem_reward', userId: userId, rewardId: rewardId });
-    if(res.status === 'ok') {
+    const res = await callAPI('POST', { action:'redeem_reward', userId, rewardId });
+    if (res.status === 'ok') {
+      await loadStoreData(); // โหลดข้อมูลสดใหม่ทั้งหมด
+      // สลับไปหน้าประวัติ
+      switchTab('history', document.querySelector('.tab[data-tab="history"]'));
       customAlert('ระบบได้รับคำขอแล้ว โปรดรอผู้ดูแลตรวจสอบและอนุมัติ', 'แลกรางวัลสำเร็จ', '✅');
-      await loadStoreData(); // โหลดข้อมูลใหม่ทั้งหมดเพื่ออัปเดตยอดคงเหลือให้ตรงกัน 100%
-      
-      // สลับไปหน้าประวัติการแลกอัตโนมัติ
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      document.querySelectorAll('.tab')[1].classList.add('active'); // Tab History
-      document.getElementById('tab-history').classList.add('active');
-      
     } else {
       throw new Error(res.message);
     }
   } catch(e) {
-    customAlert(e.message, 'ผิดพลาด', '❌');
+    customAlert(e.message || 'ไม่สามารถทำรายการได้', 'ผิดพลาด', '❌');
   } finally {
     isProcessing = false;
     document.getElementById('ov-load').classList.add('hidden');
   }
 }
 
-async function callAPI(method, params, timeoutMs=25000) {
+// ── Helpers ─────────────────────────────────
+function escH(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+async function callAPI(method, params, timeoutMs = 25000) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; } 
-    else { opts.method  = 'POST'; opts.headers = { 'Content-Type':'text/plain' }; opts.body = JSON.stringify(params); }
+    let url  = GAS_URL;
+    let opts = { signal:ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
     const resp = await fetch(url, opts);
     clearTimeout(tid);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return await resp.json();
   } catch(e) {
     clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ กรุณาลองใหม่');
     throw e;
   }
 }
