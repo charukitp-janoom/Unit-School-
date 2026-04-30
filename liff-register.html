@@ -8,262 +8,547 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* ธีมทหาร: Army Green & Gold */
-  --primary: #2e7d32;
+  --primary:      #2e7d32;
   --primary-dark: #1b5e20;
-  --secondary: #ffca28;
-  --bg: #121212;
-  --surface: #1e1e1e;
-  --border: #333333;
-  --text: #e0e0e0;
-  --muted: #888888;
-  --danger: #ff5252;
+  --secondary:    #ffca28;
+  --bg:           #121212;
+  --surface:      #1e1e1e;
+  --border:       #333333;
+  --text:         #e0e0e0;
+  --muted:        #888888;
+  --danger:       #ff5252;
+  --success:      #4caf50;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Sarabun', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 20px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
 
-.header-title { font-size: 26px; font-weight: 800; color: var(--secondary); margin-bottom: 5px; text-align: center; text-transform: uppercase; letter-spacing: 1px;}
-.header-sub { text-align: center; color: var(--muted); margin-bottom: 15px; font-size: 14px; }
+/* ── Header ── */
+.header-title {
+  font-size: 24px; font-weight: 800;
+  color: var(--secondary);
+  margin-bottom: 4px; text-align: center;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.header-sub { text-align: center; color: var(--muted); margin-bottom: 16px; font-size: 14px; }
 
-.container { width: 100%; max-width: 420px; background: var(--surface); padding: 24px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 10px;}
+/* ── Card ── */
+.container {
+  width: 100%; max-width: 420px;
+  background: var(--surface);
+  padding: 24px; border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  margin-top: 8px;
+}
 
-/* Profile Display Section */
-.profile-card { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px dashed var(--border); }
-.profile-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); margin-bottom: 12px; box-shadow: 0 0 15px rgba(46, 125, 50, 0.4); background: #111; }
+/* ── Profile card ── */
+.profile-card {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 24px; padding-bottom: 20px;
+  border-bottom: 1px dashed var(--border);
+}
+.profile-img {
+  width: 100px; height: 100px; border-radius: 50%;
+  object-fit: cover; border: 3px solid var(--primary);
+  margin-bottom: 12px;
+  box-shadow: 0 0 15px rgba(46,125,50,0.4);
+  background: #111;
+}
 .profile-name { font-size: 18px; font-weight: 700; color: var(--text); }
-.profile-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.profile-sub  { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-/* Form Elements */
-.form-group { margin-bottom: 16px; }
-.form-label { display: block; margin-bottom: 6px; font-size: 14px; color: var(--muted); font-weight: 600; }
-.form-control { width: 100%; background: #0a0a0a; border: 1px solid var(--border); color: #fff; padding: 14px 16px; border-radius: 8px; font-family: 'Sarabun'; font-size: 16px; transition: 0.2s; outline: none; }
-.form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2); }
+/* ── Form ── */
+.form-group  { margin-bottom: 16px; }
+.form-label  { display: block; margin-bottom: 6px; font-size: 14px; color: var(--muted); font-weight: 600; }
+/* [FIX] เพิ่ม char-counter hint ขวาบน */
+.label-row   { display: flex; justify-content: space-between; align-items: baseline; }
+.char-hint   { font-size: 11px; color: var(--muted); }
+.char-hint.warn { color: var(--danger); }
 
-select.form-control { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
+.form-control {
+  width: 100%; background: #0a0a0a;
+  border: 1px solid var(--border); color: #fff;
+  padding: 14px 16px; border-radius: 8px;
+  font-family: 'Sarabun'; font-size: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+}
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(46,125,50,0.2);
+}
+/* [FIX] แสดง border แดงเมื่อ invalid */
+.form-control.invalid { border-color: var(--danger) !important; }
 
-.btn { width: 100%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);}
-.btn:active { transform: scale(0.96); box-shadow: none; }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+select.form-control {
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;
+}
+select.form-control option { background: #1e1e1e; }
 
-/* Overlay Loading */
-.ov { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+/* ── Error text ── */
+.field-error {
+  font-size: 12px; color: var(--danger);
+  margin-top: 5px; display: none;
+}
+.field-error.show { display: block; }
+
+/* ── Button ── */
+.btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff; border: none; padding: 16px;
+  border-radius: 8px; font-size: 18px; font-weight: 800;
+  font-family: 'Sarabun'; cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.btn:active    { transform: scale(0.96); box-shadow: none; }
+.btn:disabled  { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ── Loading overlay ── */
+.ov {
+  position: fixed; inset: 0; background: var(--bg);
+  z-index: 9999; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.spinner {
+  width: 45px; height: 45px;
+  border: 4px solid var(--border);
+  border-top: 4px solid var(--primary);
+  border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 .hidden { display: none !important; }
 
-/* Custom Modal Alert */
-.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(2px);}
+/* ── Custom Modal Alert ── */
+.ca-ov {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  z-index: 10000; display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; pointer-events: none;
+  transition: opacity 0.2s; backdrop-filter: blur(2px);
+}
 .ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.ca-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 32px 24px;
+  width: 100%; max-width: 320px; text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  transform: scale(0.9);
+  transition: transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275);
+}
 .ca-ov.active .ca-box { transform: scale(1); }
-.ca-icon { font-size: 60px; margin-bottom: 15px; line-height: 1; }
+.ca-icon  { font-size: 60px; margin-bottom: 15px; line-height: 1; }
 .ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
-.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
-.ca-btn { width: 100%; padding: 12px 0; border-radius: 10px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; border: none; background: var(--primary); color: #fff; transition: 0.2s;}
+.ca-msg   { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.ca-btn {
+  width: 100%; padding: 12px 0; border-radius: 10px;
+  font-size: 16px; font-weight: 800; font-family: 'Sarabun';
+  cursor: pointer; border: none; background: var(--primary); color: #fff;
+  transition: transform 0.15s;
+}
 .ca-btn:active { transform: scale(0.96); }
+
+/* ── Success screen ── */
+.success-wrap { text-align: center; padding: 30px 0; }
+.success-icon { font-size: 70px; margin-bottom: 12px; }
+.success-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+.success-sub   { color: var(--muted); line-height: 1.6; margin-bottom: 28px; font-size: 14px; }
+
+/* ── Already-registered badge ── */
+.reg-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(76,175,80,0.12); border: 1px solid rgba(76,175,80,0.3);
+  color: var(--success); font-size: 12px; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px; margin-top: 6px;
+}
 </style>
 </head>
 <body>
 
-<!-- Loading Screen -->
+<!-- Loading overlay -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <div id="load-text" style="color:var(--muted); font-weight:600;">กำลังเชื่อมต่อศูนย์ข้อมูล...</div>
+  <div id="load-text" style="color:var(--muted);font-weight:600;">กำลังเชื่อมต่อศูนย์ข้อมูล...</div>
 </div>
 
 <!-- Custom Alert Modal -->
-<div id="custom-alert" class="ca-ov">
+<div id="custom-alert" class="ca-ov" role="dialog" aria-modal="true" aria-labelledby="ca-title">
   <div class="ca-box">
-    <div id="ca-icon" class="ca-icon">⚠️</div>
+    <div id="ca-icon"  class="ca-icon">⚠️</div>
     <div id="ca-title" class="ca-title">แจ้งเตือน</div>
-    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <div id="ca-msg"   class="ca-msg">ข้อความ</div>
     <button class="ca-btn" onclick="closeCustomAlert()">รับทราบ</button>
   </div>
 </div>
 
+<!-- Page header -->
 <div class="header-title dynamic-app-name">Smart Soldier Online</div>
 <div class="header-sub">แบบฟอร์มรายงานตัวกำลังพล (รปจ.)</div>
 
+<!-- Main form container -->
 <div class="container hidden" id="main-ui">
-  <!-- Profile Section -->
+
+  <!-- Profile display -->
   <div class="profile-card">
-    <img src="" id="p-img" class="profile-img" alt="Profile" onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'">
+    <img src="" id="p-img" class="profile-img" alt="รูปโปรไฟล์"
+         onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'">
     <div id="p-name" class="profile-name">-</div>
     <div class="profile-sub">ดึงข้อมูลจาก LINE อัตโนมัติ</div>
+    <!-- [NEW] แสดง badge เมื่อเคยลงทะเบียนแล้ว -->
+    <div id="reg-badge" class="reg-badge hidden">✅ รายงานตัวแล้ว — กำลังแก้ไขข้อมูล</div>
   </div>
 
-  <form id="reg-form" onsubmit="submitForm(event)">
+  <form id="reg-form" novalidate>
+
+    <!-- ยศ -->
     <div class="form-group">
-      <label class="form-label">ยศ (Rank) <span style="color:var(--danger)">*</span></label>
+      <label class="form-label" for="i-rank">
+        ยศ (Rank) <span style="color:var(--danger)">*</span>
+      </label>
       <select id="i-rank" class="form-control" required>
         <option value="" disabled selected>-- เลือกยศ --</option>
-        <option value="พลฯ">พลทหาร (พลฯ)</option>
-        <option value="ส.ต.">สิบตรี (ส.ต.)</option>
-        <option value="ส.ท.">สิบโท (ส.ท.)</option>
-        <option value="ส.อ.">สิบเอก (ส.อ.)</option>
-        <option value="จ.ส.ต.">จ่าสิบตรี (จ.ส.ต.)</option>
-        <option value="จ.ส.ท.">จ่าสิบโท (จ.ส.ท.)</option>
-        <option value="จ.ส.อ.">จ่าสิบเอก (จ.ส.อ.)</option>
-        <option value="ร.ต.">ร้อยตรี (ร.ต.)</option>
-        <option value="ร.ท.">ร้อยโท (ร.ท.)</option>
-        <option value="ร.อ.">ร้อยเอก (ร.อ.)</option>
-        <option value="พ.ต.">พันตรี (พ.ต.)</option>
-        <option value="พ.ท.">พันโท (พ.ท.)</option>
-        <option value="พ.อ.">พันเอก (พ.อ.)</option>
-        <option value="นชท.">นักเรียนช่างฝีมือทหาร (นชท.)</option>
-        <option value="นนส.">นักเรียนนายสิบ (นนส.)</option>
-        <option value="นนร.">นักเรียนนายร้อย (นนร.)</option>
-        <option value="นาย">นาย (พลเรือน)</option>
-        <option value="นาง">นาง (พลเรือน)</option>
-        <option value="นางสาว">นางสาว (พลเรือน)</option>
+        <optgroup label="ทหารชั้นประทวน">
+          <option value="พลฯ">พลทหาร (พลฯ)</option>
+          <option value="ส.ต.">สิบตรี (ส.ต.)</option>
+          <option value="ส.ท.">สิบโท (ส.ท.)</option>
+          <option value="ส.อ.">สิบเอก (ส.อ.)</option>
+          <option value="จ.ส.ต.">จ่าสิบตรี (จ.ส.ต.)</option>
+          <option value="จ.ส.ท.">จ่าสิบโท (จ.ส.ท.)</option>
+          <option value="จ.ส.อ.">จ่าสิบเอก (จ.ส.อ.)</option>
+        </optgroup>
+        <optgroup label="นายทหารสัญญาบัตร">
+          <option value="ร.ต.">ร้อยตรี (ร.ต.)</option>
+          <option value="ร.ท.">ร้อยโท (ร.ท.)</option>
+          <option value="ร.อ.">ร้อยเอก (ร.อ.)</option>
+          <option value="พ.ต.">พันตรี (พ.ต.)</option>
+          <option value="พ.ท.">พันโท (พ.ท.)</option>
+          <option value="พ.อ.">พันเอก (พ.อ.)</option>
+        </optgroup>
+        <optgroup label="นักเรียนทหาร">
+          <option value="นชท.">นักเรียนช่างฝีมือทหาร (นชท.)</option>
+          <option value="นนส.">นักเรียนนายสิบ (นนส.)</option>
+          <option value="นนร.">นักเรียนนายร้อย (นนร.)</option>
+        </optgroup>
+        <optgroup label="พลเรือน">
+          <option value="นาย">นาย</option>
+          <option value="นาง">นาง</option>
+          <option value="นางสาว">นางสาว</option>
+        </optgroup>
       </select>
+      <div id="err-rank" class="field-error">กรุณาเลือกยศ</div>
     </div>
 
+    <!-- ชื่อ-นามสกุล -->
     <div class="form-group">
-      <label class="form-label">ชื่อ - นามสกุล (ไม่ต้องใส่ยศ) <span style="color:var(--danger)">*</span></label>
-      <input type="text" id="i-fullname" class="form-control" placeholder="เช่น ใจดี มีสุข" required>
+      <div class="label-row">
+        <label class="form-label" for="i-fullname">
+          ชื่อ - นามสกุล (ไม่ต้องใส่ยศ) <span style="color:var(--danger)">*</span>
+        </label>
+        <span class="char-hint" id="hint-fullname">0/100</span>
+      </div>
+      <input type="text" id="i-fullname" class="form-control"
+             placeholder="เช่น ใจดี มีสุข" maxlength="100"
+             autocomplete="off" required>
+      <div id="err-fullname" class="field-error">กรุณากรอกชื่อ-นามสกุล</div>
     </div>
 
+    <!-- ชื่อเล่น -->
     <div class="form-group">
-      <label class="form-label">ชื่อเล่น (Nickname)</label>
-      <input type="text" id="i-nickname" class="form-control" placeholder="เช่น ผู้กองเบิร์ด, จ่าแดง (ถ้ามี)">
+      <div class="label-row">
+        <label class="form-label" for="i-nickname">ชื่อเล่น (ถ้ามี)</label>
+        <span class="char-hint" id="hint-nickname">0/50</span>
+      </div>
+      <input type="text" id="i-nickname" class="form-control"
+             placeholder="เช่น จ่าแดง, ผู้กองเบิร์ด" maxlength="50"
+             autocomplete="off">
     </div>
 
+    <!-- ตำแหน่ง/สังกัด -->
     <div class="form-group">
-      <label class="form-label">ตำแหน่ง / สังกัด <span style="color:var(--danger)">*</span></label>
-      <input type="text" id="i-position" class="form-control" placeholder="เช่น ผบ.หมู่ ร.1 พัน.1" required>
+      <div class="label-row">
+        <label class="form-label" for="i-position">
+          ตำแหน่ง / สังกัด <span style="color:var(--danger)">*</span>
+        </label>
+        <span class="char-hint" id="hint-position">0/100</span>
+      </div>
+      <input type="text" id="i-position" class="form-control"
+             placeholder="เช่น ผบ.หมู่ ร.1 พัน.1" maxlength="100"
+             autocomplete="off" required>
+      <div id="err-position" class="field-error">กรุณากรอกตำแหน่ง/สังกัด</div>
     </div>
 
-    <button type="submit" id="btn-submit" class="btn">ยืนยันการรายงานตัว</button>
+    <button type="button" id="btn-submit" class="btn" onclick="submitForm()">
+      ยืนยันการรายงานตัว
+    </button>
+
   </form>
 </div>
 
 <script>
-// >>> เปลี่ยน LIFF_ID และ GAS_URL ให้ตรงกับของคุณ <<<
+// ════════════════════════════════════════════
+//  CONFIG — เปลี่ยน LIFF_ID และ GAS_URL ให้ตรง
+// ════════════════════════════════════════════
 const LIFF_ID = '2009717287-28e2ynXL';   
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let profileData = null;
+// ── State ──────────────────────────────────
+let profileData  = null;
+let isSubmitting = false;  // [FIX] guard ป้องกัน submit ซ้ำ
+let isExisting   = false;  // บอกว่าเป็นการแก้ไขหรือสมัครใหม่
 
-// Custom Alert Function
-function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
-  document.getElementById('ca-icon').textContent = icon;
+// ════════════════════════════════════════════
+//  ALERT HELPERS
+// ════════════════════════════════════════════
+function customAlert(msg, title = 'แจ้งเตือน', icon = '⚠️') {
+  document.getElementById('ca-icon').textContent  = icon;
   document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').innerHTML = msg;
+  // [FIX] ใช้ textContent แทน innerHTML ป้องกัน XSS
+  document.getElementById('ca-msg').textContent   = msg;
   document.getElementById('custom-alert').classList.add('active');
 }
-function closeCustomAlert() { 
-  document.getElementById('custom-alert').classList.remove('active'); 
+function closeCustomAlert() {
+  document.getElementById('custom-alert').classList.remove('active');
 }
 
+// ════════════════════════════════════════════
+//  CHAR COUNTER (real-time)
+// ════════════════════════════════════════════
+function setupCharCounter(inputId, hintId, max) {
+  const input = document.getElementById(inputId);
+  const hint  = document.getElementById(hintId);
+  if (!input || !hint) return;
+  input.addEventListener('input', () => {
+    const len = input.value.length;
+    hint.textContent = `${len}/${max}`;
+    hint.classList.toggle('warn', len >= max * 0.9); // เตือนเมื่อใกล้หมด
+  });
+}
+
+// ════════════════════════════════════════════
+//  VALIDATION
+// ════════════════════════════════════════════
+// [NEW] ตรวจ input ก่อน submit — ไม่พึ่ง browser native validation อย่างเดียว
+function validateForm() {
+  let valid = true;
+
+  // ยศ
+  const rank = document.getElementById('i-rank').value;
+  setFieldError('i-rank', 'err-rank', !rank);
+  if (!rank) valid = false;
+
+  // ชื่อ-นามสกุล: ต้องมีอย่างน้อย 3 ตัวอักษร และมีเว้นวรรค (ชื่อ + นามสกุล)
+  const fullname = document.getElementById('i-fullname').value.trim();
+  const fnOk = fullname.length >= 3 && /\s/.test(fullname);
+  setFieldError('i-fullname', 'err-fullname', !fnOk, fnOk ? '' : 'กรุณากรอกชื่อและนามสกุล (คั่นด้วยเว้นวรรค)');
+  if (!fnOk) valid = false;
+
+  // ตำแหน่ง/สังกัด
+  const position = document.getElementById('i-position').value.trim();
+  setFieldError('i-position', 'err-position', !position);
+  if (!position) valid = false;
+
+  return valid;
+}
+
+function setFieldError(inputId, errId, hasError, customMsg) {
+  const input = document.getElementById(inputId);
+  const err   = document.getElementById(errId);
+  if (!input || !err) return;
+  input.classList.toggle('invalid', hasError);
+  err.classList.toggle('show', hasError);
+  if (hasError && customMsg) err.textContent = customMsg;
+}
+
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
-    
-    // ดึง Config เพื่อโหลดสีและชื่อแอป
-    try {
-      const configRes = await callAPI('GET', { action: 'get_config' });
-      if(configRes.status === 'ok' && configRes.config) {
-        const c = configRes.config;
-        document.documentElement.style.setProperty('--primary', c.colorPrimary);
-        document.documentElement.style.setProperty('--secondary', c.colorSecondary);
-        document.querySelectorAll('.dynamic-app-name').forEach(el => el.textContent = c.appName);
-        document.title = "รายงานตัว - " + c.appName;
-      }
-    } catch(e) { console.log('Config Load Warning:', e); }
 
-    // ดึงข้อมูลโปรไฟล์จาก LINE
+    // ── โหลด config (ไม่ block init ถ้า fail) ──
+    callAPI('GET', { action: 'get_config' }).then(res => {
+      if (res.status === 'ok' && res.config) {
+        applyConfig(res.config);
+      }
+    }).catch(() => { /* ใช้ค่า default ต่อไป */ });
+
+    // ── โหลด LINE profile ──
     profileData = await liff.getProfile();
-    
-    // อัปเดตรูปภาพโปรไฟล์และชื่อลงในหน้าจอ
-    document.getElementById('p-img').src = profileData.pictureUrl || 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
+    document.getElementById('p-img').src =
+      profileData.pictureUrl || 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
     document.getElementById('p-name').textContent = profileData.displayName;
 
-    document.getElementById('load-text').textContent = 'ตรวจสอบประวัติกำลังพล...';
-    
-    // ตรวจสอบประวัติการลงทะเบียน
+    setLoadText('ตรวจสอบประวัติกำลังพล...');
+
+    // ── ตรวจสอบประวัติเดิม ──
     const res = await callAPI('GET', { action: 'get_member', userId: profileData.userId });
-    
     if (res.status === 'ok' && res.member) {
-      // หากเคยลงทะเบียนแล้ว ให้ดึงข้อมูลมาแสดงเป็นค่า Default 
-      document.getElementById('i-rank').value = res.member.rank;
-      document.getElementById('i-fullname').value = res.member.fullName;
-      document.getElementById('i-nickname').value = res.member.nickname || '';
-      document.getElementById('i-position').value = res.member.position;
-      document.getElementById('btn-submit').textContent = 'อัปเดตประวัติกำลังพล';
+      prefillForm(res.member);
     }
 
-    // ปิดหน้าโหลดและแสดงฟอร์ม
+    // ── Setup char counters ──
+    setupCharCounter('i-fullname', 'hint-fullname', 100);
+    setupCharCounter('i-nickname', 'hint-nickname', 50);
+    setupCharCounter('i-position', 'hint-position', 100);
+
+    // ── ล้าง error เมื่อ user เริ่มพิมพ์ ──
+    ['i-rank','i-fullname','i-position'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', () => {
+        setFieldError(id, 'err-' + id.replace('i-',''), false);
+      });
+      document.getElementById(id)?.addEventListener('change', () => {
+        setFieldError(id, 'err-' + id.replace('i-',''), false);
+      });
+    });
+
+    // ── แสดง UI ──
     document.getElementById('ov-load').classList.add('hidden');
     document.getElementById('main-ui').classList.remove('hidden');
 
   } catch(e) {
     document.getElementById('ov-load').classList.add('hidden');
-    customAlert(e.message, 'เชื่อมต่อล้มเหลว', '❌');
+    customAlert(e.message || 'ไม่สามารถเชื่อมต่อได้', 'เชื่อมต่อล้มเหลว', '❌');
   }
 }
 
-async function submitForm(e) {
-  e.preventDefault();
-  if(!profileData) return;
+// ════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════
+function applyConfig(c) {
+  if (c.colorPrimary)   document.documentElement.style.setProperty('--primary', c.colorPrimary);
+  if (c.colorSecondary) document.documentElement.style.setProperty('--secondary', c.colorSecondary);
+  document.querySelectorAll('.dynamic-app-name').forEach(el => el.textContent = c.appName || el.textContent);
+  document.title = 'รายงานตัว - ' + (c.appName || 'Unit School');
+}
 
-  const btn = document.getElementById('btn-submit');
-  btn.disabled = true;
-  btn.textContent = 'กำลังส่งข้อมูล...';
+function prefillForm(member) {
+  isExisting = true;
+  document.getElementById('i-rank').value     = member.rank     || '';
+  document.getElementById('i-fullname').value = member.fullName || '';
+  document.getElementById('i-nickname').value = member.nickname || '';
+  document.getElementById('i-position').value = member.position || '';
+  document.getElementById('btn-submit').textContent = '💾 อัปเดตประวัติกำลังพล';
+  document.getElementById('reg-badge').classList.remove('hidden');
+  // อัปเดต char counters
+  ['fullname','nickname','position'].forEach(k => {
+    const el = document.getElementById('i-' + k);
+    const ht = document.getElementById('hint-' + k);
+    if (el && ht) ht.textContent = `${el.value.length}/${el.maxLength}`;
+  });
+}
+
+function setLoadText(t) {
+  const el = document.getElementById('load-text');
+  if (el) el.textContent = t;
+}
+
+function showLoading(text) {
+  setLoadText(text);
   document.getElementById('ov-load').classList.remove('hidden');
-  document.getElementById('load-text').textContent = 'กำลังบันทึกลงฐานข้อมูล...';
+}
 
-  // เตรียมข้อมูลส่งไปที่ GAS (มีช่อง nickname เพิ่มเข้ามา)
+function hideLoading() {
+  document.getElementById('ov-load').classList.add('hidden');
+}
+
+// ════════════════════════════════════════════
+//  SUBMIT
+// ════════════════════════════════════════════
+async function submitForm() {
+  // [FIX] ป้องกัน double-submit
+  if (isSubmitting || !profileData) return;
+  if (!validateForm()) return;
+
+  isSubmitting = true;
+  const btn = document.getElementById('btn-submit');
+  btn.disabled    = true;
+  btn.textContent = 'กำลังส่งข้อมูล...';
+  showLoading('กำลังบันทึกลงฐานข้อมูล...');
+
   const payload = {
-    action: 'liff_register',
-    userId: profileData.userId,
+    action:      'liff_register',
+    userId:      profileData.userId,
     displayName: profileData.displayName,
-    pictureUrl: profileData.pictureUrl || '', 
-    rank: document.getElementById('i-rank').value,
-    fullName: document.getElementById('i-fullname').value,
-    nickname: document.getElementById('i-nickname').value,
-    position: document.getElementById('i-position').value
+    pictureUrl:  profileData.pictureUrl || '',
+    rank:        document.getElementById('i-rank').value,
+    fullName:    document.getElementById('i-fullname').value.trim(),
+    nickname:    document.getElementById('i-nickname').value.trim(),
+    position:    document.getElementById('i-position').value.trim()
   };
 
   try {
     const res = await callAPI('POST', payload);
-    document.getElementById('ov-load').classList.add('hidden');
-    
-    if(res.status === 'ok') {
-      document.getElementById('main-ui').innerHTML = `
-        <div style="text-align:center; padding: 40px 0;">
-          <div style="font-size:70px; margin-bottom:10px; color:var(--primary);">🎖️</div>
-          <h2 style="color:var(--text); margin-bottom:10px;">รายงานตัวสำเร็จ!</h2>
-          <p style="color:var(--muted); margin-bottom:30px; line-height:1.6;">ระบบได้บันทึกประวัติกำลังพล<br>ของคุณเข้าสู่ฐานข้อมูลเรียบร้อยแล้ว</p>
-          <button class="btn" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>
-        </div>
-      `;
+    hideLoading();
+
+    if (res.status === 'ok') {
+      showSuccess(payload.fullName);
     } else {
-      customAlert(res.message, 'เกิดข้อผิดพลาด', '⚠️');
-      btn.disabled = false;
-      btn.textContent = 'ยืนยันการรายงานตัว';
+      customAlert(res.message || 'เกิดข้อผิดพลาด', 'ส่งข้อมูลไม่สำเร็จ', '⚠️');
+      resetBtn(btn);
     }
   } catch(err) {
-    document.getElementById('ov-load').classList.add('hidden');
-    customAlert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่', 'เชื่อมต่อล้มเหลว', '📡');
-    btn.disabled = false;
-    btn.textContent = 'ยืนยันการรายงานตัว';
+    hideLoading();
+    customAlert('ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่อีกครั้ง', 'เชื่อมต่อล้มเหลว', '📡');
+    resetBtn(btn);
   }
 }
 
-// API Helper 
-async function callAPI(method, params, timeoutMs=15000) {
+function resetBtn(btn) {
+  isSubmitting    = false;
+  btn.disabled    = false;
+  btn.textContent = isExisting ? '💾 อัปเดตประวัติกำลังพล' : 'ยืนยันการรายงานตัว';
+}
+
+function showSuccess(fullName) {
+  document.getElementById('main-ui').innerHTML = `
+    <div class="success-wrap">
+      <div class="success-icon">🎖️</div>
+      <div class="success-title">${isExisting ? 'อัปเดตข้อมูลสำเร็จ!' : 'รายงานตัวสำเร็จ!'}</div>
+      <p class="success-sub">
+        ระบบได้บันทึกประวัติของคุณ<br>
+        <strong style="color:var(--text)">${sanitizeDisplay(fullName)}</strong><br>
+        เข้าสู่ฐานข้อมูลเรียบร้อยแล้ว
+      </p>
+      <button class="btn" onclick="liff.closeWindow()">✕ ปิดหน้าต่าง</button>
+    </div>
+  `;
+}
+
+// [NEW] sanitize สำหรับแสดงผลใน innerHTML — ป้องกัน XSS
+function sanitizeDisplay(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+// ════════════════════════════════════════════
+//  API HELPER
+// ════════════════════════════════════════════
+async function callAPI(method, params, timeoutMs = 15000) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
+    let url  = GAS_URL;
+    let opts = { signal: ctrl.signal, redirect: 'follow' };
     if (method === 'GET') {
       url += '?' + new URLSearchParams(params).toString();
       opts.method = 'GET';
     } else {
       opts.method  = 'POST';
-      opts.headers = { 'Content-Type':'text/plain' };
+      opts.headers = { 'Content-Type': 'text/plain' };
       opts.body    = JSON.stringify(params);
     }
     const resp = await fetch(url, opts);
@@ -272,10 +557,12 @@ async function callAPI(method, params, timeoutMs=15000) {
     return await resp.json();
   } catch(e) {
     clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ (timeout)');
     throw e;
   }
 }
 
+// ── เริ่มต้น ──
 init();
 </script>
 </body>
