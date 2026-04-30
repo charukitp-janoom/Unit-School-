@@ -8,85 +8,91 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=IBM+Plex+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Tactical Theme */
-  --primary: #2e7d32; 
+  --primary:      #2e7d32;
   --primary-dark: #1b5e20;
-  --secondary: #ffca28;
-  --bg: #050505; --surface: #121212; --surf2: #1e1e1e;
-  --border: #333333; --text: #e0e0e0; --muted: #888888;
-  --success: #388e3c; --danger: #d32f2f;
+  --secondary:    #ffca28;
+  --bg:           #050505;
+  --surface:      #121212;
+  --surf2:        #1e1e1e;
+  --border:       #333333;
+  --text:         #e0e0e0;
+  --muted:        #888888;
+  --success:      #388e3c;
+  --danger:       #d32f2f;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
 
-/* Grid Background */
-.bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(255, 202, 40, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 202, 40, 0.05) 1px, transparent 1px); background-size: 20px 20px; z-index: -1;}
+.bg-grid { position:fixed; inset:0; background-image:linear-gradient(rgba(255,202,40,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,202,40,0.04) 1px,transparent 1px); background-size:20px 20px; z-index:-1; }
 
-.top-bar { background: var(--surface); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.5);}
-.t-app { font-weight: 800; font-size: 16px; color: var(--secondary); display: flex; align-items: center; gap: 6px; text-transform: uppercase;}
-.t-coin { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 700; color: var(--secondary); background: rgba(255,202,40,0.1); border: 1px solid rgba(255,202,40,0.3); padding: 4px 12px; border-radius: 20px;}
+/* ── Top bar ── */
+.top-bar { background:var(--surface); padding:14px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+.t-app   { font-weight:800; font-size:16px; color:var(--secondary); display:flex; align-items:center; gap:6px; text-transform:uppercase; }
+.t-coin  { font-family:'IBM Plex Mono',monospace; font-size:16px; font-weight:700; color:var(--secondary); background:rgba(255,202,40,0.1); border:1px solid rgba(255,202,40,0.3); padding:4px 12px; border-radius:20px; }
 
-.main-area { flex: 1; padding: 20px; overflow-y: auto; max-width: 600px; margin: 0 auto; width: 100%;}
-.header-box { text-align: center; margin-bottom: 24px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);}
-.title { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 5px; text-transform: uppercase;}
-.subtitle { font-size: 14px; color: var(--muted); }
+/* ── Main ── */
+.main-area { flex:1; padding:18px; overflow-y:auto; max-width:600px; margin:0 auto; width:100%; }
 
-/* Quest Cards */
-.quest-list { display: flex; flex-direction: column; gap: 16px; }
-.quest-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: 0.2s; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.4);}
-.quest-card.completed { border-color: var(--success); background: rgba(56,142,60,0.05); }
-.quest-card.claimed { opacity: 0.6; filter: grayscale(50%); pointer-events: none; }
+.header-box { text-align:center; margin-bottom:22px; padding:18px; background:var(--surface); border:1px solid var(--border); border-radius:16px; box-shadow:0 4px 15px rgba(0,0,0,0.3); }
+.title    { font-size:22px; font-weight:800; color:var(--text); margin-bottom:4px; text-transform:uppercase; }
+.subtitle { font-size:13px; color:var(--muted); line-height:1.5; }
 
-.q-header { display: flex; justify-content: space-between; align-items: flex-start; }
-.q-title { font-size: 16px; font-weight: 700; color: var(--text); }
-.q-reward { font-family: 'IBM Plex Mono'; font-weight: 800; color: var(--secondary); background: rgba(255,202,40,0.1); padding: 4px 8px; border-radius: 6px; font-size: 13px; border: 1px solid rgba(255,202,40,0.2);}
+/* ── Quest cards ── */
+.quest-list { display:flex; flex-direction:column; gap:14px; }
+.quest-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:10px; transition:border-color 0.2s; box-shadow:0 4px 10px rgba(0,0,0,0.4); }
+.quest-card.completed { border-color:var(--success); background:rgba(56,142,60,0.05); }
+.quest-card.claimed   { opacity:0.55; filter:grayscale(50%); pointer-events:none; }
 
-/* Progress Bar */
-.prog-wrap { display: flex; align-items: center; gap: 12px; }
-.prog-bar { flex: 1; height: 8px; background: var(--surf2); border-radius: 4px; overflow: hidden; border: 1px solid var(--border);}
-.prog-fill { height: 100%; background: var(--primary); transition: width 0.5s ease-out; }
-.quest-card.completed .prog-fill { background: var(--success); }
-.prog-text { font-family: 'IBM Plex Mono'; font-size: 13px; font-weight: 700; color: var(--muted); width: 45px; text-align: right;}
-.quest-card.completed .prog-text { color: var(--success); }
+.q-header { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+.q-title  { font-size:15px; font-weight:700; color:var(--text); line-height:1.4; flex:1; }
+.q-reward { font-family:'IBM Plex Mono'; font-weight:800; color:var(--secondary); background:rgba(255,202,40,0.1); padding:4px 8px; border-radius:6px; font-size:13px; border:1px solid rgba(255,202,40,0.2); white-space:nowrap; flex-shrink:0; }
 
-/* Buttons */
-.btn { width: 100%; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; text-transform: uppercase;}
-.btn:active { transform: scale(0.96); }
-.btn-claim { background: linear-gradient(135deg, var(--secondary), #f57f17); color: #000; box-shadow: 0 4px 15px rgba(255,202,40,0.3); }
-.btn-disabled { background: var(--surf2); color: var(--muted); border: 1px solid var(--border); pointer-events: none; }
+/* ── Progress bar ── */
+.prog-wrap { display:flex; align-items:center; gap:10px; }
+.prog-bar  { flex:1; height:8px; background:var(--surf2); border-radius:4px; overflow:hidden; border:1px solid var(--border); }
+.prog-fill { height:100%; background:var(--primary); border-radius:4px; transition:width 0.6s ease-out; }
+.quest-card.completed .prog-fill { background:var(--success); }
+.prog-text { font-family:'IBM Plex Mono'; font-size:13px; font-weight:700; color:var(--muted); width:40px; text-align:right; flex-shrink:0; }
+.quest-card.completed .prog-text { color:var(--success); }
 
-/* Custom Modal Alert */
-.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
-.ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.ca-ov.active .ca-box { transform: scale(1); }
-.ca-icon { font-size: 50px; margin-bottom: 15px; line-height: 1; }
-.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
-.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
-.ca-btn { width: 100%; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; background: var(--primary); color: #fff;}
+/* ── Buttons ── */
+.btn         { width:100%; padding:11px; border-radius:8px; font-size:14px; font-weight:800; font-family:'Sarabun'; cursor:pointer; transition:transform 0.15s; border:none; text-transform:uppercase; }
+.btn:active  { transform:scale(0.96); }
+.btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+.btn-claim   { background:linear-gradient(135deg,var(--secondary),#f57f17); color:#000; box-shadow:0 4px 15px rgba(255,202,40,0.3); }
+.btn-muted   { background:var(--surf2); color:var(--muted); border:1px solid var(--border); pointer-events:none; }
 
-/* Loaders */
-.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.hidden { display: none !important; opacity: 0; pointer-events: none; }
+/* ── Overlay ── */
+.ov      { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; }
+.spinner { width:44px; height:44px; border:4px solid var(--border); border-top:4px solid var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:14px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.hidden { display:none !important; }
+
+/* ── Custom modal ── */
+.ca-ov { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(3px); }
+.ca-ov.active { opacity:1; pointer-events:auto; }
+.ca-box { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:30px 22px; width:100%; max-width:320px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.5); transform:scale(0.9); transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275); }
+.ca-ov.active .ca-box { transform:scale(1); }
+.ca-icon  { font-size:50px; margin-bottom:14px; line-height:1; }
+.ca-title { font-size:19px; font-weight:800; color:var(--text); margin-bottom:8px; text-transform:uppercase; }
+.ca-msg   { font-size:14px; color:var(--muted); margin-bottom:22px; line-height:1.5; }
+.ca-btn   { width:100%; padding:12px 0; border-radius:10px; font-size:15px; font-weight:800; font-family:'Sarabun'; cursor:pointer; transition:0.15s; border:none; background:var(--primary); color:#fff; }
+.ca-btn:active { transform:scale(0.96); }
 </style>
 </head>
 <body>
 <div class="bg-grid"></div>
 
-<!-- Loading -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <div style="font-weight:700; color:var(--muted);" id="load-msg">กำลังตรวจสอบคำสั่ง...</div>
+  <div id="ov-text" style="font-weight:700;color:var(--muted);">กำลังตรวจสอบคำสั่ง...</div>
 </div>
 
-<!-- Custom Alert -->
-<div id="custom-alert" class="ca-ov">
+<div id="custom-alert" class="ca-ov" role="dialog" aria-modal="true">
   <div class="ca-box">
-    <div id="ca-icon" class="ca-icon">⚠️</div>
+    <div id="ca-icon"  class="ca-icon">⚠️</div>
     <div id="ca-title" class="ca-title">แจ้งเตือน</div>
-    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <div id="ca-msg"   class="ca-msg">ข้อความ</div>
     <button class="ca-btn" onclick="document.getElementById('custom-alert').classList.remove('active')">รับทราบ</button>
   </div>
 </div>
@@ -98,56 +104,63 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 
 <div class="main-area">
   <div class="header-box">
-    <div style="font-size:50px; margin-bottom:10px;">📋</div>
+    <div style="font-size:48px;margin-bottom:8px;">📋</div>
     <div class="title">ภารกิจฝึกฝนประจำวัน</div>
     <div class="subtitle">ทำภารกิจให้สำเร็จเพื่อรับ "เหรียญ PX"<br>รีเซ็ตคำสั่งใหม่ทุกวันเวลา 00:00 น.</div>
   </div>
 
-  <div class="quest-list" id="q-list">
-    <!-- Quests will be rendered here -->
-  </div>
-  
-  <button class="btn" style="background:transparent; border:1px solid var(--border); color:var(--muted); margin-top:24px;" onclick="liff.closeWindow()">← กลับศูนย์บัญชาการ</button>
+  <div class="quest-list" id="q-list"></div>
+
+  <button class="btn" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:22px;" onclick="liff.closeWindow()">← กลับศูนย์บัญชาการ</button>
 </div>
 
 <script>
-const LIFF_ID = '2009717287-htEMqY79'; // << [ใส่ LIFF ID ของหน้าภารกิจ]
+const LIFF_ID = '2009717287-htEMqY79';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let userId = '';
+let userId       = '';
+let isClaiming   = false; // [FIX] guard ป้องกัน claim ซ้ำ
 
-function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
-  document.getElementById('ca-icon').textContent = icon;
+// ── Modal ──────────────────────────────────
+function customAlert(msg, title = 'แจ้งเตือน', icon = '⚠️') {
+  document.getElementById('ca-icon').textContent  = icon;
   document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').innerHTML = msg;
+  // [FIX] ใช้ textContent ป้องกัน XSS
+  document.getElementById('ca-msg').textContent   = msg;
   document.getElementById('custom-alert').classList.add('active');
 }
 
+// ── Loading helpers ──────────────────────────
+function showOv(text) {
+  document.getElementById('ov-text').textContent = text || 'กำลังโหลด...';
+  document.getElementById('ov-load').classList.remove('hidden');
+}
+function hideOv() { document.getElementById('ov-load').classList.add('hidden'); }
+
+// ── Init ────────────────────────────────────
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
-    
     userId = (await liff.getProfile()).userId;
     await loadQuests();
-    
   } catch(e) {
-    document.getElementById('ov-load').innerHTML = `<div style="font-size:50px;">⚠️</div><p style="color:var(--danger); margin-top:10px;">${e.message}</p>`;
+    hideOv();
+    customAlert(e.message || 'เชื่อมต่อล้มเหลว', 'ข้อผิดพลาด', '❌');
   }
 }
 
 async function loadQuests() {
-  document.getElementById('ov-load').classList.remove('hidden');
+  showOv('กำลังตรวจสอบคำสั่ง...');
   try {
-    const res = await callAPI('GET', { action: 'get_quests', userId: userId });
+    const res = await callAPI('GET', { action:'get_quests', userId });
     if (res.status !== 'ok') throw new Error(res.message);
-    
+
     document.getElementById('u-coin').textContent = `🪙 ${res.balance || 0}`;
     renderQuests(res.quests || []);
-    
-    document.getElementById('ov-load').classList.add('hidden');
+    hideOv();
   } catch(e) {
-    document.getElementById('ov-load').classList.add('hidden');
+    hideOv();
     customAlert(e.message, 'การเชื่อมต่อล้มเหลว', '📡');
   }
 }
@@ -155,73 +168,94 @@ async function loadQuests() {
 function renderQuests(quests) {
   const list = document.getElementById('q-list');
   list.innerHTML = '';
-  
-  if(quests.length === 0) {
-    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">ไม่มีคำสั่งในวันนี้</div>';
+
+  if (!quests.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;">ไม่มีคำสั่งในวันนี้</div>';
     return;
   }
-  
+
   quests.forEach(q => {
     const pct = Math.min(100, Math.max(0, (q.current / q.target) * 100));
+
     let cardClass = 'quest-card';
-    let btnHtml = '';
-    
+    let btnHtml   = '';
     if (q.isClaimed) {
       cardClass += ' claimed';
-      btnHtml = `<button class="btn btn-disabled">รับรางวัลแล้ว</button>`;
+      btnHtml = '<button class="btn btn-muted" disabled>รับรางวัลแล้ว ✓</button>';
     } else if (q.isCompleted) {
       cardClass += ' completed';
-      btnHtml = `<button class="btn btn-claim" onclick="claimQuest('${q.id}')">🎁 รับรางวัล</button>`;
+      btnHtml = `<button class="btn btn-claim" onclick="claimQuest('${escH(q.id)}')">🎁 รับรางวัล</button>`;
     } else {
-      btnHtml = `<button class="btn btn-disabled">ยังไม่สำเร็จ</button>`;
+      btnHtml = '<button class="btn btn-muted" disabled>ยังไม่สำเร็จ</button>';
     }
-    
-    list.innerHTML += `
-      <div class="${cardClass}">
-        <div class="q-header">
-          <div class="q-title">${q.title}</div>
-          <div class="q-reward">+${q.reward} PX</div>
-        </div>
-        <div class="prog-wrap">
-          <div class="prog-bar"><div class="prog-fill" style="width: ${pct}%;"></div></div>
-          <div class="prog-text">${q.current}/${q.target}</div>
-        </div>
-        ${btnHtml}
+
+    const card = document.createElement('div');
+    card.className = cardClass;
+    // [FIX] สร้าง DOM แทน innerHTML string เพื่อป้องกัน XSS
+    card.innerHTML = `
+      <div class="q-header">
+        <div class="q-title">${escH(q.title)}</div>
+        <div class="q-reward">+${Number(q.reward)} PX</div>
       </div>
-    `;
+      <div class="prog-wrap">
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;"></div></div>
+        <div class="prog-text">${q.current}/${q.target}</div>
+      </div>
+      <div class="btn-wrap">${btnHtml}</div>`;
+    list.appendChild(card);
   });
 }
 
 async function claimQuest(questId) {
-  document.getElementById('ov-load').classList.remove('hidden');
-  document.getElementById('load-msg').textContent = 'กำลังขอเบิกรางวัล...';
+  // [FIX] guard ป้องกัน claim ซ้ำขณะ API ยังไม่ตอบ
+  if (isClaiming) return;
+  isClaiming = true;
+  showOv('กำลังขอเบิกรางวัล...');
   try {
-    const res = await callAPI('POST', { action: 'claim_quest', userId: userId, questId: questId });
-    if(res.status === 'ok') {
+    const res = await callAPI('POST', { action:'claim_quest', userId, questId });
+    if (res.status === 'ok') {
       customAlert(res.message, 'เบิกรางวัลสำเร็จ', '✅');
-      await loadQuests(); // โหลดข้อมูลใหม่เพื่ออัปเดตปุ่มและยอดเงิน
+      // [FIX] โหลดใหม่ทันทีหลัง claim สำเร็จ (ของเดิมต้อง reload ทั้งหน้า)
+      await loadQuests();
     } else {
       throw new Error(res.message);
     }
   } catch(e) {
-    document.getElementById('ov-load').classList.add('hidden');
+    hideOv();
     customAlert(e.message, 'ผิดพลาด', '❌');
+  } finally {
+    isClaiming = false;
   }
 }
 
-async function callAPI(method, params, timeoutMs=20000) {
+// ── Helpers ─────────────────────────────────
+function escH(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+async function callAPI(method, params, timeoutMs = 20000) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; } 
-    else { opts.method  = 'POST'; opts.headers = { 'Content-Type':'text/plain' }; opts.body = JSON.stringify(params); }
+    let url  = GAS_URL;
+    let opts = { signal:ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
     const resp = await fetch(url, opts);
     clearTimeout(tid);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return await resp.json();
   } catch(e) {
     clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ');
     throw e;
   }
 }
@@ -230,4 +264,3 @@ init();
 </script>
 </body>
 </html>
-
