@@ -8,88 +8,94 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Tactical Theme */
-  --primary: #2e7d32; 
+  --primary:      #2e7d32;
   --primary-dark: #1b5e20;
-  --secondary: #ffca28;
-  --bg: #0a0a0a; --surface: #121212; --surf2: #1e1e1e;
-  --border: #333333; --text: #e0e0e0; --muted: #888888;
-  
-  --pdf: #ff5252;    /* Red for PDF */
-  --video: #ffca28;  /* Gold for Video */
-  --link: #4caf50;   /* Green for Links */
+  --secondary:    #ffca28;
+  --bg:           #0a0a0a;
+  --surface:      #121212;
+  --surf2:        #1e1e1e;
+  --border:       #333333;
+  --text:         #e0e0e0;
+  --muted:        #888888;
+  --pdf:          #ff5252;
+  --video:        #ffca28;
+  --link:         #4caf50;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
 
-/* Background effect */
-.bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 20px 20px; z-index: -1;}
+.bg-grid { position:fixed; inset:0; background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px); background-size:20px 20px; z-index:-1; }
 
-/* Loaders */
-.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.hidden { display: none !important; opacity: 0; pointer-events: none; }
+/* ── Loading ── */
+.ov      { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; }
+.spinner { width:44px; height:44px; border:4px solid var(--border); border-top:4px solid var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:14px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.hidden { display:none !important; }
 
-/* Custom Modal Alert */
-.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
-.ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.ca-ov.active .ca-box { transform: scale(1); }
-.ca-icon { font-size: 60px; margin-bottom: 15px; line-height: 1; }
-.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
-.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
-.ca-btn { width: 100%; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(46,125,50,0.3);}
-.ca-btn:active { transform: scale(0.96); box-shadow: none;}
+/* ── Alert modal ── */
+.ca-ov { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(3px); }
+.ca-ov.active { opacity:1; pointer-events:auto; }
+.ca-box { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:30px 22px; width:100%; max-width:320px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.5); transform:scale(0.9); transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275); }
+.ca-ov.active .ca-box { transform:scale(1); }
+.ca-icon  { font-size:58px; margin-bottom:14px; line-height:1; }
+.ca-title { font-size:19px; font-weight:800; color:var(--text); margin-bottom:8px; text-transform:uppercase; }
+.ca-msg   { font-size:14px; color:var(--muted); margin-bottom:22px; line-height:1.5; }
+.ca-btn   { width:100%; padding:12px 0; border-radius:10px; font-size:15px; font-weight:800; font-family:'Sarabun'; cursor:pointer; transition:0.15s; border:none; background:var(--primary); color:#fff; }
+.ca-btn:active { transform:scale(0.96); }
 
-/* UI Structure */
-.top-bar { background: var(--surface); padding: 16px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5);}
-.t-app { font-weight: 800; font-size: 18px; color: var(--secondary); display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px;}
-.t-close { background: transparent; border: 1px solid var(--border); color: var(--text); font-family: 'Sarabun'; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+/* ── Top bar ── */
+.top-bar { background:var(--surface); padding:15px 20px; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+.t-app   { font-weight:800; font-size:17px; color:var(--secondary); display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:0.5px; }
+.t-close { background:transparent; border:1px solid var(--border); color:var(--text); font-family:'Sarabun'; font-size:12px; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer; }
 
-.filter-bar { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; background: var(--bg); border-bottom: 1px solid var(--border); }
-.filter-bar::-webkit-scrollbar { display: none; }
-.f-btn { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; background: var(--surface); border: 1px solid var(--border); color: var(--muted); cursor: pointer; white-space: nowrap; transition: 0.2s; }
-.f-btn.active { background: rgba(46,125,50,0.15); border-color: var(--primary); color: var(--primary); }
+/* ── Filter bar ── */
+.filter-bar { display:flex; gap:8px; padding:10px 14px; overflow-x:auto; background:var(--bg); border-bottom:1px solid var(--border); }
+.filter-bar::-webkit-scrollbar { display:none; }
+.f-btn { padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; background:var(--surface); border:1px solid var(--border); color:var(--muted); cursor:pointer; white-space:nowrap; transition:0.15s; user-select:none; }
+.f-btn.active { background:rgba(46,125,50,0.15); border-color:var(--primary); color:var(--primary); }
 
-.main-area { flex: 1; padding: 16px; overflow-y: auto; }
-.grid-lib { display: grid; grid-template-columns: 1fr; gap: 12px; }
+/* ── Search bar ── */
+.search-wrap { padding:10px 14px; background:var(--bg); border-bottom:1px solid var(--border); }
+.search-input { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:8px; font-family:'Sarabun'; font-size:15px; outline:none; transition:border-color 0.2s; }
+.search-input:focus { border-color:var(--primary); }
+.search-input::placeholder { color:var(--muted); }
 
-/* Cards */
-.lib-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);}
-.lib-card:active { transform: scale(0.98); background: var(--surf2); }
-.icon-box { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; color: #fff;}
-.icon-pdf { background: linear-gradient(135deg, var(--pdf), #b71c1c); box-shadow: 0 4px 10px rgba(255,82,82,0.3);}
-.icon-video { background: linear-gradient(135deg, var(--video), #f57f17); box-shadow: 0 4px 10px rgba(255,202,40,0.3);}
-.icon-link { background: linear-gradient(135deg, var(--link), #1b5e20); box-shadow: 0 4px 10px rgba(76,175,80,0.3);}
+/* ── Grid ── */
+.main-area { flex:1; padding:14px; overflow-y:auto; }
+.grid-lib  { display:grid; grid-template-columns:1fr; gap:10px; }
 
-.lib-content { flex: 1; overflow: hidden; }
-.lib-title { font-weight: 700; font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
-.lib-cat { font-size: 11px; font-weight: 800; color: var(--muted); background: var(--bg); padding: 2px 6px; border-radius: 4px; display: inline-block; border: 1px solid var(--border);}
+/* ── Cards ── */
+.lib-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:15px; display:flex; gap:12px; align-items:center; cursor:pointer; transition:transform 0.15s, background 0.15s; box-shadow:0 4px 10px rgba(0,0,0,0.2); }
+.lib-card:active { transform:scale(0.98); background:var(--surf2); }
+.icon-box  { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.icon-pdf  { background:linear-gradient(135deg,var(--pdf),#b71c1c); box-shadow:0 4px 10px rgba(255,82,82,0.3); }
+.icon-video{ background:linear-gradient(135deg,var(--video),#f57f17); box-shadow:0 4px 10px rgba(255,202,40,0.3); }
+.icon-link { background:linear-gradient(135deg,var(--link),#1b5e20); box-shadow:0 4px 10px rgba(76,175,80,0.3); }
+.lib-content { flex:1; overflow:hidden; }
+.lib-title   { font-weight:700; font-size:15px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; }
+.lib-cat     { font-size:11px; font-weight:800; color:var(--muted); background:var(--bg); padding:2px 6px; border-radius:4px; display:inline-block; border:1px solid var(--border); }
 
-/* Video Modal */
-.modal-video { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; padding: 20px; }
-.modal-video.show { opacity: 1; pointer-events: auto; }
-.video-wrap { width: 100%; max-width: 600px; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid var(--border);}
-.close-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); transition: 0.2s;}
-.close-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+/* ── Video modal ── */
+.modal-video { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:1000; display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; padding:20px; }
+.modal-video.show { opacity:1; pointer-events:auto; }
+.video-wrap { width:100%; max-width:600px; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,0.8); border:1px solid var(--border); }
+.close-btn { position:absolute; top:18px; right:18px; background:rgba(255,255,255,0.1); border:none; color:#fff; width:38px; height:38px; border-radius:50%; font-size:18px; display:flex; align-items:center; justify-content:center; cursor:pointer; backdrop-filter:blur(4px); transition:0.2s; }
+.close-btn:active { background:rgba(255,255,255,0.2); }
 </style>
 </head>
 <body>
 <div class="bg-grid"></div>
 
-<!-- Loading -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <div style="color:var(--muted); font-weight:700;">กำลังรวบรวมยุทโธปกรณ์...</div>
+  <div style="color:var(--muted);font-weight:700;">กำลังรวบรวมยุทโธปกรณ์...</div>
 </div>
 
-<!-- Custom Alert -->
-<div id="custom-alert" class="ca-ov">
+<div id="custom-alert" class="ca-ov" role="dialog" aria-modal="true">
   <div class="ca-box">
-    <div id="ca-icon" class="ca-icon">⚠️</div>
+    <div id="ca-icon"  class="ca-icon">⚠️</div>
     <div id="ca-title" class="ca-title">แจ้งเตือน</div>
-    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <div id="ca-msg"   class="ca-msg">ข้อความ</div>
     <button class="ca-btn" onclick="document.getElementById('custom-alert').classList.remove('active')">รับทราบ</button>
   </div>
 </div>
@@ -99,65 +105,84 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
   <button class="t-close" onclick="liff.closeWindow()">กลับศูนย์ข้อมูล</button>
 </div>
 
-<div class="filter-bar" id="filter-bar">
-  <!-- Categories injected here -->
+<!-- [NEW] Search bar -->
+<div class="search-wrap">
+  <input type="search" class="search-input" id="search-input"
+         placeholder="🔍 ค้นหาตำรา / ยุทโธปกรณ์..."
+         oninput="onSearch(this.value)">
 </div>
+
+<div class="filter-bar" id="filter-bar"></div>
 
 <div class="main-area">
   <div class="grid-lib" id="lib-list"></div>
 </div>
 
-<!-- Video Modal -->
-<div id="modal-video" class="modal-video" onclick="closeVideo(event)">
-  <button class="close-btn" onclick="closeVideo(event)">✕</button>
+<!-- Video modal -->
+<div id="modal-video" class="modal-video">
+  <button class="close-btn" id="close-video-btn" aria-label="ปิดวิดีโอ">✕</button>
   <div class="video-wrap">
-    <iframe id="video-frame" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <iframe id="video-frame" width="100%" height="100%" src="" frameborder="0"
+            allow="autoplay; encrypted-media" allowfullscreen title="วิดีโอ"></iframe>
   </div>
 </div>
 
 <script>
-const LIFF_ID = '2009717287-o7MWqsbp'; // << [ใส่ LIFF ID ของหน้า Library]
+const LIFF_ID = '2009717287-o7MWqsbp';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let materials = [];
-let currentFilter = 'ALL';
+let materials      = [];
+let currentFilter  = 'ALL';
+let currentSearch  = '';
 
-function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
-  document.getElementById('ca-icon').textContent = icon;
+// ── Alert ───────────────────────────────────
+function customAlert(msg, title = 'แจ้งเตือน', icon = '⚠️') {
+  document.getElementById('ca-icon').textContent  = icon;
   document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').innerHTML = msg;
+  document.getElementById('ca-msg').textContent   = msg;
   document.getElementById('custom-alert').classList.add('active');
 }
 
+// ── Init ────────────────────────────────────
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
-    
-    const res = await callAPI('GET', { action: 'get_library_data' });
+
+    const res = await callAPI('GET', { action:'get_library_data' });
     if (res.status === 'error') throw new Error(res.message);
-    
+
     materials = res.materials || [];
     renderFilters();
     renderList();
-    
     document.getElementById('ov-load').classList.add('hidden');
   } catch(e) {
     document.getElementById('ov-load').classList.add('hidden');
-    customAlert(e.message, 'การเชื่อมต่อขัดข้อง', '📡');
+    customAlert(e.message || 'โหลดข้อมูลล้มเหลว', 'การเชื่อมต่อขัดข้อง', '📡');
   }
 }
 
+// ── Filter ──────────────────────────────────
 function renderFilters() {
-  const bar = document.getElementById('filter-bar');
-  const cats = [...new Set(materials.map(m => m.category || 'รปป.'))];
-  
-  let html = `<div class="f-btn active" onclick="setFilter('ALL', this)">ทั้งหมด (${materials.length})</div>`;
+  const bar  = document.getElementById('filter-bar');
+  const cats = [...new Set(materials.map(m => m.category || 'ทั่วไป'))];
+
+  bar.innerHTML = '';
+  const allBtn = makeFilterBtn('ALL', `ทั้งหมด (${materials.length})`, true);
+  bar.appendChild(allBtn);
+
   cats.forEach(c => {
-    const count = materials.filter(m => (m.category || 'รปป.') === c).length;
-    html += `<div class="f-btn" onclick="setFilter('${escapeHtml(c)}', this)">${escapeHtml(c)} (${count})</div>`;
+    const count = materials.filter(m => (m.category || 'ทั่วไป') === c).length;
+    bar.appendChild(makeFilterBtn(c, `${c} (${count})`));
   });
-  bar.innerHTML = html;
+}
+
+function makeFilterBtn(cat, label, active = false) {
+  const btn = document.createElement('div');
+  btn.className   = 'f-btn' + (active ? ' active' : '');
+  btn.textContent = label;
+  btn.onclick     = () => setFilter(cat, btn);
+  return btn;
 }
 
 function setFilter(cat, el) {
@@ -167,87 +192,145 @@ function setFilter(cat, el) {
   renderList();
 }
 
+// ── Search ──────────────────────────────────
+function onSearch(val) {
+  currentSearch = val.trim().toLowerCase();
+  renderList();
+}
+
+// ── Render ──────────────────────────────────
 function renderList() {
   const list = document.getElementById('lib-list');
   list.innerHTML = '';
-  
+
   let filtered = materials;
   if (currentFilter !== 'ALL') {
-    filtered = materials.filter(m => (m.category || 'รปป.') === currentFilter);
+    filtered = filtered.filter(m => (m.category || 'ทั่วไป') === currentFilter);
   }
-  
-  if (filtered.length === 0) {
-    list.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:14px; margin-top:20px;">ไม่พบข้อมูลยุทโธปกรณ์/สื่อในหมวดนี้</div>';
+  if (currentSearch) {
+    filtered = filtered.filter(m =>
+      m.title.toLowerCase().includes(currentSearch) ||
+      (m.category || '').toLowerCase().includes(currentSearch)
+    );
+  }
+
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:14px;margin-top:20px;">ไม่พบสื่อในหมวดนี้</div>';
     return;
   }
-  
+
   filtered.forEach(m => {
-    let iconClass = 'icon-link';
-    let iconEmoji = '🔗';
-    
-    if (m.type === 'PDF') { iconClass = 'icon-pdf'; iconEmoji = '📄'; }
-    else if (m.type === 'VIDEO') { iconClass = 'icon-video'; iconEmoji = '▶️'; }
-    
-    list.innerHTML += `
-      <div class="lib-card" onclick="handleItemClick('${escapeHtml(m.type)}', '${escapeHtml(m.url)}')">
-        <div class="icon-box ${iconClass}">${iconEmoji}</div>
-        <div class="lib-content">
-          <div class="lib-title">${escapeHtml(m.title)}</div>
-          <div class="lib-cat">${escapeHtml(m.category || 'ทั่วไป')}</div>
-        </div>
-      </div>
-    `;
+    let iconClass = 'icon-link', iconEmoji = '🔗';
+    if (m.type === 'PDF')   { iconClass = 'icon-pdf';   iconEmoji = '📄'; }
+    if (m.type === 'VIDEO') { iconClass = 'icon-video';  iconEmoji = '▶️'; }
+
+    const card = document.createElement('div');
+    card.className = 'lib-card';
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+
+    const iconEl = document.createElement('div');
+    iconEl.className = `icon-box ${iconClass}`;
+    iconEl.textContent = iconEmoji;
+
+    const content = document.createElement('div');
+    content.className = 'lib-content';
+
+    const title = document.createElement('div');
+    title.className   = 'lib-title';
+    title.textContent = m.title;
+
+    const cat = document.createElement('div');
+    cat.className   = 'lib-cat';
+    cat.textContent = m.category || 'ทั่วไป';
+
+    content.appendChild(title);
+    content.appendChild(cat);
+    card.appendChild(iconEl);
+    card.appendChild(content);
+
+    // [FIX] ผูก click handler ผ่าน addEventListener ไม่ใช่ onclick attribute
+    card.addEventListener('click', () => handleItemClick(m.type, m.url));
+    card.addEventListener('keydown', e => { if (e.key === 'Enter') handleItemClick(m.type, m.url); });
+
+    list.appendChild(card);
   });
 }
 
+// ── Handle click ────────────────────────────
 function handleItemClick(type, url) {
   if (type === 'VIDEO') {
-    // แยก YouTube ID แล้วสร้าง Embed URL
-    let videoId = '';
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/);
-    if (match && match[1]) { videoId = match[1]; }
-    
+    const videoId = extractYouTubeId(url);
     if (videoId) {
-      document.getElementById('video-frame').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-      document.getElementById('modal-video').classList.add('show');
-    } else {
-      openMaterial(url);
+      openVideoModal(videoId);
+      return;
     }
-  } else {
-    openMaterial(url);
   }
+  liff.openWindow({ url, external: true });
 }
 
-function closeVideo(e) {
-  if (e && e.target.id !== 'modal-video' && e.target.className !== 'close-btn') return;
-  document.getElementById('video-frame').src = ''; 
-  document.getElementById('modal-video').classList.remove('show');
+function extractYouTubeId(url) {
+  const m = String(url).match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?#]{11})/
+  );
+  return m ? m[1] : null;
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[c]));
+// ── Video modal ─────────────────────────────
+// [FIX] ปิด video ด้วย src='' และ remove listener properly
+function openVideoModal(videoId) {
+  const frame  = document.getElementById('video-frame');
+  const modal  = document.getElementById('modal-video');
+  frame.src    = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
 }
 
-function openMaterial(url) {
-  liff.openWindow({ url: url, external: true });
+function closeVideoModal() {
+  const frame = document.getElementById('video-frame');
+  const modal = document.getElementById('modal-video');
+  // [FIX] set src='' ก่อน ป้องกัน audio ยังเล่นอยู่หลังปิด modal
+  frame.src   = '';
+  modal.classList.remove('show');
+  document.body.style.overflow = '';
 }
 
-async function callAPI(method, params, timeoutMs=20000) {
+// close button
+document.getElementById('close-video-btn').addEventListener('click', closeVideoModal);
+
+// [FIX] กด backdrop ปิด modal (ของเดิมใช้ onclick=closeVideo(event) ที่ตรวจ target ผิดพลาดได้)
+document.getElementById('modal-video').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-video')) closeVideoModal();
+});
+
+// [FIX] กด Back ของ OS ปิด modal แทนออกจากหน้า
+window.addEventListener('popstate', () => {
+  const modal = document.getElementById('modal-video');
+  if (modal.classList.contains('show')) closeVideoModal();
+});
+
+// ── API ─────────────────────────────────────
+async function callAPI(method, params, timeoutMs = 20000) {
   const ctrl = new AbortController();
   const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; } 
-    else { opts.method  = 'POST'; opts.headers = { 'Content-Type':'text/plain' }; opts.body = JSON.stringify(params); }
+    let url  = GAS_URL;
+    let opts = { signal:ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
     const resp = await fetch(url, opts);
     clearTimeout(tid);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return await resp.json();
   } catch(e) {
     clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ');
     throw e;
   }
 }
