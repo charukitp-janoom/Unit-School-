@@ -2,128 +2,375 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
+<!-- ป้องกันการซูมหน้าจอเมื่อผู้ใช้พิมพ์ในช่องค้นหา (เฉพาะ Mobile App) -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>คลังตำราและยุทโธปกรณ์</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* ── 1. Design Tokens & Variables (ธีมสีสไตล์แอปสมัยใหม่) ── */
 :root {
   --primary:      #2e7d32;
-  --primary-dark: #1b5e20;
+  --primary-soft: rgba(46, 125, 50, 0.15);
   --secondary:    #ffca28;
-  --bg:           #0a0a0a;
-  --surface:      #121212;
-  --surf2:        #1e1e1e;
-  --border:       #333333;
-  --text:         #e0e0e0;
-  --muted:        #888888;
-  --pdf:          #ff5252;
-  --video:        #ffca28;
-  --link:         #4caf50;
+  --bg-app:       #0f0f13; /* ปรับสีพื้นหลังให้เป็นสีเทาเข้มแบบแอป */
+  --surface:      #1c1c1e; /* สีของการ์ด ให้เด้งออกมาจากพื้นหลัง */
+  --surface-hover:#2c2c2e;
+  --border:       rgba(255, 255, 255, 0.08);
+  --text-main:    #ffffff;
+  --text-muted:   #98989d; /* สีรองที่อ่านง่าย */
+  --icon-pdf:     #ff453a;
+  --icon-video:   #ff9f0a;
+  --icon-link:    #32d74b;
+  
+  --spacing-sm:   8px;
+  --spacing-md:   16px; /* มาตรฐาน Spacing สำหรับ Mobile */
+  --spacing-lg:   24px;
+  --radius-md:    12px;
+  --radius-lg:    16px; /* มุมโค้งแบบแอป iOS/Android ใหม่ */
 }
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
 
-.bg-grid { position:fixed; inset:0; background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px); background-size:20px 20px; z-index:-1; }
+/* ── 2. Base & Reset ── */
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  -webkit-tap-highlight-color: transparent; /* ปิดแถบไฮไลท์สีฟ้าเวลากดในมือถือ */
+}
+body { 
+  font-family: 'Sarabun', sans-serif; 
+  background-color: var(--bg-app); 
+  color: var(--text-main); 
+  min-height: 100vh; 
+  display: flex; 
+  flex-direction: column; 
+  overflow-x: hidden; 
+  line-height: 1.5; /* เพิ่ม line-height ให้อ่านง่าย */
+}
 
-/* ── Loading ── */
-.ov      { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; }
-.spinner { width:44px; height:44px; border:4px solid var(--border); border-top:4px solid var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:14px; }
-@keyframes spin { to { transform:rotate(360deg); } }
-.hidden { display:none !important; }
+/* ลายตารางพื้นหลังแบบจางๆ */
+.bg-grid { 
+  position: fixed; inset: 0; 
+  background-image: 
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px); 
+  background-size: 24px 24px; 
+  z-index: -1; 
+  opacity: 0.5;
+}
 
-/* ── Alert modal ── */
-.ca-ov { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(3px); }
-.ca-ov.active { opacity:1; pointer-events:auto; }
-.ca-box { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:30px 22px; width:100%; max-width:320px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.5); transform:scale(0.9); transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275); }
-.ca-ov.active .ca-box { transform:scale(1); }
-.ca-icon  { font-size:58px; margin-bottom:14px; line-height:1; }
-.ca-title { font-size:19px; font-weight:800; color:var(--text); margin-bottom:8px; text-transform:uppercase; }
-.ca-msg   { font-size:14px; color:var(--muted); margin-bottom:22px; line-height:1.5; }
-.ca-btn   { width:100%; padding:12px 0; border-radius:10px; font-size:15px; font-weight:800; font-family:'Sarabun'; cursor:pointer; transition:0.15s; border:none; background:var(--primary); color:#fff; }
-.ca-btn:active { transform:scale(0.96); }
+/* ── 3. Layout Components (Mobile First) ── */
 
-/* ── Top bar ── */
-.top-bar { background:var(--surface); padding:15px 20px; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
-.t-app   { font-weight:800; font-size:17px; color:var(--secondary); display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:0.5px; }
-.t-close { background:transparent; border:1px solid var(--border); color:var(--text); font-family:'Sarabun'; font-size:12px; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer; }
+/* Top Bar (Sticky ให้อยู่ด้านบนเสมอ) */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(28, 28, 30, 0.85); /* โปร่งแสงนิดๆ */
+  backdrop-filter: blur(12px); /* เอฟเฟกต์กระจกแบบแอป */
+  -webkit-backdrop-filter: blur(12px);
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.app-title {
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* ปุ่มปิด: ขยายพื้นที่กด (Touch target >= 44px) */
+.btn-close {
+  background: var(--surface-hover);
+  border: none;
+  color: var(--text-main);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  min-height: 36px; /* ให้กดง่าย */
+  transition: transform 0.1s, background 0.2s;
+}
+.btn-close:active { transform: scale(0.95); background: #3a3a3c; }
 
-/* ── Filter bar ── */
-.filter-bar { display:flex; gap:8px; padding:10px 14px; overflow-x:auto; background:var(--bg); border-bottom:1px solid var(--border); }
-.filter-bar::-webkit-scrollbar { display:none; }
-.f-btn { padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; background:var(--surface); border:1px solid var(--border); color:var(--muted); cursor:pointer; white-space:nowrap; transition:0.15s; user-select:none; }
-.f-btn.active { background:rgba(46,125,50,0.15); border-color:var(--primary); color:var(--primary); }
+/* Search Area */
+.search-container {
+  padding: var(--spacing-md);
+  background: var(--bg-app);
+}
+.search-box {
+  position: relative;
+  width: 100%;
+}
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: var(--text-muted);
+}
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 12px 14px 12px 40px; /* เว้นที่ให้ไอคอนค้นหา */
+  border-radius: var(--radius-md);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 16px; /* 16px ป้องกัน iOS Zoom อัตโนมัติ */
+  outline: none;
+  transition: all 0.2s ease;
+  min-height: 48px; /* Touch target ใหญ่ขึ้น */
+}
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.search-input::placeholder { color: var(--text-muted); }
 
-/* ── Search bar ── */
-.search-wrap { padding:10px 14px; background:var(--bg); border-bottom:1px solid var(--border); }
-.search-input { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:8px; font-family:'Sarabun'; font-size:15px; outline:none; transition:border-color 0.2s; }
-.search-input:focus { border-color:var(--primary); }
-.search-input::placeholder { color:var(--muted); }
+/* Filter Bar (Scroll แนวนอน) */
+.filter-scroll {
+  display: flex;
+  gap: 10px;
+  padding: 0 var(--spacing-md) var(--spacing-md) var(--spacing-md);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+.filter-scroll::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+.filter-btn {
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-height: 36px;
+}
+.filter-btn.active {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: #4caf50;
+}
 
-/* ── Grid ── */
-.main-area { flex:1; padding:14px; overflow-y:auto; }
-.grid-lib  { display:grid; grid-template-columns:1fr; gap:10px; }
+/* ── 4. Main Content & Cards (Mobile First Grid) ── */
+.main-content {
+  flex: 1;
+  padding: 0 var(--spacing-md) var(--spacing-lg) var(--spacing-md);
+}
 
-/* ── Cards ── */
-.lib-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:15px; display:flex; gap:12px; align-items:center; cursor:pointer; transition:transform 0.15s, background 0.15s; box-shadow:0 4px 10px rgba(0,0,0,0.2); }
-.lib-card:active { transform:scale(0.98); background:var(--surf2); }
-.icon-box  { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
-.icon-pdf  { background:linear-gradient(135deg,var(--pdf),#b71c1c); box-shadow:0 4px 10px rgba(255,82,82,0.3); }
-.icon-video{ background:linear-gradient(135deg,var(--video),#f57f17); box-shadow:0 4px 10px rgba(255,202,40,0.3); }
-.icon-link { background:linear-gradient(135deg,var(--link),#1b5e20); box-shadow:0 4px 10px rgba(76,175,80,0.3); }
-.lib-content { flex:1; overflow:hidden; }
-.lib-title   { font-weight:700; font-size:15px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; }
-.lib-cat     { font-size:11px; font-weight:800; color:var(--muted); background:var(--bg); padding:2px 6px; border-radius:4px; display:inline-block; border:1px solid var(--border); }
+.item-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* ค่าเริ่มต้น Mobile = 1 แถว */
+  gap: 12px;
+}
 
-/* ── Video modal ── */
-.modal-video { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:1000; display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s; padding:20px; }
-.modal-video.show { opacity:1; pointer-events:auto; }
-.video-wrap { width:100%; max-width:600px; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,0.8); border:1px solid var(--border); }
-.close-btn { position:absolute; top:18px; right:18px; background:rgba(255,255,255,0.1); border:none; color:#fff; width:38px; height:38px; border-radius:50%; font-size:18px; display:flex; align-items:center; justify-content:center; cursor:pointer; backdrop-filter:blur(4px); transition:0.2s; }
-.close-btn:active { background:rgba(255,255,255,0.2); }
+/* Card UI สมัยใหม่ */
+.card-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+.card-item:active {
+  transform: scale(0.97); /* แอนิเมชันกดสมูทๆ */
+  background: var(--surface-hover);
+}
+
+.card-icon {
+  width: 48px; /* ไอคอนใหญ่ขึ้นนิดนึงให้อ่านง่าย */
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  color: #fff;
+}
+.type-pdf { background: linear-gradient(135deg, var(--icon-pdf), #b71c1c); }
+.type-video { background: linear-gradient(135deg, var(--icon-video), #f57f17); }
+.type-link { background: linear-gradient(135deg, var(--icon-link), #1b5e20); }
+
+.card-details {
+  flex: 1;
+  min-width: 0; /* สำคัญมาก: ช่วยให้ text-overflow ทำงานใน flexbox */
+}
+.card-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-main);
+  margin-bottom: 6px;
+  line-height: 1.4;
+  /* ✨ แก้ข้อความล้น: ตัดคำขึ้นบรรทัดใหม่ และให้โชว์แค่ 2 บรรทัด */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal; 
+}
+.card-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.05);
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* ── 5. Modals & Loaders ── */
+.overlay {
+  position: fixed; inset: 0;
+  background: var(--bg-app);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+}
+.overlay.hidden { opacity: 0; pointer-events: none; }
+.spinner {
+  width: 48px; height: 48px;
+  border: 4px solid var(--border);
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Alert Box */
+.alert-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.alert-overlay.active { opacity: 1; pointer-events: auto; }
+.alert-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  width: 100%; max-width: 340px;
+  text-align: center;
+  transform: translateY(20px);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.alert-overlay.active .alert-box { transform: translateY(0); }
+.alert-btn {
+  width: 100%; padding: 14px;
+  border-radius: var(--radius-md);
+  font-size: 16px; font-weight: 700; font-family: 'Sarabun';
+  cursor: pointer; border: none;
+  background: var(--primary); color: #fff;
+  margin-top: 24px;
+}
+
+/* Video Modal */
+.video-overlay {
+  position: fixed; inset: 0;
+  background: #000; /* สีดำสนิทสำหรับวิดีโอ */
+  z-index: 9999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.video-overlay.show { opacity: 1; pointer-events: auto; }
+.video-wrapper {
+  width: 100%; max-width: 800px;
+  aspect-ratio: 16/9;
+  background: #000;
+}
+.btn-close-video {
+  position: absolute;
+  top: 20px; right: 20px;
+  background: rgba(255,255,255,0.2);
+  border: none; color: #fff;
+  width: 44px; height: 44px; /* Touch target 44px */
+  border-radius: 50%; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; backdrop-filter: blur(4px);
+}
+
+/* ── 6. Responsive (Tablet & Desktop) ── */
+@media (min-width: 600px) {
+  .item-grid { grid-template-columns: repeat(2, 1fr); } /* แท็บเล็ต 2 แถว */
+}
+@media (min-width: 1024px) {
+  .item-grid { grid-template-columns: repeat(3, 1fr); } /* PC 3 แถว */
+  body { margin: 0 auto; max-width: 1200px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+}
 </style>
 </head>
 <body>
 <div class="bg-grid"></div>
 
-<div id="ov-load" class="ov">
+<!-- Loading State -->
+<div id="loader" class="overlay">
   <div class="spinner"></div>
-  <div style="color:var(--muted);font-weight:700;">กำลังรวบรวมยุทโธปกรณ์...</div>
+  <div style="color:var(--text-muted); font-weight:600; font-size:15px;">กำลังโหลดยุทโธปกรณ์...</div>
 </div>
 
-<div id="custom-alert" class="ca-ov" role="dialog" aria-modal="true">
-  <div class="ca-box">
-    <div id="ca-icon"  class="ca-icon">⚠️</div>
-    <div id="ca-title" class="ca-title">แจ้งเตือน</div>
-    <div id="ca-msg"   class="ca-msg">ข้อความ</div>
-    <button class="ca-btn" onclick="document.getElementById('custom-alert').classList.remove('active')">รับทราบ</button>
+<!-- Alert Custom -->
+<div id="custom-alert" class="alert-overlay" role="dialog" aria-modal="true">
+  <div class="alert-box">
+    <div id="alert-icon" style="font-size:54px; line-height:1; margin-bottom:16px;">⚠️</div>
+    <div id="alert-title" style="font-size:20px; font-weight:800; margin-bottom:8px;">แจ้งเตือน</div>
+    <div id="alert-msg" style="font-size:15px; color:var(--text-muted); line-height:1.5;">ข้อความ</div>
+    <button class="alert-btn" onclick="document.getElementById('custom-alert').classList.remove('active')">รับทราบ</button>
   </div>
 </div>
 
-<div class="top-bar">
-  <div class="t-app">📚 คลังตำราและยุทโธปกรณ์</div>
-  <button class="t-close" onclick="liff.closeWindow()">กลับศูนย์ข้อมูล</button>
+<!-- Header -->
+<header class="app-header">
+  <div class="app-title">📚 คลังยุทโธปกรณ์</div>
+  <button class="btn-close" onclick="liff.closeWindow()">กลับสู่ศูนย์</button>
+</header>
+
+<!-- Search -->
+<div class="search-container">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="search" class="search-input" id="search-input" placeholder="ค้นหาตำรา / วิดีโอ..." oninput="onSearch(this.value)">
+  </div>
 </div>
 
-<!-- [NEW] Search bar -->
-<div class="search-wrap">
-  <input type="search" class="search-input" id="search-input"
-         placeholder="🔍 ค้นหาตำรา / ยุทโธปกรณ์..."
-         oninput="onSearch(this.value)">
-</div>
+<!-- Filters -->
+<nav class="filter-scroll" id="filter-bar"></nav>
 
-<div class="filter-bar" id="filter-bar"></div>
+<!-- Main List -->
+<main class="main-content">
+  <div class="item-grid" id="item-grid"></div>
+</main>
 
-<div class="main-area">
-  <div class="grid-lib" id="lib-list"></div>
-</div>
-
-<!-- Video modal -->
-<div id="modal-video" class="modal-video">
-  <button class="close-btn" id="close-video-btn" aria-label="ปิดวิดีโอ">✕</button>
-  <div class="video-wrap">
-    <iframe id="video-frame" width="100%" height="100%" src="" frameborder="0"
-            allow="autoplay; encrypted-media" allowfullscreen title="วิดีโอ"></iframe>
+<!-- Video Player -->
+<div id="video-modal" class="video-overlay">
+  <button class="btn-close-video" id="btn-close-video" aria-label="ปิดวิดีโอ">✕</button>
+  <div class="video-wrapper">
+    <iframe id="video-frame" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen title="วิดีโอ"></iframe>
   </div>
 </div>
 
@@ -131,19 +378,19 @@ body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text)
 const LIFF_ID = '2009717287-o7MWqsbp';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let materials      = [];
-let currentFilter  = 'ALL';
-let currentSearch  = '';
+let materials = [];
+let currentFilter = 'ALL';
+let currentSearch = '';
 
-// ── Alert ───────────────────────────────────
-function customAlert(msg, title = 'แจ้งเตือน', icon = '⚠️') {
-  document.getElementById('ca-icon').textContent  = icon;
-  document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').textContent   = msg;
+// ── Alert Handler ──
+function showAlert(msg, title = 'แจ้งเตือน', icon = '⚠️') {
+  document.getElementById('alert-icon').textContent = icon;
+  document.getElementById('alert-title').textContent = title;
+  document.getElementById('alert-msg').textContent = msg;
   document.getElementById('custom-alert').classList.add('active');
 }
 
-// ── Init ────────────────────────────────────
+// ── Initialization ──
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
@@ -155,53 +402,55 @@ async function init() {
     materials = res.materials || [];
     renderFilters();
     renderList();
-    document.getElementById('ov-load').classList.add('hidden');
+    
+    // Smooth hide loader
+    setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+    }, 300);
+
   } catch(e) {
-    document.getElementById('ov-load').classList.add('hidden');
-    customAlert(e.message || 'โหลดข้อมูลล้มเหลว', 'การเชื่อมต่อขัดข้อง', '📡');
+    document.getElementById('loader').classList.add('hidden');
+    showAlert(e.message || 'โหลดข้อมูลล้มเหลว', 'การเชื่อมต่อขัดข้อง', '📡');
   }
 }
 
-// ── Filter ──────────────────────────────────
+// ── Filters Rendering ──
 function renderFilters() {
-  const bar  = document.getElementById('filter-bar');
+  const bar = document.getElementById('filter-bar');
   const cats = [...new Set(materials.map(m => m.category || 'ทั่วไป'))];
 
   bar.innerHTML = '';
-  const allBtn = makeFilterBtn('ALL', `ทั้งหมด (${materials.length})`, true);
-  bar.appendChild(allBtn);
+  bar.appendChild(createFilterBtn('ALL', `ทั้งหมด (${materials.length})`, true));
 
   cats.forEach(c => {
     const count = materials.filter(m => (m.category || 'ทั่วไป') === c).length;
-    bar.appendChild(makeFilterBtn(c, `${c} (${count})`));
+    bar.appendChild(createFilterBtn(c, `${c} (${count})`));
   });
 }
 
-function makeFilterBtn(cat, label, active = false) {
+function createFilterBtn(cat, label, isActive = false) {
   const btn = document.createElement('div');
-  btn.className   = 'f-btn' + (active ? ' active' : '');
+  btn.className = 'filter-btn' + (isActive ? ' active' : '');
   btn.textContent = label;
-  btn.onclick     = () => setFilter(cat, btn);
+  btn.onclick = () => {
+    currentFilter = cat;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderList();
+  };
   return btn;
 }
 
-function setFilter(cat, el) {
-  currentFilter = cat;
-  document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  renderList();
-}
-
-// ── Search ──────────────────────────────────
+// ── Search Logic ──
 function onSearch(val) {
   currentSearch = val.trim().toLowerCase();
   renderList();
 }
 
-// ── Render ──────────────────────────────────
+// ── List Rendering ──
 function renderList() {
-  const list = document.getElementById('lib-list');
-  list.innerHTML = '';
+  const grid = document.getElementById('item-grid');
+  grid.innerHTML = '';
 
   let filtered = materials;
   if (currentFilter !== 'ALL') {
@@ -215,54 +464,47 @@ function renderList() {
   }
 
   if (!filtered.length) {
-    list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:14px;margin-top:20px;">ไม่พบสื่อในหมวดนี้</div>';
+    grid.innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:40px 20px; color:var(--text-muted);">
+        <div style="font-size:40px; margin-bottom:12px;">📂</div>
+        <div style="font-size:16px;">ไม่พบสื่อที่ค้นหาในหมวดหมู่นี้</div>
+      </div>`;
     return;
   }
 
   filtered.forEach(m => {
-    let iconClass = 'icon-link', iconEmoji = '🔗';
-    if (m.type === 'PDF')   { iconClass = 'icon-pdf';   iconEmoji = '📄'; }
-    if (m.type === 'VIDEO') { iconClass = 'icon-video';  iconEmoji = '▶️'; }
+    let iconClass = 'type-link', iconEmoji = '🔗';
+    if (m.type === 'PDF')   { iconClass = 'type-pdf'; iconEmoji = '📄'; }
+    if (m.type === 'VIDEO') { iconClass = 'type-video'; iconEmoji = '▶️'; }
 
     const card = document.createElement('div');
-    card.className = 'lib-card';
+    card.className = 'card-item';
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');
 
-    const iconEl = document.createElement('div');
-    iconEl.className = `icon-box ${iconClass}`;
-    iconEl.textContent = iconEmoji;
+    // สร้างโครงสร้างการ์ด
+    card.innerHTML = `
+      <div class="card-icon ${iconClass}">${iconEmoji}</div>
+      <div class="card-details">
+        <div class="card-title">${m.title}</div>
+        <div class="card-badge">${m.category || 'ทั่วไป'}</div>
+      </div>
+    `;
 
-    const content = document.createElement('div');
-    content.className = 'lib-content';
-
-    const title = document.createElement('div');
-    title.className   = 'lib-title';
-    title.textContent = m.title;
-
-    const cat = document.createElement('div');
-    cat.className   = 'lib-cat';
-    cat.textContent = m.category || 'ทั่วไป';
-
-    content.appendChild(title);
-    content.appendChild(cat);
-    card.appendChild(iconEl);
-    card.appendChild(content);
-
-    // [FIX] ผูก click handler ผ่าน addEventListener ไม่ใช่ onclick attribute
+    // ผูก Event
     card.addEventListener('click', () => handleItemClick(m.type, m.url));
     card.addEventListener('keydown', e => { if (e.key === 'Enter') handleItemClick(m.type, m.url); });
 
-    list.appendChild(card);
+    grid.appendChild(card);
   });
 }
 
-// ── Handle click ────────────────────────────
+// ── Interaction Logic ──
 function handleItemClick(type, url) {
   if (type === 'VIDEO') {
     const videoId = extractYouTubeId(url);
     if (videoId) {
-      openVideoModal(videoId);
+      openVideo(videoId);
       return;
     }
   }
@@ -270,71 +512,69 @@ function handleItemClick(type, url) {
 }
 
 function extractYouTubeId(url) {
-  const m = String(url).match(
-    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?#]{11})/
-  );
+  const m = String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?#]{11})/);
   return m ? m[1] : null;
 }
 
-// ── Video modal ─────────────────────────────
-// [FIX] ปิด video ด้วย src='' และ remove listener properly
-function openVideoModal(videoId) {
-  const frame  = document.getElementById('video-frame');
-  const modal  = document.getElementById('modal-video');
-  frame.src    = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-  modal.classList.add('show');
-  document.body.style.overflow = 'hidden';
+// ── Video Modal Logic ──
+const videoModal = document.getElementById('video-modal');
+const videoFrame = document.getElementById('video-frame');
+
+function openVideo(videoId) {
+  videoFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+  videoModal.classList.add('show');
+  document.body.style.overflow = 'hidden'; // ป้องกันพื้นหลังเลื่อน
 }
 
-function closeVideoModal() {
-  const frame = document.getElementById('video-frame');
-  const modal = document.getElementById('modal-video');
-  // [FIX] set src='' ก่อน ป้องกัน audio ยังเล่นอยู่หลังปิด modal
-  frame.src   = '';
-  modal.classList.remove('show');
+function closeVideo() {
+  videoFrame.src = ''; // ตัดเสียงทันทีเมื่อปิด
+  videoModal.classList.remove('show');
   document.body.style.overflow = '';
 }
 
-// close button
-document.getElementById('close-video-btn').addEventListener('click', closeVideoModal);
+document.getElementById('btn-close-video').addEventListener('click', closeVideo);
 
-// [FIX] กด backdrop ปิด modal (ของเดิมใช้ onclick=closeVideo(event) ที่ตรวจ target ผิดพลาดได้)
-document.getElementById('modal-video').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal-video')) closeVideoModal();
+// ปิดเมื่อกดพื้นที่สีดำรอบๆ
+videoModal.addEventListener('click', e => {
+  if (e.target === videoModal) closeVideo();
 });
 
-// [FIX] กด Back ของ OS ปิด modal แทนออกจากหน้า
+// รองรับการปัดกลับ (Back gesture) ในมือถือ
 window.addEventListener('popstate', () => {
-  const modal = document.getElementById('modal-video');
-  if (modal.classList.contains('show')) closeVideoModal();
+  if (videoModal.classList.contains('show')) {
+    closeVideo();
+  }
 });
 
-// ── API ─────────────────────────────────────
+// ── API Caller ──
 async function callAPI(method, params, timeoutMs = 20000) {
   const ctrl = new AbortController();
-  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  const tid = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    let url  = GAS_URL;
-    let opts = { signal:ctrl.signal, redirect:'follow' };
+    let url = GAS_URL;
+    let opts = { signal: ctrl.signal, redirect: 'follow' };
+    
     if (method === 'GET') {
       url += '?' + new URLSearchParams(params).toString();
       opts.method = 'GET';
     } else {
-      opts.method  = 'POST';
-      opts.headers = { 'Content-Type':'text/plain' };
-      opts.body    = JSON.stringify(params);
+      opts.method = 'POST';
+      opts.headers = { 'Content-Type': 'text/plain' };
+      opts.body = JSON.stringify(params);
     }
+    
     const resp = await fetch(url, opts);
     clearTimeout(tid);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return await resp.json();
   } catch(e) {
     clearTimeout(tid);
-    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ');
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ (Timeout)');
     throw e;
   }
 }
 
+// เริ่มต้นการทำงาน
 init();
 </script>
 </body>
