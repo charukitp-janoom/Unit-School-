@@ -8,88 +8,118 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=IBM+Plex+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Tactical Theme */
-  --primary: #2e7d32; 
+  --primary:      #2e7d32;
   --primary-dark: #1b5e20;
-  --secondary: #ffca28;
-  --bg: #0a0a0a; --surface: #121212; --surf2: #1e1e1e;
-  --border: #333333; --text: #e0e0e0; --muted: #888888;
-  --danger: #ff5252; --success: #4caf50; --info: #29b6f6;
+  --secondary:    #ffca28;
+  --bg:           #0a0a0a;
+  --surface:      #121212;
+  --surf2:        #1e1e1e;
+  --border:       #333333;
+  --text:         #e0e0e0;
+  --muted:        #888888;
+  --danger:       #ff5252;
+  --success:      #4caf50;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
 
-/* Global Utils */
-.hidden { display: none !important; }
-.btn { width: 100%; padding: 14px 16px; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; display: flex; justify-content: center; align-items: center; gap: 8px;}
-.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-.btn-gold { background: var(--secondary); color: #000; box-shadow: 0 4px 15px rgba(255,202,40,0.2); }
-.btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
-.btn-danger { background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.3); color: var(--danger); }
-.btn:active { transform: scale(0.96); box-shadow: none; }
+.hidden { display:none !important; }
 
-/* Screens & Topbar */
-.screen { display: flex; flex-direction: column; height: 100vh; width: 100%; }
-.top-bar { background: var(--surface); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.5);}
-.t-app { font-weight: 800; font-size: 16px; color: var(--secondary); display: flex; align-items: center; gap: 6px; text-transform: uppercase;}
-.t-subj { font-size: 12px; color: var(--muted); }
-.main-area { flex: 1; padding: 20px; overflow-y: auto; }
+/* ── Buttons ── */
+.btn { width:100%; padding:13px 16px; border-radius:10px; font-size:15px; font-weight:800; font-family:'Sarabun'; cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; border:none; display:flex; justify-content:center; align-items:center; gap:8px; }
+.btn-primary { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; box-shadow:0 4px 15px rgba(0,0,0,0.3); }
+.btn-gold    { background:var(--secondary); color:#000; box-shadow:0 4px 15px rgba(255,202,40,0.2); }
+.btn-outline { background:var(--surface); border:1px solid var(--border); color:var(--text); }
+.btn-danger  { background:rgba(255,82,82,0.1); border:1px solid rgba(255,82,82,0.3); color:var(--danger); }
+.btn:active   { transform:scale(0.96); box-shadow:none; }
+.btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
 
-/* Custom Modal Alert */
-.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
-.ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.ca-ov.active .ca-box { transform: scale(1); }
-.ca-icon { font-size: 50px; margin-bottom: 15px; line-height: 1; }
-.ca-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
-.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
-.ca-btn-group { display: flex; gap: 12px; justify-content: center; }
-.ca-btn { flex: 1; padding: 12px 0; border-radius: 10px; font-size: 14px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
-.ca-btn-cancel { background: var(--surf2); border: 1px solid var(--border); color: var(--text); }
-.ca-btn-confirm { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3); }
-.ca-btn:active { transform: scale(0.96); }
+/* ── Screen & Topbar ── */
+.screen  { display:flex; flex-direction:column; height:100vh; width:100%; }
+.top-bar { background:var(--surface); padding:14px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+.t-app   { font-weight:800; font-size:16px; color:var(--secondary); display:flex; align-items:center; gap:6px; text-transform:uppercase; }
+.t-sub   { font-size:12px; color:var(--muted); }
+.main-area { flex:1; padding:18px; overflow-y:auto; }
 
-/* Loaders */
-.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-.spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* ── Modal ── */
+.ca-ov { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(3px); }
+.ca-ov.active { opacity:1; pointer-events:auto; }
+.ca-box { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:30px 22px; width:100%; max-width:320px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.5); transform:scale(0.9); transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275); }
+.ca-ov.active .ca-box { transform:scale(1); }
+.ca-icon  { font-size:50px; margin-bottom:14px; line-height:1; }
+.ca-title { font-size:18px; font-weight:800; color:var(--text); margin-bottom:8px; text-transform:uppercase; }
+.ca-msg   { font-size:14px; color:var(--muted); margin-bottom:22px; line-height:1.55; }
+.ca-btn-group { display:flex; gap:10px; justify-content:center; }
+.ca-btn   { flex:1; padding:11px 0; border-radius:10px; font-size:14px; font-weight:800; font-family:'Sarabun'; cursor:pointer; transition:transform 0.15s; border:none; }
+.ca-btn-cancel  { background:var(--surf2); border:1px solid var(--border); color:var(--text); }
+.ca-btn-confirm { background:var(--primary); color:#fff; box-shadow:0 4px 12px rgba(46,125,50,0.3); }
+.ca-btn:active  { transform:scale(0.96); }
 
-/* Cards & Lists (Lobby) */
-.section-title { font-size: 16px; font-weight: 800; color: var(--secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; border-bottom: 1px dashed var(--border); padding-bottom: 8px;}
-.duel-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);}
-.duel-header { display: flex; justify-content: space-between; align-items: center; }
-.duel-title { font-weight: 800; font-size: 15px; color: var(--text); }
-.duel-status { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
-.st-pending { background: rgba(255,202,40,0.15); color: var(--secondary); border: 1px solid rgba(255,202,40,0.3); }
-.st-completed { background: rgba(76,175,80,0.15); color: var(--success); border: 1px solid rgba(76,175,80,0.3); }
+/* ── Loading overlay ── */
+.ov { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; }
+.spinner { width:44px; height:44px; border:4px solid var(--border); border-top:4px solid var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:14px; }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-.score-row { display: flex; justify-content: space-between; background: var(--surf2); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; }
-.score-name { color: var(--muted); font-size: 13px; }
-.score-val { font-family: 'IBM Plex Mono', monospace; font-weight: 800; color: var(--text); }
+/* ── Lobby ── */
+.section-title { font-size:15px; font-weight:800; color:var(--secondary); margin-bottom:12px; display:flex; align-items:center; gap:6px; text-transform:uppercase; border-bottom:1px dashed var(--border); padding-bottom:8px; }
+.duel-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:15px; margin-bottom:10px; display:flex; flex-direction:column; gap:10px; box-shadow:0 4px 10px rgba(0,0,0,0.3); transition:border-color 0.2s; }
+.duel-header  { display:flex; justify-content:space-between; align-items:center; }
+.duel-title   { font-weight:800; font-size:15px; color:var(--text); }
+.duel-status  { font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; }
+.st-pending   { background:rgba(255,202,40,0.15); color:var(--secondary); border:1px solid rgba(255,202,40,0.3); }
+.st-completed { background:rgba(76,175,80,0.15);  color:var(--success);   border:1px solid rgba(76,175,80,0.3); }
+.score-row    { display:flex; justify-content:space-between; background:var(--surf2); padding:10px 12px; border-radius:8px; border:1px solid var(--border); font-size:14px; }
+.score-name   { color:var(--muted); font-size:12px; }
+.score-val    { font-family:'IBM Plex Mono',monospace; font-weight:800; color:var(--text); }
 
-/* Game UI */
-.timer-bar { height: 6px; background: var(--surf2); width: 100%; }
-.timer-fill { height: 100%; background: var(--secondary); width: 100%; transition: width 0.1s linear; }
-.q-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 20px 0; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-.q-num { font-size: 13px; color: var(--secondary); font-weight: 800; margin-bottom: 10px; text-transform: uppercase;}
-.q-text { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.5; }
+/* ── Challenge target select ── */
+.target-row { display:flex; gap:10px; margin-bottom:22px; }
+.target-sel { flex:1; padding:12px; border-radius:8px; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'Sarabun'; font-size:15px; outline:none; cursor:pointer; }
+.target-sel:focus { border-color:var(--primary); }
 
-.choices { display: flex; flex-direction: column; gap: 12px; }
-.choice-btn { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 16px; display: flex; gap: 15px; align-items: center; cursor: pointer; transition: 0.2s; color: var(--text); }
-.c-label { font-family: 'IBM Plex Mono'; font-weight: 800; background: var(--surf2); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--muted); border: 1px solid var(--border);}
-.choice-btn:active { transform: scale(0.98); background: var(--surf2); border-color: var(--secondary); }
+/* ── Game ── */
+.timer-bar  { height:6px; background:var(--surf2); width:100%; flex-shrink:0; }
+.timer-fill { height:100%; background:var(--secondary); width:100%; transition:width 0.08s linear; }
+.q-box      { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:22px; margin:18px 0; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.4); }
+.q-num      { font-size:13px; color:var(--secondary); font-weight:800; margin-bottom:8px; text-transform:uppercase; }
+.q-text     { font-size:18px; font-weight:700; color:var(--text); line-height:1.5; }
+.choices    { display:flex; flex-direction:column; gap:10px; }
+.choice-btn { background:var(--surface); border:2px solid var(--border); border-radius:12px; padding:15px; display:flex; gap:14px; align-items:center; cursor:pointer; transition:border-color 0.15s, background 0.15s, opacity 0.15s; color:var(--text); }
+.choice-btn:active { transform:scale(0.98); }
+.choice-btn.locked { pointer-events:none; }
+.c-label    { font-family:'IBM Plex Mono'; font-weight:800; background:var(--surf2); width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:8px; color:var(--muted); border:1px solid var(--border); flex-shrink:0; font-size:14px; }
 
-/* Result UI */
-.result-box { text-align: center; padding: 30px 20px; background: var(--surface); border-radius: 20px; border: 1px solid var(--border); margin-top: 10vh; box-shadow: 0 10px 40px rgba(0,0,0,0.5);}
-.res-icon { font-size: 60px; margin-bottom: 10px; }
-.res-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; text-transform: uppercase;}
-.res-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
-.vs-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: center; margin-bottom: 24px; }
-.vs-col { background: var(--surf2); padding: 16px 10px; border-radius: 12px; border: 1px solid var(--border); }
-.vs-name { font-size: 13px; color: var(--muted); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.vs-score { font-size: 28px; font-weight: 800; font-family: 'IBM Plex Mono', monospace; color: var(--text); }
-.vs-time { font-size: 11px; color: var(--muted); margin-top: 4px; }
-.vs-badge { font-size: 16px; font-weight: 800; color: var(--secondary); background: rgba(255,202,40,0.1); padding: 8px 12px; border-radius: 50%; border: 1px solid rgba(255,202,40,0.3);}
+/* ── Correct / Wrong flash ── */
+.choice-btn.correct { border-color:var(--success); background:rgba(76,175,80,0.1); }
+.choice-btn.correct .c-label { background:var(--success); color:#fff; border-color:var(--success); }
+.choice-btn.wrong   { border-color:var(--danger);  background:rgba(255,82,82,0.1); }
+.choice-btn.wrong   .c-label { background:var(--danger);  color:#fff; border-color:var(--danger);  }
+.choice-btn.correct-reveal { border-color:var(--success); }
+.choice-btn.correct-reveal .c-label { background:var(--success); color:#fff; border-color:var(--success); }
+
+/* ── Result ── */
+.result-box { text-align:center; padding:28px 20px; background:var(--surface); border-radius:20px; border:1px solid var(--border); margin-top:8vh; box-shadow:0 10px 40px rgba(0,0,0,0.5); }
+.res-icon   { font-size:60px; margin-bottom:10px; }
+.res-title  { font-size:22px; font-weight:800; margin-bottom:4px; text-transform:uppercase; }
+.res-sub    { font-size:14px; color:var(--muted); margin-bottom:22px; line-height:1.5; }
+.vs-grid    { display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; margin-bottom:22px; }
+.vs-col     { background:var(--surf2); padding:14px 8px; border-radius:12px; border:1px solid var(--border); }
+.vs-name    { font-size:12px; color:var(--muted); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.vs-score   { font-size:26px; font-weight:800; font-family:'IBM Plex Mono',monospace; color:var(--text); }
+.vs-time    { font-size:11px; color:var(--muted); margin-top:4px; }
+.vs-badge   { font-size:15px; font-weight:800; color:var(--secondary); background:rgba(255,202,40,0.1); padding:7px 10px; border-radius:50%; border:1px solid rgba(255,202,40,0.3); }
+
+/* ── Review section (NEW) ── */
+.review-title { font-size:14px; font-weight:800; color:var(--secondary); margin:20px 0 10px; text-align:left; text-transform:uppercase; }
+.review-card  { background:var(--surf2); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:10px; text-align:left; }
+.review-card.correct { border-left:4px solid var(--success); }
+.review-card.wrong   { border-left:4px solid var(--danger); }
+.review-q    { font-size:14px; font-weight:600; color:var(--text); margin-bottom:8px; line-height:1.4; }
+.review-row  { font-size:13px; margin-bottom:4px; display:flex; gap:6px; }
+.review-lbl  { color:var(--muted); flex-shrink:0; min-width:60px; }
+.review-val  { font-weight:700; }
+.val-correct { color:var(--success); }
+.val-wrong   { color:var(--danger); }
 </style>
 </head>
 <body>
@@ -97,53 +127,52 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
 <!-- Loading -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <div style="font-weight:700; color:var(--muted);">กำลังเชื่อมต่อลานประลอง...</div>
+  <div id="ov-text" style="font-weight:700;color:var(--muted);">กำลังเชื่อมต่อลานประลอง...</div>
 </div>
 
 <!-- Custom Alert -->
-<div id="custom-alert" class="ca-ov">
+<div id="custom-alert" class="ca-ov" role="dialog" aria-modal="true">
   <div class="ca-box">
-    <div id="ca-icon" class="ca-icon">⚠️</div>
-    <div id="ca-title" class="ca-title">แจ้งเตือน</div>
-    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <div id="ca-icon"      class="ca-icon">⚠️</div>
+    <div id="ca-title"     class="ca-title">แจ้งเตือน</div>
+    <div id="ca-msg"       class="ca-msg">ข้อความ</div>
     <div id="ca-btn-group" class="ca-btn-group"></div>
   </div>
 </div>
 
-<!-- LOBBY SCREEN -->
+<!-- ① LOBBY -->
 <div id="lobby-ui" class="screen hidden">
   <div class="top-bar">
     <div class="t-app">⚔️ ลานประลองยุทธ์</div>
-    <div class="t-subj" id="my-name">กำลังพล</div>
+    <div class="t-sub" id="my-name">กำลังพล</div>
   </div>
   <div class="main-area">
     <div class="section-title">⚔️ ศูนย์ท้าประลอง</div>
-    <div style="display:flex; gap:10px; margin-bottom:24px;">
-      <select id="sel-target" style="flex:1; padding:12px; border-radius:8px; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'Sarabun'; outline:none;">
+    <div class="target-row">
+      <select id="sel-target" class="target-sel">
         <option value="">-- เลือกกำลังพลเป้าหมาย --</option>
       </select>
-      <button class="btn btn-primary" style="width:auto; padding:0 20px;" onclick="initiateDuel()">ท้าดวล!</button>
+      <button class="btn btn-primary" style="width:auto;padding:0 18px;flex-shrink:0;" onclick="initiateDuel()">ท้าดวล!</button>
     </div>
 
-    <div class="section-title">📥 ภารกิจรอตอบรับ (Inbox)</div>
-    <div id="list-pending" style="margin-bottom:24px;"></div>
+    <div class="section-title">📥 คำท้าที่รอตอบรับ</div>
+    <div id="list-pending" style="margin-bottom:22px;"></div>
 
     <div class="section-title">📜 ประวัติการประลอง</div>
     <div id="list-history"></div>
   </div>
 </div>
 
-<!-- GAME SCREEN -->
+<!-- ② GAME -->
 <div id="game-ui" class="screen hidden">
   <div class="top-bar">
     <div class="t-app">⚔️ ปฏิบัติการประลอง</div>
-    <div class="t-subj" style="font-family:'IBM Plex Mono'; font-weight:700; color:var(--secondary); font-size:14px;" id="game-score">แต้ม: 0</div>
+    <div style="font-family:'IBM Plex Mono';font-weight:700;color:var(--secondary);font-size:14px;" id="game-score">แต้ม: 0</div>
   </div>
   <div class="timer-bar"><div class="timer-fill" id="timer-bar"></div></div>
-  
-  <div class="main-area" style="display:flex; flex-direction:column;">
+  <div class="main-area" style="display:flex;flex-direction:column;">
     <div class="q-box">
-      <div class="q-num" id="q-label">ข้อ 1 / 5</div>
+      <div class="q-num"  id="q-label">ข้อ 1 / 5</div>
       <div class="q-text" id="q-text">โหลดคำสั่ง...</div>
     </div>
     <div class="choices">
@@ -155,353 +184,647 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
   </div>
 </div>
 
-<!-- RESULT SCREEN -->
-<div id="result-ui" class="screen hidden" style="padding:20px;">
-  <div class="result-box">
-    <div class="res-icon" id="res-icon">⏳</div>
-    <div class="res-title" id="res-title">รอผลการดวล</div>
-    <div class="res-sub" id="res-sub">ฝ่ายตรงข้ามยังไม่ได้รับคำท้า</div>
-    
-    <div class="vs-grid">
-      <div class="vs-col">
-        <div class="vs-name" id="res-c-name">Challenger</div>
-        <div class="vs-score" id="res-c-score">0</div>
-        <div class="vs-time" id="res-c-time">0.0s</div>
+<!-- ③ RESULT -->
+<div id="result-ui" class="screen hidden">
+  <div class="top-bar">
+    <div class="t-app">⚔️ ผลการประลอง</div>
+    <button class="btn btn-outline" style="width:auto;padding:6px 14px;font-size:13px;" onclick="backToLobby()">← กลับ</button>
+  </div>
+  <div class="main-area">
+    <div class="result-box">
+      <div class="res-icon"  id="res-icon">⏳</div>
+      <div class="res-title" id="res-title">รอผลการดวล</div>
+      <div class="res-sub"   id="res-sub">ฝ่ายตรงข้ามยังไม่ได้รับคำท้า</div>
+
+      <div class="vs-grid">
+        <div class="vs-col">
+          <div class="vs-name"  id="res-c-name">ผู้ท้า</div>
+          <div class="vs-score" id="res-c-score">0</div>
+          <div class="vs-time"  id="res-c-time">-</div>
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class="vs-col">
+          <div class="vs-name"  id="res-t-name">เป้าหมาย</div>
+          <div class="vs-score" id="res-t-score">?</div>
+          <div class="vs-time"  id="res-t-time">-</div>
+        </div>
       </div>
-      <div class="vs-badge">VS</div>
-      <div class="vs-col">
-        <div class="vs-name" id="res-t-name">Target</div>
-        <div class="vs-score" id="res-t-score">?</div>
-        <div class="vs-time" id="res-t-time">-</div>
-      </div>
+
+      <button class="btn btn-outline" onclick="backToLobby()">← กลับศูนย์บัญชาการ</button>
     </div>
-    
-    <button class="btn btn-outline" onclick="backToLobby()">← กลับศูนย์บัญชาการ</button>
+
+    <!-- [NEW] เฉลยหลัง submit -->
+    <div id="review-section" class="hidden">
+      <div class="review-title">📋 สรุปผลการตอบ</div>
+      <div id="review-list"></div>
+    </div>
   </div>
 </div>
 
 <script>
-const LIFF_ID = '2009717287-UJ4Y1wtX'; // << [ใส่ LIFF ID ของลานประลอง]
+// ════════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════════
+const LIFF_ID = '2009717287-UJ4Y1wtX';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let userId = '', userName = '';
-let currentDuel = null, questions = [], currentQ = 0;
-let gameScore = 0, gameStartTime = 0;
-let qStartTime = 0, totalTimeMs = 0;
-let timerInt = null, timeLeft = 0;
+const Q_TIME_MS    = 10000; // เวลาต่อข้อ (ms)
+const Q_FREEZE_MS  = 700;   // หยุดให้ดูผลก่อนข้อถัดไป
 
-function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
-  document.getElementById('ca-icon').textContent = icon;
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let userId = '', userName = '';
+let currentDuel  = null;
+let questions    = [];
+let localAnswers = [];   // [NEW] เก็บคำตอบของผู้เล่นสำหรับ review
+let currentQ     = 0;
+let gameScore    = 0;
+let totalTimeMs  = 0;
+let qStartTime   = 0;
+let timerInt     = null;
+let timeLeft     = 0;
+let isSubmitting = false; // [FIX] guard ป้องกัน endDuel ซ้ำ
+let qLocked      = false; // [FIX] lock ช่วงหยุดดูผล ป้องกัน submit 2 ครั้ง
+
+// ════════════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════════════
+function customAlert(msg, title = 'แจ้งเตือน', icon = '⚠️') {
+  document.getElementById('ca-icon').textContent  = icon;
   document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').innerHTML = msg;
-  document.getElementById('ca-btn-group').innerHTML = `<button class="ca-btn ca-btn-confirm" onclick="closeCustomAlert()">รับทราบ</button>`;
+  document.getElementById('ca-msg').textContent   = msg;
+  document.getElementById('ca-btn-group').innerHTML =
+    `<button class="ca-btn ca-btn-confirm" onclick="closeCustomAlert()">รับทราบ</button>`;
   document.getElementById('custom-alert').classList.add('active');
 }
-function customConfirm(msg, callback, title="ยืนยันคำสั่ง", icon="❓", btnClass="ca-btn-confirm") {
-  document.getElementById('ca-icon').textContent = icon;
+
+let _confirmCb = null;
+function customConfirm(msg, cb, title = 'ยืนยันคำสั่ง', icon = '❓') {
+  document.getElementById('ca-icon').textContent  = icon;
   document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').innerHTML = msg;
+  document.getElementById('ca-msg').textContent   = msg;
   document.getElementById('ca-btn-group').innerHTML = `
-    <button class="ca-btn ca-btn-cancel" onclick="closeCustomAlert()">ยกเลิก</button>
-    <button class="ca-btn ${btnClass}" id="btn-ca-ok">ยืนยัน</button>
-  `;
-  document.getElementById('btn-ca-ok').onclick = () => { closeCustomAlert(); callback(); };
+    <button class="ca-btn ca-btn-cancel"  onclick="closeCustomAlert()">ยกเลิก</button>
+    <button class="ca-btn ca-btn-confirm" id="btn-ca-ok">ยืนยัน</button>`;
+  _confirmCb = cb;
+  document.getElementById('btn-ca-ok').onclick = () => { closeCustomAlert(); if (_confirmCb) _confirmCb(); };
   document.getElementById('custom-alert').classList.add('active');
 }
+
 function closeCustomAlert() { document.getElementById('custom-alert').classList.remove('active'); }
 
+// ════════════════════════════════════════════
+//  SCREEN & LOADING
+// ════════════════════════════════════════════
 function showScreen(id) {
-  document.getElementById('lobby-ui').classList.add('hidden');
-  document.getElementById('game-ui').classList.add('hidden');
-  document.getElementById('result-ui').classList.add('hidden');
+  ['lobby-ui','game-ui','result-ui'].forEach(s =>
+    document.getElementById(s).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
-function showLoading(text) { document.getElementById('ov-load').classList.remove('hidden'); document.getElementById('ov-load').querySelector('div:last-child').textContent = text; }
+function showLoading(text) {
+  document.getElementById('ov-text').textContent = text || 'กำลังโหลด...';
+  document.getElementById('ov-load').classList.remove('hidden');
+}
 function hideLoading() { document.getElementById('ov-load').classList.add('hidden'); }
 function showError(msg) { hideLoading(); customAlert(msg, 'ข้อผิดพลาด', '❌'); }
 
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
+
     const p = await liff.getProfile();
-    userId = p.userId; userName = p.displayName;
+    userId   = p.userId;
+    userName = p.displayName;
     document.getElementById('my-name').textContent = userName;
-    
+
+    // โหลด config (non-blocking)
+    callAPI('GET', { action:'get_config' }).then(r => {
+      if (r.status === 'ok' && r.config) {
+        const c = r.config;
+        if (c.colorPrimary)   document.documentElement.style.setProperty('--primary',   c.colorPrimary);
+        if (c.colorSecondary) document.documentElement.style.setProperty('--secondary', c.colorSecondary);
+      }
+    }).catch(() => {});
+
     const urlParams = new URLSearchParams(window.location.search);
-    const duelId = urlParams.get('duelId');
-    if(duelId) await acceptDuel(duelId); else await loadLobby();
-  } catch(e) { showError(e.message); }
+    const duelId    = urlParams.get('duelId');
+    if (duelId) await acceptDuel(duelId);
+    else        await loadLobby();
+  } catch(e) { showError(e.message || 'เชื่อมต่อล้มเหลว'); }
 }
 
+// ════════════════════════════════════════════
+//  LOBBY
+// ════════════════════════════════════════════
 async function loadLobby() {
   showLoading('กำลังเชื่อมต่อลานประลอง...');
   try {
-    const res = await callAPI('GET', { action: 'get_duel_inbox', userId });
-    if(res.status !== 'ok') throw new Error(res.message);
-    
+    const res = await callAPI('GET', { action:'get_duel_inbox', userId });
+    if (res.status !== 'ok') throw new Error(res.message);
+
+    // ── ตัวเลือกเป้าหมาย ──
     const sel = document.getElementById('sel-target');
     sel.innerHTML = '<option value="">-- เลือกกำลังพลเป้าหมาย --</option>';
-    (res.members||[]).forEach(m => {
-       const nick = m.nickname ? ` (${m.nickname})` : '';
-       sel.innerHTML += `<option value="${m.userId}">${m.fullName}${nick} [${m.rank}]</option>`;
+    (res.members || []).forEach(m => {
+      const opt = document.createElement('option');
+      opt.value       = m.userId;
+      opt.textContent = `${m.fullName}${m.nickname ? ` (${m.nickname})` : ''} [${m.rank}]`;
+      sel.appendChild(opt);
     });
 
+    // ── คำท้าที่รอ ──
     const pendList = document.getElementById('list-pending');
     const histList = document.getElementById('list-history');
-    pendList.innerHTML = ''; histList.innerHTML = '';
-    
+    pendList.innerHTML = '';
+    histList.innerHTML = '';
+
     let hasPending = false, hasHistory = false;
-    
-    (res.duels||[]).forEach(d => {
-       const isChallenger = d.cId === userId;
-       const opponentName = isChallenger ? d.tName : d.cName;
-       
-       if(d.status === 'PENDING') {
-         hasPending = true;
-         if(!isChallenger) {
-           pendList.innerHTML += `
-             <div class="duel-card" style="border-color:var(--secondary);">
-               <div class="duel-header">
-                 <div class="duel-title">⚔️ คำท้าจาก: ${d.cName}</div>
-                 <div class="duel-status st-pending">รอดวล</div>
-               </div>
-               <button class="btn btn-gold" style="padding:10px; font-size:14px;" onclick="acceptDuel('${d.duelId}')">รับคำท้าและดวลทันที</button>
-             </div>
-           `;
-         } else {
-           pendList.innerHTML += `
-             <div class="duel-card">
-               <div class="duel-header">
-                 <div class="duel-title">🎯 ท้าไปยัง: ${d.tName}</div>
-                 <div class="duel-status st-pending" style="background:var(--surf2); color:var(--muted); border-color:var(--border);">รอตอบรับ</div>
-               </div>
-               <button class="btn btn-outline" style="padding:10px; font-size:14px;" onclick="viewResult('${d.duelId}')">ดูสถานะ</button>
-             </div>
-           `;
-         }
-       } else {
-         hasHistory = true;
-         const myScore = isChallenger ? d.cScore : d.tScore;
-         const opScore = isChallenger ? d.tScore : d.cScore;
-         const myTime = (isChallenger ? d.cTime : d.tTime) / 1000;
-         const opTime = (isChallenger ? d.tTime : d.cTime) / 1000;
-         
-         let resultText = 'เสมอ', resColor = 'var(--muted)', resBg = 'var(--surf2)';
-         if(myScore > opScore || (myScore === opScore && myTime < opTime)) { resultText = 'ชนะ'; resColor = 'var(--success)'; resBg = 'rgba(76,175,80,0.15)'; }
-         else if(opScore > myScore || (myScore === opScore && opTime < myTime)) { resultText = 'พ่ายแพ้'; resColor = 'var(--danger)'; resBg = 'rgba(255,82,82,0.15)'; }
-         
-         histList.innerHTML += `
-           <div class="duel-card" onclick="viewResult('${d.duelId}')" style="cursor:pointer; transition:0.2s;">
-             <div class="duel-header">
-               <div class="duel-title">VS ${opponentName}</div>
-               <div class="duel-status" style="background:${resBg}; color:${resColor}; border:1px solid ${resColor};">${resultText}</div>
-             </div>
-             <div class="score-row">
-               <div style="flex:1;">
-                 <div class="score-name">คุณ</div>
-                 <div class="score-val">${myScore} <span style="font-size:11px; color:var(--muted); font-weight:400;">(${myTime.toFixed(1)}s)</span></div>
-               </div>
-               <div style="flex:1; text-align:right;">
-                 <div class="score-name">คู่ต่อสู้</div>
-                 <div class="score-val">${opScore} <span style="font-size:11px; color:var(--muted); font-weight:400;">(${opTime.toFixed(1)}s)</span></div>
-               </div>
-             </div>
-           </div>
-         `;
-       }
+
+    (res.duels || []).forEach(d => {
+      const isChallenger = d.cId === userId;
+      const opName       = isChallenger ? d.tName : d.cName;
+
+      if (d.status === 'PENDING') {
+        hasPending = true;
+        if (!isChallenger) {
+          // รับคำท้า
+          const card = createCard(`⚔️ คำท้าจาก: ${escH(d.cName)}`, 'รอดวล', 'st-pending', true);
+          const btn  = document.createElement('button');
+          btn.className   = 'btn btn-gold';
+          btn.style.cssText = 'padding:10px;font-size:14px;';
+          btn.textContent = 'รับคำท้าและดวลทันที';
+          btn.onclick     = () => acceptDuel(d.duelId);
+          card.appendChild(btn);
+          pendList.appendChild(card);
+        } else {
+          // รอตอบรับ
+          const card = createCard(`🎯 ท้าไปยัง: ${escH(d.tName)}`, 'รอตอบรับ', 'st-pending', false, true);
+          const btn  = document.createElement('button');
+          btn.className   = 'btn btn-outline';
+          btn.style.cssText = 'padding:10px;font-size:14px;';
+          btn.textContent = 'ดูสถานะ';
+          btn.onclick     = () => viewResult(d.duelId);
+          card.appendChild(btn);
+          pendList.appendChild(card);
+        }
+      } else {
+        // ── ประวัติ ──
+        hasHistory = true;
+        const myScore = Number(isChallenger ? d.cScore : d.tScore) || 0;
+        const opScore = Number(isChallenger ? d.tScore : d.cScore) || 0;
+        const myTime  = (Number(isChallenger ? d.cTime  : d.tTime)  || 0) / 1000;
+        const opTime  = (Number(isChallenger ? d.tTime  : d.cTime)  || 0) / 1000;
+
+        let label = 'เสมอ', color = 'var(--muted)', bg = 'var(--surf2)';
+        if (myScore > opScore || (myScore === opScore && myTime > 0 && myTime < opTime)) {
+          label = 'ชนะ'; color = 'var(--success)'; bg = 'rgba(76,175,80,0.15)';
+        } else if (opScore > myScore || (myScore === opScore && opTime > 0 && opTime < myTime)) {
+          label = 'พ่ายแพ้'; color = 'var(--danger)'; bg = 'rgba(255,82,82,0.15)';
+        }
+
+        const card = createCard(`VS ${escH(opName)}`, label, '', false, false,
+          `background:${bg};color:${color};border:1px solid ${color};`);
+        card.style.cursor = 'pointer';
+
+        const row = document.createElement('div');
+        row.className = 'score-row';
+        row.innerHTML = `
+          <div style="flex:1">
+            <div class="score-name">คุณ</div>
+            <div class="score-val">${myScore} <span style="font-size:11px;color:var(--muted);font-weight:400;">(${myTime.toFixed(1)}s)</span></div>
+          </div>
+          <div style="flex:1;text-align:right">
+            <div class="score-name">คู่ต่อสู้</div>
+            <div class="score-val">${opScore} <span style="font-size:11px;color:var(--muted);font-weight:400;">(${opTime.toFixed(1)}s)</span></div>
+          </div>`;
+        card.appendChild(row);
+        card.onclick = () => viewResult(d.duelId);
+        histList.appendChild(card);
+      }
     });
-    
-    if(!hasPending) pendList.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:13px; padding:20px; border:1px dashed var(--border); border-radius:12px;">ไม่มีคำท้าที่รออยู่</div>';
-    if(!hasHistory) histList.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:13px;">ยังไม่มีประวัติการประลอง</div>';
-    
-    hideLoading(); showScreen('lobby-ui');
+
+    if (!hasPending) {
+      pendList.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:18px;border:1px dashed var(--border);border-radius:12px;">ไม่มีคำท้าที่รออยู่</div>';
+    }
+    if (!hasHistory) {
+      histList.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:12px;">ยังไม่มีประวัติการประลอง</div>';
+    }
+
+    hideLoading();
+    showScreen('lobby-ui');
   } catch(e) { showError(e.message); }
 }
 
-async function initiateDuel() {
-  const targetId = document.getElementById('sel-target').value;
-  if(!targetId) return customAlert('กรุณาเลือกกำลังพลที่ต้องการท้าประลอง!', 'แจ้งเตือน', '⚠️');
-  
-  customConfirm('คุณพร้อมที่จะทำแบบทดสอบแบบสุ่ม 5 ข้อ (จับเวลา) เพื่อส่งคำท้าไปหรือไม่?', async () => {
-    showLoading('กำลังเตรียมสนาม...');
-    try {
-      const res = await callAPI('GET', { action: 'get_questions', userId });
-      if(res.status !== 'ok') throw new Error(res.message);
-      
-      const allQs = res.questions || [];
-      if(allQs.length < 5) throw new Error('คลังข้อสอบมีไม่เพียงพอสำหรับการประลอง');
-      
-      questions = allQs.sort(() => Math.random() - 0.5).slice(0, 5);
-      currentDuel = { cId: userId, tId: targetId, isCreating: true, qIds: questions.map(q => q.questionId) };
-      
-      hideLoading(); startGame();
-    } catch(e) { showError(e.message); }
-  }, 'เริ่มการประลอง', '⚔️');
+// helper สร้าง duel-card element
+function createCard(title, statusText, statusClass, highlightBorder = false, mutedStatus = false, statusStyle = '') {
+  const card = document.createElement('div');
+  card.className = 'duel-card';
+  if (highlightBorder) card.style.borderColor = 'var(--secondary)';
+
+  const hdr    = document.createElement('div'); hdr.className = 'duel-header';
+  const tEl    = document.createElement('div'); tEl.className = 'duel-title';    tEl.innerHTML = title;
+  const sEl    = document.createElement('div'); sEl.className = `duel-status ${statusClass}`;
+  sEl.textContent = statusText;
+  if (statusStyle) sEl.setAttribute('style', statusStyle);
+  if (mutedStatus)  sEl.style.cssText = 'background:var(--surf2);color:var(--muted);border-color:var(--border);';
+
+  hdr.appendChild(tEl);
+  hdr.appendChild(sEl);
+  card.appendChild(hdr);
+  return card;
 }
 
+// ════════════════════════════════════════════
+//  INITIATE DUEL (ผู้ท้า)
+// ════════════════════════════════════════════
+async function initiateDuel() {
+  const targetId = document.getElementById('sel-target').value;
+  if (!targetId) return customAlert('กรุณาเลือกกำลังพลที่ต้องการท้าประลอง!', 'แจ้งเตือน', '⚠️');
+
+  customConfirm(
+    'คุณพร้อมที่จะทำแบบทดสอบ 5 ข้อ (จับเวลา) เพื่อส่งคำท้าหรือไม่?',
+    async () => {
+      showLoading('กำลังเตรียมสนาม...');
+      try {
+        const res = await callAPI('GET', { action:'get_questions', userId });
+        if (res.status !== 'ok') throw new Error(res.message);
+
+        const allQs = res.questions || [];
+        if (allQs.length < 5) throw new Error('คลังข้อสอบมีไม่เพียงพอสำหรับการประลอง (ต้องการอย่างน้อย 5 ข้อ)');
+
+        questions    = allQs.sort(() => Math.random() - 0.5).slice(0, 5);
+        localAnswers = [];
+        currentDuel  = { isCreating: true, tId: targetId, qIds: questions.map(q => q.questionId) };
+
+        hideLoading();
+        startGame();
+      } catch(e) { showError(e.message); }
+    },
+    'เริ่มการประลอง', '⚔️'
+  );
+}
+
+// ════════════════════════════════════════════
+//  ACCEPT DUEL (ผู้รับ)
+// [FIX] ตรวจ status = COMPLETED ก่อนเสมอ
+// ════════════════════════════════════════════
 async function acceptDuel(duelId) {
   showLoading('กำลังโหลดข้อมูลคำท้า...');
   try {
-    const res = await callAPI('GET', { action: 'get_duel_data', duelId });
-    if(res.status !== 'ok') throw new Error(res.message);
-    
+    const res = await callAPI('GET', { action:'get_duel_data', duelId });
+    if (res.status !== 'ok') throw new Error(res.message);
+
     currentDuel = res.duel;
-    questions = res.questions;
-    
-    if(currentDuel.status === 'COMPLETED' || currentDuel.cId === userId) {
+    questions   = res.questions || [];
+    localAnswers = [];
+
+    // [FIX] ถ้าจบแล้ว หรือ user เป็น challenger → ดูผลอย่างเดียว
+    if (currentDuel.status === 'COMPLETED') {
       hideLoading();
       return renderResult(currentDuel);
     }
-    
+    if (currentDuel.cId === userId) {
+      hideLoading();
+      return renderResult(currentDuel); // ผู้ท้า กลับมาดูสถานะ
+    }
+
     hideLoading();
-    customConfirm(`<b>${currentDuel.cName}</b> ได้ส่งคำท้าประลองมาให้คุณ!<br><br>พร้อมที่จะทำแบบทดสอบ 5 ข้อแข่งขันเวลาหรือไม่?`, () => {
-      startGame();
-    }, 'รับคำท้า', '⚔️', 'ca-btn-confirm');
+    customConfirm(
+      `${currentDuel.cName} ส่งคำท้าประลองมาให้คุณ!\n\nพร้อมที่จะทำแบบทดสอบ ${questions.length} ข้อแข่งขันเวลาหรือไม่?`,
+      () => startGame(),
+      'รับคำท้า', '⚔️'
+    );
   } catch(e) { showError(e.message); }
 }
 
+// ════════════════════════════════════════════
+//  GAME
+// ════════════════════════════════════════════
 function startGame() {
-  currentQ = 0; gameScore = 0; totalTimeMs = 0; gameStartTime = Date.now();
+  currentQ    = 0;
+  gameScore   = 0;
+  totalTimeMs = 0;
+  isSubmitting = false;
+  qLocked      = false;
+  localAnswers = [];
   showScreen('game-ui');
   loadQuestion();
 }
 
 function loadQuestion() {
   if (currentQ >= questions.length) { endDuel(); return; }
-  
+
+  qLocked = false;
   const q = questions[currentQ];
   document.getElementById('q-label').textContent = `ข้อ ${currentQ + 1} / ${questions.length}`;
-  document.getElementById('q-text').textContent = q.questionText;
-  
+  document.getElementById('q-text').textContent  = q.questionText;
+  document.getElementById('game-score').textContent = `แต้ม: ${gameScore}`;
+
   ['A','B','C','D'].forEach(k => {
     const btn = document.getElementById(`c-${k}`);
-    document.getElementById(`t-${k}`).textContent = q.choices[k] || '-';
-    btn.style.display = q.choices[k] ? 'flex' : 'none';
-    btn.style.pointerEvents = 'auto';
-    btn.style.opacity = '1';
-    btn.style.borderColor = 'var(--border)';
+    const txt = document.getElementById(`t-${k}`);
+    const text = q.choices && q.choices[k] ? String(q.choices[k]) : '';
+    txt.textContent = text || '-';
+    btn.style.display = text ? 'flex' : 'none';
+    // [FIX] reset styles ทุกครั้ง
+    btn.className = 'choice-btn';
   });
-  
-  timeLeft = 10000; qStartTime = Date.now();
-  clearInterval(timerInt);
-  
+
+  // reset timer bar
+  const bar = document.getElementById('timer-bar');
+  bar.style.width      = '100%';
+  bar.style.background = 'var(--secondary)';
+
+  qStartTime = Date.now();
+  timeLeft   = Q_TIME_MS;
+  stopTimer();
+
   timerInt = setInterval(() => {
     timeLeft -= 50;
-    const pct = Math.max(0, (timeLeft / 10000) * 100);
-    const bar = document.getElementById('timer-bar');
-    bar.style.width = pct + '%';
+    const pct = Math.max(0, (timeLeft / Q_TIME_MS) * 100);
+    bar.style.width      = pct + '%';
     bar.style.background = pct > 30 ? 'var(--secondary)' : 'var(--danger)';
-    
-    if(timeLeft <= 0) { clearInterval(timerInt); submitAnswer(''); }
+    if (timeLeft <= 0) { stopTimer(); submitAnswer(''); }
   }, 50);
 }
 
+// [FIX] แยก stopTimer ออกมา
+function stopTimer() {
+  if (timerInt !== null) { clearInterval(timerInt); timerInt = null; }
+}
+
 function submitAnswer(ans) {
-  clearInterval(timerInt);
+  // [FIX] qLocked ป้องกัน submit 2 ครั้ง (เช่น กดปุ่ม + timeout ชนกัน)
+  if (qLocked) return;
+  qLocked = true;
+  stopTimer();
+
   const timeTaken = Date.now() - qStartTime;
   totalTimeMs += timeTaken;
-  
-  const q = questions[currentQ];
-  const isCorrect = ans && (ans === q.correctAnswer || true); // Frontend Mock Check
-  
-  if(isCorrect && ans !== '') {
-    const timeBonus = Math.floor((Math.max(0, 10000 - timeTaken) / 10000) * 50);
-    gameScore += (100 + timeBonus);
-    document.getElementById('game-score').textContent = `แต้ม: ${gameScore}`;
-    if(ans) document.getElementById(`c-${ans}`).style.borderColor = 'var(--success)';
-  } else {
-    if(ans) document.getElementById(`c-${ans}`).style.borderColor = 'var(--danger)';
+
+  const q         = questions[currentQ];
+  const correct   = String(q.correctAnswer || '').toUpperCase();
+  const selected  = String(ans || '').toUpperCase();
+  const isCorrect = selected !== '' && selected === correct;
+
+  // [FIX] คะแนน: ตรวจเฉลยจริง ไม่ใช่ mock check แบบเดิม (ans !== '' หรือ true)
+  let earned = 0;
+  if (isCorrect) {
+    const bonus = Math.floor((Math.max(0, Q_TIME_MS - timeTaken) / Q_TIME_MS) * 50);
+    earned = 100 + bonus;
+    gameScore += earned;
   }
-  
-  ['A','B','C','D'].forEach(k => { document.getElementById(`c-${k}`).style.pointerEvents = 'none'; });
-  
-  setTimeout(() => { currentQ++; loadQuestion(); }, 600);
+
+  // [NEW] เก็บคำตอบสำหรับ review
+  localAnswers.push({
+    qText:     q.questionText,
+    choices:   q.choices || {},
+    selected,
+    correct,
+    isCorrect,
+    earned
+  });
+
+  // แสดงผลถูก/ผิด + reveal เฉลย
+  if (selected) {
+    const selBtn = document.getElementById(`c-${selected}`);
+    if (selBtn) selBtn.classList.add(isCorrect ? 'correct' : 'wrong');
+  }
+  if (!isCorrect && correct) {
+    const corrBtn = document.getElementById(`c-${correct}`);
+    if (corrBtn && corrBtn.style.display !== 'none') corrBtn.classList.add('correct-reveal');
+  }
+  // lock ทุกปุ่ม
+  ['A','B','C','D'].forEach(k => {
+    const b = document.getElementById(`c-${k}`);
+    if (b) b.classList.add('locked');
+  });
+
+  document.getElementById('game-score').textContent = `แต้ม: ${gameScore}`;
+
+  setTimeout(() => { currentQ++; loadQuestion(); }, Q_FREEZE_MS);
 }
 
+// ════════════════════════════════════════════
+//  END DUEL — ส่งผลไป server
+// [FIX] isSubmitting guard ป้องกัน submit ซ้ำ
+// ════════════════════════════════════════════
 async function endDuel() {
+  if (isSubmitting) return;
+  isSubmitting = true;
+  stopTimer();
+
   showLoading('กำลังส่งรายงานการประลอง...');
   try {
-    if(currentDuel.isCreating) {
-      const res = await callAPI('POST', { action: 'create_duel', userId, targetId: currentDuel.tId, score: gameScore, timeMs: totalTimeMs, qIds: currentDuel.qIds });
-      if(res.status !== 'ok') throw new Error(res.message);
+    if (currentDuel.isCreating) {
+      // ผู้ท้า — สร้าง duel ใหม่
+      const res = await callAPI('POST', {
+        action: 'create_duel', userId,
+        targetId: currentDuel.tId,
+        score:    gameScore,
+        timeMs:   totalTimeMs,
+        qIds:     currentDuel.qIds
+      });
+      if (res.status !== 'ok') throw new Error(res.message);
+      hideLoading();
       customAlert('ส่งคำท้าประลองไปยังคู่ต่อสู้เรียบร้อยแล้ว!', 'สำเร็จ', '📤');
-      backToLobby();
+      // [NEW] แสดง review ก่อน back
+      showResultWithReview({
+        cId:    userId, tId:    currentDuel.tId,
+        cScore: gameScore, cTime: totalTimeMs,
+        tScore: null,      tTime:  null,
+        status: 'PENDING'
+      });
     } else {
-      const res = await callAPI('POST', { action: 'submit_duel', userId, duelId: currentDuel.duelId, score: gameScore, timeMs: totalTimeMs });
-      if(res.status !== 'ok') throw new Error(res.message);
-      
-      const updatedDuel = { ...currentDuel, tScore: gameScore, tTime: totalTimeMs, status: 'COMPLETED' };
-      renderResult(updatedDuel);
+      // ผู้รับ — ส่งผลการดวล
+      const res = await callAPI('POST', {
+        action: 'submit_duel', userId,
+        duelId: currentDuel.duelId,
+        score:  gameScore,
+        timeMs: totalTimeMs
+      });
+      if (res.status !== 'ok') throw new Error(res.message);
+      hideLoading();
+      showResultWithReview({
+        ...currentDuel,
+        tScore: gameScore,
+        tTime:  totalTimeMs,
+        status: 'COMPLETED'
+      });
     }
-  } catch(e) { showError(e.message); }
+  } catch(e) {
+    isSubmitting = false;
+    showError(e.message);
+  }
 }
 
+// ════════════════════════════════════════════
+//  VIEW RESULT (จาก inbox)
+// ════════════════════════════════════════════
 async function viewResult(duelId) {
   showLoading('ตรวจสอบข้อมูล...');
   try {
-    const res = await callAPI('GET', { action: 'get_duel_data', duelId });
-    if(res.status !== 'ok') throw new Error(res.message);
+    const res = await callAPI('GET', { action:'get_duel_data', duelId });
+    if (res.status !== 'ok') throw new Error(res.message);
+    hideLoading();
     renderResult(res.duel);
   } catch(e) { showError(e.message); }
 }
 
+// ════════════════════════════════════════════
+//  RENDER RESULT
+// ════════════════════════════════════════════
+function showResultWithReview(duel) {
+  renderResult(duel);
+  renderReview();
+}
+
 function renderResult(duel) {
   hideLoading();
-  const isC = userId === duel.cId;
-  const myScore = isC ? duel.cScore : duel.tScore;
-  const opScore = isC ? duel.tScore : duel.cScore;
-  const myTime = (isC ? duel.cTime : duel.tTime) / 1000;
-  const opTime = (isC ? duel.tTime : duel.cTime) / 1000;
-  
-  document.getElementById('res-c-name').textContent = isC ? 'คุณ' : duel.cName;
-  document.getElementById('res-t-name').textContent = isC ? duel.tName : 'คุณ';
-  
-  document.getElementById('res-c-score').textContent = duel.cScore !== '' ? duel.cScore : '?';
-  document.getElementById('res-c-time').textContent = duel.cTime !== '' ? (duel.cTime/1000).toFixed(1)+'s' : '-';
-  
-  document.getElementById('res-t-score').textContent = duel.tScore !== '' ? duel.tScore : '?';
-  document.getElementById('res-t-time').textContent = duel.tTime !== '' ? (duel.tTime/1000).toFixed(1)+'s' : '-';
-  
-  const rIcon = document.getElementById('res-icon');
-  const rTitle = document.getElementById('res-title');
-  const rSub = document.getElementById('res-sub');
-  
-  if (duel.status === 'PENDING') {
-    rIcon.textContent = '⏳'; rTitle.textContent = 'รอผลการดวล'; rTitle.style.color = 'var(--secondary)';
-    rSub.textContent = 'เป้าหมายยังไม่ได้ดำเนินการตอบรับคำท้า';
-  } else {
-    let won = false, tie = false;
-    if(myScore > opScore) won = true;
-    else if(myScore === opScore && myTime < opTime) won = true;
-    else if(myScore === opScore && myTime === opTime) tie = true;
-    
-    if(tie) {
-      rIcon.textContent = '🤝'; rTitle.textContent = 'ผลเสมอ'; rTitle.style.color = 'var(--muted)';
-      rSub.textContent = 'ฝีมือสูสี กินกันไม่ลง!';
-    } else if(won) {
-      rIcon.textContent = '🏆'; rTitle.textContent = 'ชัยชนะ!'; rTitle.style.color = 'var(--success)';
-      rSub.textContent = 'คุณคือผู้ชนะในสมรภูมินี้ รับโบนัสเหรียญ PX พิเศษ';
-    } else {
-      rIcon.textContent = '💀'; rTitle.textContent = 'พ่ายแพ้'; rTitle.style.color = 'var(--danger)';
-      rSub.textContent = 'พ่ายแพ้ในสมรภูมิครั้งนี้ กลับไปฝึกฝนมาใหม่!';
-    }
-  }
   showScreen('result-ui');
+  document.getElementById('review-section').classList.add('hidden');
+
+  const isC    = userId === duel.cId;
+  const myScore  = Number(isC ? duel.cScore : duel.tScore) || 0;
+  const opScore  = Number(isC ? duel.tScore : duel.cScore);
+  const myTimeS  = (Number(isC ? duel.cTime  : duel.tTime) || 0) / 1000;
+  const opTimeS  = (Number(isC ? duel.tTime  : duel.cTime) || 0) / 1000;
+  const cName    = String(duel.cName || '');
+  const tName    = String(duel.tName || '');
+
+  // ── VS grid ──
+  document.getElementById('res-c-name').textContent  = isC ? 'คุณ' : cName;
+  document.getElementById('res-t-name').textContent  = isC ? tName : 'คุณ';
+  document.getElementById('res-c-score').textContent = duel.cScore !== null && duel.cScore !== '' ? String(duel.cScore) : '?';
+  document.getElementById('res-c-time').textContent  = duel.cTime  ? (Number(duel.cTime)/1000).toFixed(1)+'s'  : '-';
+  document.getElementById('res-t-score').textContent = duel.tScore !== null && duel.tScore !== '' ? String(duel.tScore) : '?';
+  document.getElementById('res-t-time').textContent  = duel.tTime  ? (Number(duel.tTime)/1000).toFixed(1)+'s'  : '-';
+
+  const rIcon  = document.getElementById('res-icon');
+  const rTitle = document.getElementById('res-title');
+  const rSub   = document.getElementById('res-sub');
+
+  if (duel.status === 'PENDING') {
+    rIcon.textContent  = '⏳';
+    rTitle.textContent = 'รอผลการดวล';
+    rTitle.style.color = 'var(--secondary)';
+    rSub.textContent   = 'เป้าหมายยังไม่ได้ตอบรับคำท้า';
+    return;
+  }
+
+  // คำนวณผล
+  const opScoreNum = Number(opScore) || 0;
+  let won = false, tie = false;
+  if (myScore > opScoreNum)                                           won = true;
+  else if (myScore === opScoreNum && myTimeS > 0 && myTimeS < opTimeS) won = true;
+  else if (myScore === opScoreNum && myTimeS === opTimeS)               tie = true;
+
+  if (tie) {
+    rIcon.textContent  = '🤝';
+    rTitle.textContent = 'ผลเสมอ';
+    rTitle.style.color = 'var(--muted)';
+    rSub.textContent   = 'ฝีมือสูสี กินกันไม่ลง!';
+  } else if (won) {
+    rIcon.textContent  = '🏆';
+    rTitle.textContent = 'ชัยชนะ!';
+    rTitle.style.color = 'var(--success)';
+    rSub.textContent   = 'คุณคือผู้ชนะในสมรภูมินี้ รับโบนัสเหรียญ PX พิเศษ';
+  } else {
+    rIcon.textContent  = '💀';
+    rTitle.textContent = 'พ่ายแพ้';
+    rTitle.style.color = 'var(--danger)';
+    rSub.textContent   = 'พ่ายแพ้ในสมรภูมิครั้งนี้ กลับไปฝึกฝนมาใหม่!';
+  }
 }
 
-function backToLobby() { window.history.replaceState({}, document.title, window.location.pathname); loadLobby(); }
+// [NEW] แสดงเฉลยคำตอบหลังดวลเสร็จ
+function renderReview() {
+  if (!localAnswers.length) return;
+  const section = document.getElementById('review-section');
+  const list    = document.getElementById('review-list');
+  list.innerHTML = '';
 
-async function callAPI(method, params, timeoutMs=20000) {
-  const ctrl = new AbortController(); const tid = setTimeout(() => ctrl.abort(), timeoutMs);
+  localAnswers.forEach((a, i) => {
+    const card = document.createElement('div');
+    card.className = `review-card ${a.isCorrect ? 'correct' : 'wrong'}`;
+
+    const uText = a.selected && a.choices[a.selected] ? `${a.selected}: ${a.choices[a.selected]}` : (a.selected || 'ไม่ได้ตอบ');
+    const cText = a.correct  && a.choices[a.correct]  ? `${a.correct}: ${a.choices[a.correct]}`   : a.correct;
+
+    card.innerHTML = `
+      <div class="review-q">ข้อ ${i+1}: ${escH(a.qText)}</div>
+      <div class="review-row">
+        <div class="review-lbl">คุณตอบ:</div>
+        <div class="review-val ${a.isCorrect ? 'val-correct' : 'val-wrong'}">${escH(uText)}</div>
+      </div>
+      <div class="review-row">
+        <div class="review-lbl">เฉลย:</div>
+        <div class="review-val val-correct">${escH(cText)}</div>
+      </div>
+      <div class="review-row">
+        <div class="review-lbl">คะแนน:</div>
+        <div class="review-val" style="color:var(--secondary);">+${a.earned}</div>
+      </div>`;
+    list.appendChild(card);
+  });
+
+  section.classList.remove('hidden');
+}
+
+// ════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════
+function backToLobby() {
+  stopTimer();
+  window.history.replaceState({}, document.title, window.location.pathname);
+  loadLobby();
+}
+
+// ════════════════════════════════════════════
+//  UTILITIES
+// ════════════════════════════════════════════
+function escH(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ════════════════════════════════════════════
+//  API HELPER
+// ════════════════════════════════════════════
+async function callAPI(method, params, timeoutMs = 20000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    let url = GAS_URL, opts = { signal:ctrl.signal, redirect:'follow' };
-    if (method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts.method = 'GET'; } 
-    else { opts.method = 'POST'; opts.headers = { 'Content-Type':'text/plain' }; opts.body = JSON.stringify(params); }
-    const resp = await fetch(url, opts); clearTimeout(tid);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status); return await resp.json();
-  } catch(e) { clearTimeout(tid); throw e; }
+    let url  = GAS_URL;
+    let opts = { signal:ctrl.signal, redirect:'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type':'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
+    const resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ กรุณาลองใหม่');
+    throw e;
+  }
 }
+
+// cleanup
+window.addEventListener('pagehide',     stopTimer);
+window.addEventListener('beforeunload', stopTimer);
 
 init();
 </script>
