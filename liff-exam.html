@@ -8,153 +8,155 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=IBM+Plex+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Tactical Theme */
-  --primary: #2e7d32; 
-  --primary-dark: #1b5e20;
+  --primary: #2e7d32; --primary-dark: #1b5e20;
   --secondary: #ffca28;
   --bg: #0a0a0a; --surface: #121212; --surf2: #1e1e1e;
   --border: #333333; --text: #e0e0e0; --muted: #888888;
   --gold: #ffca28; --danger: #ff5252; --success: #4caf50;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
 
-/* Header & Timer */
-.top-bar { background: var(--surface); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.5);}
-.top-info { display: flex; flex-direction: column; }
-.t-app { font-weight: 800; font-size: 16px; color: var(--secondary); display: flex; align-items: center; gap: 6px; text-transform: uppercase;}
-.t-subj { font-size: 12px; color: var(--muted); }
-.timer { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 700; color: var(--secondary); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; background: rgba(255,202,40,0.1); }
-.timer.danger { color: var(--danger); border-color: var(--danger); background: rgba(255,82,82,0.1); animation: blink 1s infinite; }
-@keyframes blink { 50% { opacity: 0.5; } }
+/* ── Top Bar & Timer ── */
+.top-bar { background:var(--surface); padding:14px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+.top-info { display:flex; flex-direction:column; }
+.t-app  { font-weight:800; font-size:16px; color:var(--secondary); display:flex; align-items:center; gap:6px; text-transform:uppercase; }
+.t-subj { font-size:12px; color:var(--muted); }
+.timer  { font-family:'IBM Plex Mono',monospace; font-size:16px; font-weight:700; color:var(--secondary); border:1px solid var(--border); padding:6px 12px; border-radius:8px; background:rgba(255,202,40,0.1); min-width:64px; text-align:center; }
+.timer.danger { color:var(--danger); border-color:var(--danger); background:rgba(255,82,82,0.1); animation:blink 1s infinite; }
+@keyframes blink { 50% { opacity:0.5; } }
 
-/* Main Area */
-.main-area { flex: 1; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
+/* ── Progress dots ── */
+.q-progress { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+.q-dot { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; border:1px solid var(--border); color:var(--muted); background:var(--surface); cursor:pointer; transition:0.2s; user-select:none; }
+.q-dot.active   { border-color:var(--secondary); color:var(--secondary); border-width:2px; }
+.q-dot.answered { background:rgba(46,125,50,0.2); border-color:var(--primary); color:var(--text); }
 
-/* Setup & Selection */
-.setup-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; margin-top: 15vh; box-shadow: 0 10px 30px rgba(0,0,0,0.6);}
-.select-subj { width: 100%; padding: 14px; background: #000; border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Sarabun'; font-size: 16px; margin: 20px 0; outline: none; }
-.select-subj:focus { border-color: var(--primary); }
-.btn { width: 100%; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
-.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-.btn-gold { background: var(--secondary); color: #000; box-shadow: 0 4px 15px rgba(255,202,40,0.2); }
-.btn:active { transform: scale(0.96); box-shadow: none; }
+/* ── Question card ── */
+.q-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:22px; margin-bottom:18px; box-shadow:0 4px 15px rgba(0,0,0,0.3); }
+.q-num  { font-size:12px; color:var(--secondary); font-weight:700; margin-bottom:8px; text-transform:uppercase; }
+.q-text { font-size:18px; font-weight:600; line-height:1.55; color:var(--text); }
 
-/* Question Area */
-.q-progress { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-.q-dot { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; border: 1px solid var(--border); color: var(--muted); background: var(--surface); cursor: pointer; transition: 0.2s;}
-.q-dot.active { border-color: var(--secondary); color: var(--secondary); border-width: 2px; }
-.q-dot.answered { background: rgba(46,125,50,0.2); border-color: var(--primary); color: var(--text); }
+/* ── Choices ── */
+.choices { display:flex; flex-direction:column; gap:10px; }
+.choice-btn { background:var(--surface); border:2px solid var(--border); border-radius:12px; padding:15px; display:flex; gap:14px; align-items:center; cursor:pointer; transition:border-color 0.15s, background 0.15s; color:var(--text); text-align:left; -webkit-tap-highlight-color:transparent; }
+.choice-btn:active { transform:scale(0.98); }
+.choice-btn.selected { border-color:var(--secondary); background:rgba(255,202,40,0.1); }
+.c-label { font-family:'IBM Plex Mono'; font-weight:800; background:var(--surf2); width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:6px; flex-shrink:0; color:var(--muted); border:1px solid var(--border); font-size:14px; }
+.choice-btn.selected .c-label { background:var(--secondary); color:#000; border-color:var(--secondary); }
+.c-text { font-family:'Sarabun'; font-size:15px; line-height:1.45; }
 
-.q-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-.q-num { font-size: 12px; color: var(--secondary); font-weight: 700; margin-bottom: 8px; text-transform: uppercase;}
-.q-text { font-size: 18px; font-weight: 600; line-height: 1.5; color: var(--text); }
+/* ── Controls bar ── */
+.controls { display:flex; justify-content:space-between; gap:10px; padding:16px 20px; background:var(--bg); position:sticky; bottom:0; border-top:1px dashed var(--border); }
 
-.choices { display: flex; flex-direction: column; gap: 12px; }
-.choice-btn { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 16px; display: flex; gap: 15px; align-items: center; cursor: pointer; transition: 0.2s; color: var(--text); text-align: left;}
-.choice-btn.selected { border-color: var(--secondary); background: rgba(255,202,40,0.1); }
-.c-label { font-family: 'IBM Plex Mono'; font-weight: 800; background: var(--surf2); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; flex-shrink: 0; color: var(--muted); border: 1px solid var(--border);}
-.choice-btn.selected .c-label { background: var(--secondary); color: #000; border-color: var(--secondary);}
-.c-text { font-family: 'Sarabun'; font-size: 15px; line-height: 1.4; }
+/* ── Main area ── */
+.main-area { flex:1; padding:18px; display:flex; flex-direction:column; overflow-y:auto; }
 
-.controls { display: flex; justify-content: space-between; margin-top: auto; gap: 10px; padding: 20px; background: var(--bg); position: sticky; bottom: 0; border-top: 1px dashed var(--border);}
+/* ── Setup screen ── */
+.setup-box { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px; text-align:center; margin-top:12vh; box-shadow:0 10px 30px rgba(0,0,0,0.6); }
+.select-subj { width:100%; padding:14px; background:#000; border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'Sarabun'; font-size:16px; margin:20px 0; outline:none; cursor:pointer; }
+.select-subj:focus { border-color:var(--primary); }
+.select-subj option:disabled { color:var(--muted); }
 
-/* Loaders & Overlays */
-.ov { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-.spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.hidden { display: none !important; }
+/* ── Buttons ── */
+.btn { width:100%; padding:15px; border-radius:10px; font-size:16px; font-weight:800; font-family:'Sarabun'; cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; border:none; }
+.btn-primary { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; box-shadow:0 4px 15px rgba(0,0,0,0.3); }
+.btn-gold    { background:var(--secondary); color:#000; box-shadow:0 4px 15px rgba(255,202,40,0.2); }
+.btn:active  { transform:scale(0.96); box-shadow:none; }
+.btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
 
-/* Custom Modal CSS (Native Look) */
-.ca-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; backdrop-filter: blur(3px);}
-.ca-ov.active { opacity: 1; pointer-events: auto; }
-.ca-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px 24px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.ca-ov.active .ca-box { transform: scale(1); }
-.ca-icon { font-size: 60px; margin-bottom: 15px; line-height: 1; }
-.ca-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; text-transform: uppercase;}
-.ca-msg { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
-.ca-btn-group { display: flex; gap: 12px; justify-content: center; }
-.ca-btn { flex: 1; padding: 12px 0; border-radius: 10px; font-size: 15px; font-weight: 800; font-family: 'Sarabun'; cursor: pointer; transition: 0.2s; border: none; }
-.ca-btn-cancel { background: var(--surf2); border: 1px solid var(--border); color: var(--text); }
-.ca-btn-confirm { background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3); }
-.ca-btn-danger { background: var(--danger); color: #fff; box-shadow: 0 4px 15px rgba(255, 82, 82, 0.3); }
-.ca-btn:active { transform: scale(0.96); }
+/* ── Overlay / Spinner ── */
+.ov { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:1000; }
+.spinner { width:50px; height:50px; border:4px solid var(--border); border-top:4px solid var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:20px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.hidden { display:none !important; }
 
-/* Premium Result Page Styles */
-.res-header-card { background: linear-gradient(135deg, #1b5e20 0%, #003300 100%); border-radius: 24px; padding: 30px 20px 24px; text-align: center; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #2e7d32;}
-.score-circle-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
-.score-circle { width: 130px; height: 130px; border-radius: 50%; border: 6px solid var(--secondary); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(255,202,40,0.4); background: rgba(0,0,0,0.3);}
-.score-circle .sc-val { font-size: 46px; font-weight: 800; font-family: 'IBM Plex Mono', monospace; color: var(--secondary); line-height: 1; margin-bottom: -5px;}
-.score-circle .sc-max { font-size: 16px; color: rgba(255,255,255,0.7); font-family: 'IBM Plex Mono', monospace; }
+/* ── Custom Modal ── */
+.ca-ov { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(3px); }
+.ca-ov.active { opacity:1; pointer-events:auto; }
+.ca-box { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:32px 24px; width:100%; max-width:320px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.5); transform:scale(0.9); transition:transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275); }
+.ca-ov.active .ca-box { transform:scale(1); }
+.ca-icon  { font-size:60px; margin-bottom:15px; line-height:1; }
+.ca-title { font-size:20px; font-weight:800; color:var(--text); margin-bottom:10px; text-transform:uppercase; }
+.ca-msg   { font-size:14px; color:var(--muted); margin-bottom:24px; line-height:1.6; }
+.ca-btn-group { display:flex; gap:12px; justify-content:center; }
+.ca-btn { flex:1; padding:12px 0; border-radius:10px; font-size:15px; font-weight:800; font-family:'Sarabun'; cursor:pointer; transition:transform 0.15s; border:none; }
+.ca-btn-cancel  { background:var(--surf2); border:1px solid var(--border); color:var(--text); }
+.ca-btn-confirm { background:var(--primary); color:#fff; box-shadow:0 4px 15px rgba(46,125,50,0.3); }
+.ca-btn-danger  { background:var(--danger);  color:#fff; box-shadow:0 4px 15px rgba(255,82,82,0.3); }
+.ca-btn:active  { transform:scale(0.96); }
 
-.badge-status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 20px; font-weight: 700; font-size: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);}
-.badge-status.pass { background: rgba(76,175,80,0.2); color: var(--success); border: 1px solid rgba(76,175,80,0.4); }
-.badge-status.fail { background: rgba(255,82,82,0.2); color: var(--danger); border: 1px solid rgba(255,82,82,0.4); }
+/* ── Result screen ── */
+.res-header-card { background:linear-gradient(135deg,#1b5e20 0%,#003300 100%); border-radius:24px; padding:28px 20px 22px; text-align:center; margin-bottom:14px; box-shadow:0 10px 30px rgba(0,0,0,0.5); border:1px solid #2e7d32; }
+.score-circle-wrap { display:flex; justify-content:center; margin-bottom:18px; }
+.score-circle { width:130px; height:130px; border-radius:50%; border:6px solid var(--secondary); display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(255,202,40,0.4); background:rgba(0,0,0,0.3); }
+.score-circle .sc-val { font-size:46px; font-weight:800; font-family:'IBM Plex Mono',monospace; color:var(--secondary); line-height:1; margin-bottom:-5px; }
+.score-circle .sc-max { font-size:16px; color:rgba(255,255,255,0.7); font-family:'IBM Plex Mono',monospace; }
+.badge-status { display:inline-flex; align-items:center; gap:8px; padding:6px 18px; border-radius:20px; font-weight:700; font-size:15px; margin-bottom:18px; }
+.badge-status.pass { background:rgba(76,175,80,0.2); color:var(--success); border:1px solid rgba(76,175,80,0.4); }
+.badge-status.fail { background:rgba(255,82,82,0.2); color:var(--danger);  border:1px solid rgba(255,82,82,0.4); }
+.res-user-name { font-size:20px; font-weight:800; margin-bottom:4px; color:#fff; }
+.res-user-sub  { font-size:13px; color:rgba(255,255,255,0.6); }
+.stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:10px; }
+.stat-box-small { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 6px; text-align:center; }
+.stat-box-small .st-val { font-size:26px; font-weight:800; color:var(--secondary); font-family:'IBM Plex Mono',monospace; line-height:1; margin-bottom:6px; }
+.stat-box-small .st-lbl { font-size:12px; color:var(--muted); }
+.rank-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px; text-align:center; margin-bottom:20px; }
+.rank-val  { font-size:44px; font-weight:800; color:var(--secondary); font-family:'IBM Plex Mono',monospace; line-height:1; margin-bottom:8px; }
+.rank-lbl  { font-size:13px; color:var(--muted); }
+.ans-card  { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:10px; text-align:left; }
+.ans-card.correct { border-left:5px solid var(--success); }
+.ans-card.wrong   { border-left:5px solid var(--danger);  }
+.ans-header { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; padding-bottom:12px; border-bottom:1px dashed var(--border); }
+.ans-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.ans-card.correct .ans-icon { background:rgba(76,175,80,0.15); color:var(--success); }
+.ans-card.wrong   .ans-icon { background:rgba(255,82,82,0.15);  color:var(--danger);  }
+.ans-q-text { font-size:15px; font-weight:600; color:var(--text); line-height:1.5; padding-top:4px; }
+.ans-row { display:flex; gap:10px; font-size:14px; margin-bottom:7px; align-items:flex-start; }
+.ans-lbl  { color:var(--muted); width:60px; flex-shrink:0; text-align:right; font-weight:600; }
+.ans-val  { font-weight:600; line-height:1.5; flex:1; }
+.val-correct { color:var(--success); }
+.val-wrong   { color:var(--danger); }
 
-.res-user-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; color: #fff;}
-.res-user-sub { font-size: 13px; color: rgba(255,255,255,0.6); }
-
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
-.stat-box-small { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 8px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);}
-.stat-box-small .st-val { font-size: 26px; font-weight: 800; color: var(--secondary); font-family: 'IBM Plex Mono', monospace; line-height: 1; margin-bottom: 6px; }
-.stat-box-small .st-lbl { font-size: 12px; color: var(--muted); }
-
-.rank-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);}
-.rank-val { font-size: 44px; font-weight: 800; color: var(--secondary); font-family: 'IBM Plex Mono', monospace; line-height: 1; text-shadow: 0 0 15px rgba(255,202,40,0.2); margin-bottom: 8px; }
-.rank-lbl { font-size: 13px; color: var(--muted); }
-
-.ans-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 12px; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.2);}
-.ans-card.correct { border-left: 6px solid var(--success); }
-.ans-card.wrong { border-left: 6px solid var(--danger); }
-
-.ans-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dashed var(--border); }
-.ans-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-.ans-card.correct .ans-icon { background: rgba(76,175,80,0.15); color: var(--success); }
-.ans-card.wrong .ans-icon { background: rgba(255,82,82,0.15); color: var(--danger); }
-.ans-q-text { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.5; padding-top: 4px;}
-
-.ans-row { display: flex; gap: 10px; font-size: 14px; margin-bottom: 8px; align-items: flex-start;}
-.ans-lbl { color: var(--muted); width: 60px; flex-shrink: 0; text-align: right; font-weight: 600;}
-.ans-val { font-weight: 600; line-height: 1.5; flex: 1; }
-.val-correct { color: var(--success); }
-.val-wrong { color: var(--danger); }
+/* ── Warn bar (ยังไม่ตอบครบ) ── */
+.warn-bar { background:rgba(255,82,82,0.1); border:1px solid rgba(255,82,82,0.3); border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:8px; font-size:13px; color:var(--danger); margin-bottom:14px; }
 </style>
 </head>
 <body>
 
+<!-- Loading overlay -->
 <div id="ov-load" class="ov">
   <div class="spinner"></div>
-  <div style="font-weight:700; color:var(--muted);">กำลังเตรียมสนามทดสอบ...</div>
+  <div id="ov-text" style="font-weight:700;color:var(--muted);">กำลังเตรียมสนามทดสอบ...</div>
 </div>
 
-<!-- Custom Modal HTML -->
-<div id="custom-alert" class="ca-ov">
+<!-- Custom Modal -->
+<div id="custom-alert" class="ca-ov" role="dialog" aria-modal="true">
   <div class="ca-box">
-    <div id="ca-icon" class="ca-icon">⚠️</div>
-    <div id="ca-title" class="ca-title">แจ้งเตือน</div>
-    <div id="ca-msg" class="ca-msg">ข้อความ</div>
+    <div id="ca-icon"      class="ca-icon">⚠️</div>
+    <div id="ca-title"     class="ca-title">แจ้งเตือน</div>
+    <div id="ca-msg"       class="ca-msg">ข้อความ</div>
     <div id="ca-btn-group" class="ca-btn-group"></div>
   </div>
 </div>
 
-<!-- Setup Screen -->
+<!-- ① Setup screen -->
 <div id="ui-setup" class="main-area hidden">
   <div class="setup-box">
-    <div style="font-size: 50px; margin-bottom: 10px;">🎖️</div>
-    <h2 style="color:var(--text); margin-bottom: 5px;">เลือกหลักสูตรการทดสอบ</h2>
-    <div style="font-size:13px; color:var(--muted);">โปรดอ่านคำสั่งให้ชัดเจนก่อนตอบ</div>
-    
+    <div style="font-size:50px;margin-bottom:10px;">🎖️</div>
+    <h2 style="color:var(--text);margin-bottom:5px;">เลือกหลักสูตรการทดสอบ</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:0;">โปรดอ่านคำสั่งให้ชัดเจนก่อนตอบ</p>
     <select id="inp-subject" class="select-subj">
       <option value="">กำลังโหลดวิชา...</option>
     </select>
-    
-    <button class="btn btn-primary" onclick="startExam()">เริ่มดำเนินการทดสอบ</button>
-    <button class="btn" style="background:transparent; border:1px solid var(--border); color:var(--muted); margin-top:15px;" onclick="liff.closeWindow()">กลับสู่ศูนย์ข้อมูล</button>
+    <!-- [FIX] ปุ่ม startExam เพิ่ม disabled guard -->
+    <button class="btn btn-primary" id="btn-start" onclick="startExam()">เริ่มดำเนินการทดสอบ</button>
+    <button class="btn" style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-top:12px;" onclick="liff.closeWindow()">กลับสู่ศูนย์ข้อมูล</button>
   </div>
 </div>
 
-<!-- Exam Screen -->
-<div id="ui-exam" class="hidden" style="display: flex; flex-direction: column; height: 100vh;">
+<!-- ② Exam screen -->
+<div id="ui-exam" class="hidden" style="display:flex;flex-direction:column;height:100vh;">
   <div class="top-bar">
     <div class="top-info">
       <div class="t-app">📡 <span class="dynamic-app-name">System</span></div>
@@ -162,31 +164,33 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
     </div>
     <div class="timer" id="timer">--:--</div>
   </div>
-  
-  <div class="main-area">
+
+  <div class="main-area" id="exam-scroll-area">
+    <div id="warn-unanswered" class="warn-bar hidden">
+      ⚠️ ยังมีข้อที่ยังไม่ได้ตอบ — <span id="warn-count"></span> ข้อ
+    </div>
     <div class="q-progress" id="q-dots"></div>
     <div class="q-box">
-      <div class="q-num" id="q-label">หลักสูตร: - • ข้อ 1 จาก 10</div>
+      <div class="q-num"  id="q-label">ข้อ 1 จาก 10</div>
       <div class="q-text" id="q-text">โหลดคำสั่ง...</div>
     </div>
-    <div class="choices">
+    <div class="choices" id="choices-wrap">
       <div class="choice-btn" id="c-A" onclick="selectChoice('A')"><div class="c-label">A</div><div class="c-text" id="t-A">-</div></div>
       <div class="choice-btn" id="c-B" onclick="selectChoice('B')"><div class="c-label">B</div><div class="c-text" id="t-B">-</div></div>
       <div class="choice-btn" id="c-C" onclick="selectChoice('C')"><div class="c-label">C</div><div class="c-text" id="t-C">-</div></div>
       <div class="choice-btn" id="c-D" onclick="selectChoice('D')"><div class="c-label">D</div><div class="c-text" id="t-D">-</div></div>
     </div>
   </div>
-  
+
   <div class="controls">
-    <button class="btn" style="background:var(--surface); border:1px solid var(--border); color:var(--text); width: 60px;" onclick="prevQ()">←</button>
-    <button class="btn btn-gold" style="flex:1;" onclick="confirmSubmit()">📤 ส่งรายงานการทดสอบ</button>
-    <button class="btn" style="background:var(--surface); border:1px solid var(--border); color:var(--text); width: 60px;" onclick="nextQ()">→</button>
+    <button class="btn" style="background:var(--surface);border:1px solid var(--border);color:var(--text);width:56px;flex-shrink:0;" onclick="prevQ()">←</button>
+    <button class="btn btn-gold" style="flex:1;" onclick="confirmSubmit()">📤 ส่งรายงาน</button>
+    <button class="btn" style="background:var(--surface);border:1px solid var(--border);color:var(--text);width:56px;flex-shrink:0;" onclick="nextQ()">→</button>
   </div>
 </div>
 
-<!-- Premium Result Screen -->
-<div id="ui-result" class="main-area hidden" style="padding: 15px;">
-  
+<!-- ③ Result screen -->
+<div id="ui-result" class="main-area hidden" style="padding:14px;">
   <div class="res-header-card">
     <div class="score-circle-wrap">
       <div class="score-circle">
@@ -196,204 +200,247 @@ body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--t
     </div>
     <div class="badge-status" id="r-badge">✅ ผ่านเกณฑ์ประเมิน</div>
     <div class="res-user-name" id="r-name">ชื่อ-นามสกุล</div>
-    <div class="res-user-sub" id="r-sub">ยศ · สังกัด</div>
+    <div class="res-user-sub"  id="r-sub">ยศ · สังกัด</div>
   </div>
-  
+
   <div class="stats-grid">
-    <div class="stat-box-small">
-      <div class="st-val" id="r-pct">0%</div>
-      <div class="st-lbl">เปอร์เซ็นต์</div>
-    </div>
-    <div class="stat-box-small">
-      <div class="st-val" id="r-correct" style="color:var(--success);">0</div>
-      <div class="st-lbl">ตอบถูก</div>
-    </div>
-    <div class="stat-box-small">
-      <div class="st-val" id="r-wrong" style="color:var(--danger);">0</div>
-      <div class="st-lbl">ตอบผิด</div>
-    </div>
+    <div class="stat-box-small"><div class="st-val" id="r-pct">0%</div><div class="st-lbl">เปอร์เซ็นต์</div></div>
+    <div class="stat-box-small"><div class="st-val" id="r-correct" style="color:var(--success);">0</div><div class="st-lbl">ตอบถูก</div></div>
+    <div class="stat-box-small"><div class="st-val" id="r-wrong"   style="color:var(--danger);">0</div><div class="st-lbl">ตอบผิด</div></div>
   </div>
 
   <div class="rank-card">
     <div class="rank-val" id="r-rank">#1</div>
-    <div class="rank-lbl" id="r-rank-total">อันดับปัจจุบัน จากผู้เข้ารับการประเมินทั้งหมด 1 นาย</div>
+    <div class="rank-lbl" id="r-rank-total">อันดับปัจจุบัน</div>
   </div>
-  
-  <div style="display:flex; align-items:center; gap:8px; margin: 10px 5px 15px; font-weight:700; font-size:15px; color:var(--secondary); text-transform: uppercase;">
+
+  <div style="display:flex;align-items:center;gap:8px;margin:6px 4px 12px;font-weight:700;font-size:14px;color:var(--secondary);text-transform:uppercase;">
     📋 สรุปรายงานการประเมิน
   </div>
-  
   <div id="r-list"></div>
-  
-  <button class="btn btn-primary" style="margin-top:20px; font-size:18px;" onclick="liff.closeWindow()">กลับสู่ศูนย์ข้อมูล</button>
+  <button class="btn btn-primary" style="margin-top:18px;font-size:17px;" onclick="liff.closeWindow()">กลับสู่ศูนย์ข้อมูล</button>
 </div>
 
 <script>
+// ════════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════════
 const LIFF_ID = '2009717287-nSod0Xpx';   
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let userId = '';
-let allSubjects = [];
-let questions = [];
-let answers = {};
-let currentQ = 0;
-let timeLeft = 0;
-let timerInt = null;
-let submitted = false;
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let userId          = '';
+let questions       = [];
+let answers         = {};
+let currentQ        = 0;
+let timeLeft        = 0;
+let timerInt        = null;   // [FIX] เก็บ reference เพื่อ clear ได้ถูกต้อง
+let submitted       = false;  // [FIX] guard ป้องกัน submit ซ้ำ
 let selectedSubject = '';
-let alerted5Min = false;
-let memberInfo = null; 
+let alerted5Min     = false;
+let memberInfo      = null;
+let examTimeTotal   = 1200;   // default 20 นาที (วินาที)
 
-// ฟังก์ชันสร้างเสียงแจ้งเตือน
-function playNotificationSound() {
+// ════════════════════════════════════════════
+//  SOUND
+// ════════════════════════════════════════════
+function playBeep() {
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioContext();
-    function playTone(freq, startTime) {
-      const osc = ctx.createOscillator();
+    const AC  = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AC();
+    [[880, 0], [1108.73, 0.15]].forEach(([freq, delay]) => {
+      const osc  = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, startTime);
-      gain.gain.setValueAtTime(0.3, startTime); 
-      gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.5);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(startTime);
-      osc.stop(startTime + 0.5);
-    }
-    playTone(880, ctx.currentTime);
-    playTone(1108.73, ctx.currentTime + 0.15);
-  } catch (e) { console.log("Audio not supported"); }
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + delay + 0.5);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime  + delay + 0.5);
+    });
+  } catch(e) {}
 }
 
-// Custom Modal Functions
-function customAlert(msg, title="แจ้งเตือน", icon="⚠️") {
-  document.getElementById('ca-icon').textContent = icon;
+// ════════════════════════════════════════════
+//  MODAL HELPERS
+// ════════════════════════════════════════════
+function customAlert(msg, title = 'แจ้งเตือน', icon = '⚠️') {
+  document.getElementById('ca-icon').textContent  = icon;
   document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').innerHTML = msg;
-  document.getElementById('ca-btn-group').innerHTML = `<button class="ca-btn ca-btn-confirm" onclick="closeCustomAlert()">รับทราบ</button>`;
+  document.getElementById('ca-msg').textContent   = msg;
+  document.getElementById('ca-btn-group').innerHTML =
+    `<button class="ca-btn ca-btn-confirm" onclick="closeCustomAlert()">รับทราบ</button>`;
   document.getElementById('custom-alert').classList.add('active');
 }
-function closeCustomAlert() { document.getElementById('custom-alert').classList.remove('active'); }
 
-let confirmCallback = null;
-function customConfirm(msg, callback, title="ยืนยันคำสั่ง", icon="❓", btnClass="ca-btn-confirm") {
-  document.getElementById('ca-icon').textContent = icon;
+let _confirmCb = null;
+function customConfirm(msg, cb, title = 'ยืนยันคำสั่ง', icon = '❓', btnClass = 'ca-btn-confirm') {
+  document.getElementById('ca-icon').textContent  = icon;
   document.getElementById('ca-title').textContent = title;
-  document.getElementById('ca-msg').innerHTML = msg;
+  document.getElementById('ca-msg').textContent   = msg;
   document.getElementById('ca-btn-group').innerHTML = `
     <button class="ca-btn ca-btn-cancel" onclick="closeCustomAlert()">ยกเลิก</button>
-    <button class="ca-btn ${btnClass}" id="btn-ca-ok">ยืนยัน</button>
-  `;
-  confirmCallback = callback;
-  document.getElementById('btn-ca-ok').onclick = () => { closeCustomAlert(); if(confirmCallback) confirmCallback(); };
+    <button class="ca-btn ${btnClass}" id="btn-ca-ok">ยืนยัน</button>`;
+  _confirmCb = cb;
+  document.getElementById('btn-ca-ok').onclick = () => { closeCustomAlert(); if (_confirmCb) _confirmCb(); };
   document.getElementById('custom-alert').classList.add('active');
 }
 
+function closeCustomAlert() {
+  document.getElementById('custom-alert').classList.remove('active');
+}
+
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
-    
+
     userId = (await liff.getProfile()).userId;
-    
-    const res = await callAPI('GET', { action: 'get_subjects', userId: userId });
-    if(res.status === 'ok') {
-      if(res.config) { 
-        document.documentElement.style.setProperty('--primary', res.config.colorPrimary);
-        document.documentElement.style.setProperty('--secondary', res.config.colorSecondary);
-        document.querySelectorAll('.dynamic-app-name').forEach(el => el.textContent = res.config.appName); 
-      }
-      
-      memberInfo = res.member; 
-      allSubjects = res.subjects || [];
-      const completed = res.completedSubjects || [];
-      const sel = document.getElementById('inp-subject');
-      sel.innerHTML = '<option value="">-- เลือกหลักสูตร --</option>';
-      
-      let hasAvailable = false;
-      allSubjects.forEach(s => {
-        if(completed.includes(s.name)) {
-          sel.innerHTML += `<option value="${s.name}" disabled>✅ ${s.name} (ประเมินผ่านแล้ว)</option>`;
-        } else {
-          sel.innerHTML += `<option value="${s.name}">${s.name} (${s.count} ข้อ)</option>`;
-          hasAvailable = true;
-        }
-      });
-      
-      if(!hasAvailable) sel.innerHTML = '<option value="">🎉 กำลังพลผ่านการประเมินทุกหลักสูตรแล้ว</option>';
-      
-      timeLeft = (res.examTimeMinutes || 20) * 60;
-      document.getElementById('ov-load').classList.add('hidden');
-      document.getElementById('ui-setup').classList.remove('hidden');
-    } else {
-      customAlert(res.message, 'เกิดข้อผิดพลาด', '❌');
+
+    const res = await callAPI('GET', { action: 'get_subjects', userId });
+    if (res.status !== 'ok') throw new Error(res.message || 'โหลดข้อมูลล้มเหลว');
+
+    // Apply config theme
+    if (res.config) {
+      const c = res.config;
+      if (c.colorPrimary)   document.documentElement.style.setProperty('--primary',   c.colorPrimary);
+      if (c.colorSecondary) document.documentElement.style.setProperty('--secondary', c.colorSecondary);
+      document.querySelectorAll('.dynamic-app-name').forEach(el => el.textContent = c.appName || el.textContent);
     }
+
+    memberInfo = res.member || null;
+    examTimeTotal = (res.examTimeMinutes || 20) * 60;
+    timeLeft      = examTimeTotal;
+
+    const completed = res.completedSubjects || [];
+    const sel = document.getElementById('inp-subject');
+    sel.innerHTML = '<option value="">-- เลือกหลักสูตร --</option>';
+
+    let hasAvailable = false;
+    (res.subjects || []).forEach(s => {
+      const done = completed.includes(s.name);
+      const opt  = document.createElement('option');
+      opt.value    = done ? '' : s.name;
+      opt.disabled = done;
+      opt.textContent = done ? `✅ ${s.name} (ประเมินผ่านแล้ว)` : `${s.name} (${s.count} ข้อ)`;
+      sel.appendChild(opt);
+      if (!done) hasAvailable = true;
+    });
+
+    if (!hasAvailable) {
+      sel.innerHTML = '<option value="">🎉 ผ่านการประเมินทุกหลักสูตรแล้ว</option>';
+      document.getElementById('btn-start').disabled = true;
+    }
+
+    setOvText('');
+    document.getElementById('ov-load').classList.add('hidden');
+    document.getElementById('ui-setup').classList.remove('hidden');
   } catch(e) {
-    customAlert(e.message, 'การเชื่อมต่อขัดข้อง', '📡');
+    setOvText('');
+    document.getElementById('ov-load').classList.add('hidden');
+    customAlert(e.message || 'เกิดข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', '📡');
   }
 }
 
+// ════════════════════════════════════════════
+//  START EXAM
+// ════════════════════════════════════════════
 async function startExam() {
   selectedSubject = document.getElementById('inp-subject').value;
-  if(!selectedSubject) return customAlert('โปรดระบุหลักสูตรที่จะเข้ารับการประเมิน', 'แจ้งเตือน', '⚠️');
-  
-  document.getElementById('ov-load').classList.remove('hidden');
-  try {
-    const res = await callAPI('GET', { action: 'get_questions', userId: userId, subject: selectedSubject });
-    if(res.status === 'ok') {
-      questions = res.questions || [];
-      if(questions.length === 0) throw new Error('ไม่พบข้อมูลข้อสอบในหลักสูตรนี้');
-      
-      const saved = localStorage.getItem(`exam_${userId}_${selectedSubject}`);
-      if(saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          answers = parsed.ans || {};
-          timeLeft = parsed.time || timeLeft;
-        } catch(e){}
-      }
+  if (!selectedSubject) return customAlert('โปรดระบุหลักสูตรที่จะเข้ารับการประเมิน', 'แจ้งเตือน', '⚠️');
 
-      if (timeLeft <= 300) alerted5Min = true; 
-      
-      document.getElementById('t-subj-name').textContent = `หลักสูตร: ${selectedSubject}`;
-      document.getElementById('ov-load').classList.add('hidden');
-      document.getElementById('ui-setup').classList.add('hidden');
-      document.getElementById('ui-exam').classList.remove('hidden');
-      
-      renderDots();
-      renderQuestion(0);
-      startTimer();
-    } else { throw new Error(res.message); }
+  document.getElementById('btn-start').disabled = true;
+  showOv('กำลังดาวน์โหลดข้อสอบ...');
+
+  try {
+    const res = await callAPI('GET', { action:'get_questions', userId, subject:selectedSubject });
+    if (res.status !== 'ok') throw new Error(res.message);
+
+    questions = res.questions || [];
+    if (questions.length === 0) throw new Error('ไม่พบข้อมูลข้อสอบในหลักสูตรนี้');
+
+    // โหลด state ที่ค้างไว้ (ถ้ามี)
+    const lsKey = `exam_${userId}_${selectedSubject}`;
+    try {
+      const saved = localStorage.getItem(lsKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        answers  = parsed.ans  || {};
+        timeLeft = parsed.time || examTimeTotal;
+      }
+    } catch(e) { /* ignore corrupt save */ }
+
+    if (timeLeft <= 300) alerted5Min = true;
+
+    document.getElementById('t-subj-name').textContent = `หลักสูตร: ${selectedSubject}`;
+    answers   = answers || {};
+    currentQ  = 0;
+    submitted = false;
+
+    hideOv();
+    document.getElementById('ui-setup').classList.add('hidden');
+    // [FIX] เปิด ui-exam ด้วย classList แทน style.display เพื่อสอดคล้องกับ .hidden
+    document.getElementById('ui-exam').classList.remove('hidden');
+
+    renderDots();
+    renderQuestion(0);
+    startTimer();
   } catch(e) {
-    document.getElementById('ov-load').classList.add('hidden');
+    hideOv();
+    document.getElementById('btn-start').disabled = false;
     customAlert(e.message, 'ดึงข้อมูลล้มเหลว', '❌');
   }
 }
 
+// ════════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════════
 function renderDots() {
-  let html = '';
-  for(let i=0; i<questions.length; i++) {
-    const isAns = answers[questions[i].questionId] ? 'answered' : '';
+  const html = questions.map((q, i) => {
+    const isAns = answers[q.questionId] ? 'answered' : '';
     const isAct = i === currentQ ? 'active' : '';
-    html += `<div class="q-dot ${isAns} ${isAct}" onclick="goToQ(${i})">${i+1}</div>`;
-  }
+    return `<div class="q-dot ${isAns} ${isAct}" onclick="goToQ(${i})">${i+1}</div>`;
+  }).join('');
   document.getElementById('q-dots').innerHTML = html;
+
+  // [NEW] แสดง warn bar ถ้าตอบไม่ครบ
+  const unanswered = questions.length - Object.keys(answers).length;
+  const warnBar  = document.getElementById('warn-unanswered');
+  if (unanswered > 0) {
+    warnBar.classList.remove('hidden');
+    document.getElementById('warn-count').textContent = unanswered;
+  } else {
+    warnBar.classList.add('hidden');
+  }
 }
 
 function renderQuestion(idx) {
-  currentQ = idx;
-  const q = questions[idx];
-  document.getElementById('q-label').textContent = `หลักสูตร: ${selectedSubject} • ข้อ ${idx+1} / ${questions.length}`;
-  document.getElementById('q-text').textContent = q.questionText;
-  
-  const savedAns = answers[q.questionId];
+  currentQ = Math.max(0, Math.min(idx, questions.length - 1));
+  const q  = questions[currentQ];
+  if (!q) return;
+
+  document.getElementById('q-label').textContent = `หลักสูตร: ${selectedSubject} • ข้อ ${currentQ+1} / ${questions.length}`;
+  document.getElementById('q-text').textContent  = q.questionText;
+
+  // scroll กลับขึ้นบนเมื่อเปลี่ยนข้อ
+  const area = document.getElementById('exam-scroll-area');
+  if (area) area.scrollTop = 0;
+
+  const saved = answers[q.questionId];
   ['A','B','C','D'].forEach(k => {
-    const btn = document.getElementById(`c-${k}`);
-    document.getElementById(`t-${k}`).textContent = q.choices[k] || '-';
-    if(q.choices[k]) {
+    const btn  = document.getElementById(`c-${k}`);
+    const txt  = document.getElementById(`t-${k}`);
+    const text = q.choices && q.choices[k] ? String(q.choices[k]) : '';
+    txt.textContent = text || '-';
+    if (text) {
       btn.style.display = 'flex';
-      btn.className = `choice-btn ${savedAns === k ? 'selected' : ''}`;
+      btn.className = 'choice-btn' + (saved === k ? ' selected' : '');
     } else {
       btn.style.display = 'none';
     }
@@ -401,150 +448,265 @@ function renderQuestion(idx) {
   renderDots();
 }
 
+// ════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════
 function selectChoice(ans) {
+  if (submitted) return; // [FIX] ป้องกันกดหลัง submit
   answers[questions[currentQ].questionId] = ans;
   saveState();
   renderQuestion(currentQ);
-  setTimeout(() => { if(currentQ < questions.length - 1) nextQ(); }, 300);
+  // เลื่อนข้ออัตโนมัติหลังเลือกคำตอบ
+  setTimeout(() => { if (currentQ < questions.length - 1) nextQ(); }, 280);
 }
 
-function prevQ() { if(currentQ > 0) renderQuestion(currentQ - 1); }
-function nextQ() { if(currentQ < questions.length - 1) renderQuestion(currentQ + 1); }
+function prevQ() { if (currentQ > 0)                    renderQuestion(currentQ - 1); }
+function nextQ() { if (currentQ < questions.length - 1) renderQuestion(currentQ + 1); }
 function goToQ(i) { renderQuestion(i); }
 
 function saveState() {
-  localStorage.setItem(`exam_${userId}_${selectedSubject}`, JSON.stringify({ ans: answers, time: timeLeft }));
+  try {
+    localStorage.setItem(
+      `exam_${userId}_${selectedSubject}`,
+      JSON.stringify({ ans: answers, time: timeLeft })
+    );
+  } catch(e) {}
 }
 
+// ════════════════════════════════════════════
+//  TIMER
+// ════════════════════════════════════════════
 function startTimer() {
+  // [FIX] clear timer เดิมก่อนเสมอ ป้องกัน leak ถ้าเรียกซ้ำ
+  stopTimer();
+
+  updateTimerDisplay();
   timerInt = setInterval(() => {
     timeLeft--;
-    if(timeLeft % 5 === 0) saveState();
-    
-    const m = Math.floor(timeLeft / 60);
-    const s = timeLeft % 60;
-    const el = document.getElementById('timer');
-    el.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-    
-    if(timeLeft === 300 && !alerted5Min) {
+
+    // บันทึกทุก 5 วินาที
+    if (timeLeft % 5 === 0) saveState();
+
+    updateTimerDisplay();
+
+    // เตือน 5 นาทีสุดท้าย
+    if (timeLeft === 300 && !alerted5Min) {
       alerted5Min = true;
-      playNotificationSound(); 
-      customAlert('เหลือเวลาปฏิบัติการอีก 5 นาทีสุดท้าย กรุณาตรวจสอบให้ครบถ้วน!', 'แจ้งเตือนเวลา', '⏳');
+      playBeep();
+      customAlert('เหลือเวลาอีก 5 นาที กรุณาตรวจสอบให้ครบถ้วน!', 'แจ้งเตือนเวลา', '⏳');
     }
-    
-    if(timeLeft <= 60) el.classList.add('danger');
-    
-    if(timeLeft <= 0) {
-      clearInterval(timerInt);
-      playNotificationSound(); 
+
+    if (timeLeft <= 60) {
+      document.getElementById('timer').classList.add('danger');
+    }
+
+    // [FIX] หมดเวลา → clearInterval ก่อน แล้วค่อย submit (ของเดิมไม่ clear ก่อน callback)
+    if (timeLeft <= 0) {
+      stopTimer();
+      playBeep();
       customAlert('หมดเวลาปฏิบัติการ! ระบบกำลังส่งผลการประเมินอัตโนมัติ', 'หมดเวลา!', '⏰');
-      setTimeout(() => { submitExam(true); }, 2000);
+      setTimeout(() => submitExam(true), 1800);
     }
   }, 1000);
 }
 
+// [FIX] แยก stopTimer ออกมาให้เรียกได้จากทุกที่ — ของเดิมไม่มีฟังก์ชันนี้
+function stopTimer() {
+  if (timerInt !== null) {
+    clearInterval(timerInt);
+    timerInt = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const m  = Math.floor(Math.max(0, timeLeft) / 60);
+  const s  = Math.max(0, timeLeft) % 60;
+  document.getElementById('timer').textContent =
+    `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// ════════════════════════════════════════════
+//  SUBMIT
+// ════════════════════════════════════════════
 function confirmSubmit() {
-  const unanswered = questions.length - Object.keys(answers).length;
-  if(unanswered > 0) {
-    customConfirm(`พบคำถามที่ยังไม่ได้ตอบอีก <strong style="color:var(--danger)">${unanswered} ข้อ</strong><br>ยืนยันที่จะส่งรายงานหรือไม่?`, () => {
-      submitExam(false);
-    }, 'ตรวจสอบความเรียบร้อย', '⚠️', 'ca-btn-danger');
+  if (submitted) return;
+
+  // [FIX] ตรวจว่าตอบอะไรบ้างก่อน — ของเดิมไม่มี guard ถ้าไม่ตอบเลยก็ submit ได้
+  const answered   = Object.keys(answers).length;
+  const unanswered = questions.length - answered;
+
+  if (answered === 0) {
+    return customAlert('กรุณาตอบคำถามอย่างน้อย 1 ข้อก่อนส่ง', 'แจ้งเตือน', '⚠️');
+  }
+
+  if (unanswered > 0) {
+    customConfirm(
+      `พบคำถามที่ยังไม่ได้ตอบอีก ${unanswered} ข้อ\nยืนยันที่จะส่งรายงานหรือไม่?`,
+      () => submitExam(false),
+      'ตรวจสอบความเรียบร้อย', '⚠️', 'ca-btn-danger'
+    );
   } else {
-    customConfirm(`กำลังพลได้ตอบคำถามครบทุกข้อแล้ว<br>ยืนยันการส่งรายงานเพื่อรับการประเมินใช่หรือไม่?`, () => {
-      submitExam(false);
-    }, 'ส่งรายงานการทดสอบ', '📤');
+    customConfirm(
+      `ตอบคำถามครบทุกข้อแล้ว\nยืนยันการส่งรายงานเพื่อรับการประเมินใช่หรือไม่?`,
+      () => submitExam(false),
+      'ส่งรายงานการทดสอบ', '📤'
+    );
   }
 }
 
 async function submitExam(isTimeout) {
-  if(submitted) return; submitted = true;
-  clearInterval(timerInt);
-  document.getElementById('ov-load').classList.remove('hidden');
-  document.querySelector('#ov-load div:nth-child(2)').textContent = 'กำลังประมวลผลคะแนน...';
-  
+  // [FIX] submitted flag + stopTimer — ของเดิมไม่ stopTimer ก่อน callback
+  if (submitted) return;
+  submitted = true;
+  stopTimer(); // [FIX] หยุด timer ก่อน ป้องกัน auto-submit ซ้ำ
+
+  showOv('กำลังประมวลผลคะแนน...');
+
   try {
-    const res = await callAPI('POST', { action: 'submit_exam', userId: userId, subject: selectedSubject, answers: answers });
-    if(res.status === 'ok') {
-      localStorage.removeItem(`exam_${userId}_${selectedSubject}`);
-      
-      document.getElementById('r-score').textContent = res.totalScore;
-      document.getElementById('r-max').textContent = res.maxScore;
-      
-      const pct = res.percentage;
-      const isPass = pct >= 60; // เกณฑ์ทหาร 60%
-      
-      const badgeEl = document.getElementById('r-badge');
-      badgeEl.className = `badge-status ${isPass ? 'pass' : 'fail'}`;
-      badgeEl.innerHTML = isPass ? '✅ ผ่านเกณฑ์ประเมิน' : '❌ ไม่ผ่านเกณฑ์ (ต้องซ่อม)';
-      
-      if(memberInfo) {
-        let nickText = memberInfo.nickname ? ` (${memberInfo.nickname})` : '';
-        document.getElementById('r-name').textContent = memberInfo.fullName + nickText || '-';
-        document.getElementById('r-sub').textContent = `${memberInfo.rank || ''} ${memberInfo.position ? '· ' + memberInfo.position : ''}`;
-      } else {
-        liff.getProfile().then(p => document.getElementById('r-name').textContent = p.displayName);
-        document.getElementById('r-sub').textContent = 'กำลังพล';
-      }
+    const res = await callAPI('POST', {
+      action:  'submit_exam',
+      userId,
+      subject: selectedSubject,
+      answers
+    });
 
-      document.getElementById('r-pct').textContent = res.percentage + '%';
-      document.getElementById('r-correct').textContent = res.totalScore;
-      document.getElementById('r-wrong').textContent = res.maxScore - res.totalScore;
-      
-      document.getElementById('r-rank').textContent = '#' + (res.rank || 1);
-      document.getElementById('r-rank-total').textContent = `อันดับปัจจุบัน จากผู้เข้ารับการประเมินทั้งหมด ${res.total || 1} นาย`;
-      
-      let resHtml = '';
-      res.results.forEach((r, i) => {
-        const q = questions.find(q => q.questionId === r.qid);
-        const qText = q?.questionText || '-';
-        
-        const userAnsLetter = r.userAnswer || '-';
-        const userAnsText = (q && q.choices && q.choices[userAnsLetter]) ? q.choices[userAnsLetter] : '';
-        const userAnsFull = userAnsLetter !== '-' ? `${userAnsLetter}: ${userAnsText}` : 'ไม่ได้ตอบ';
-        
-        const correctLetter = r.correct || '-';
-        const correctText = (q && q.choices && q.choices[correctLetter]) ? q.choices[correctLetter] : '';
-        const correctFull = `${correctLetter}: ${correctText}`;
-        
-        const icon = r.isCorrect ? '✅' : '❌';
-        const userValClass = r.isCorrect ? 'val-correct' : 'val-wrong';
+    if (res.status !== 'ok') throw new Error(res.message);
 
-        resHtml += `
-          <div class="ans-card ${r.isCorrect ? 'correct' : 'wrong'}">
-            <div class="ans-header">
-              <div class="ans-icon">${icon}</div>
-              <div class="ans-q-text">ข้อ ${i+1}: ${qText}</div>
-            </div>
-            <div class="ans-row">
-              <div class="ans-lbl">คุณตอบ:</div>
-              <div class="ans-val ${userValClass}">${userAnsFull}</div>
-            </div>
-            <div class="ans-row">
-              <div class="ans-lbl">เฉลย:</div>
-              <div class="ans-val val-correct">${correctFull}</div>
-            </div>
-          </div>
-        `;
-      });
-      document.getElementById('r-list').innerHTML = resHtml;
-      
-      document.getElementById('ov-load').classList.add('hidden');
-      document.getElementById('ui-exam').style.display = 'none';
-      document.getElementById('ui-result').classList.remove('hidden');
-    } else { throw new Error(res.message); }
+    // ล้าง localStorage
+    try { localStorage.removeItem(`exam_${userId}_${selectedSubject}`); } catch(e) {}
+
+    renderResult(res);
+
+    hideOv();
+    document.getElementById('ui-exam').classList.add('hidden');
+    document.getElementById('ui-result').classList.remove('hidden');
+    window.scrollTo(0, 0);
   } catch(e) {
-    submitted = false;
-    document.getElementById('ov-load').classList.add('hidden');
-    customAlert(e.message, 'ส่งรายงานไม่สำเร็จ', '❌');
+    // [FIX] ถ้า submit fail ให้ reset submitted = false เพื่อให้ลองใหม่ได้
+    //       แต่ถ้าเป็น timeout ไม่ต้อง reset (ให้ปิดไปเลย)
+    if (!isTimeout) submitted = false;
+    hideOv();
+    customAlert(e.message || 'ไม่สามารถส่งผลได้', 'ส่งรายงานไม่สำเร็จ', '❌');
   }
 }
 
-async function callAPI(method, params) {
-  let url = GAS_URL, opts = { method: 'POST', headers: {'Content-Type':'text/plain'}, body: JSON.stringify(params) };
-  if(method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts = {method:'GET'}; }
-  const resp = await fetch(url, opts);
-  return await resp.json();
+// ════════════════════════════════════════════
+//  RENDER RESULT
+// ════════════════════════════════════════════
+function renderResult(res) {
+  const pct    = Number(res.percentage) || 0;
+  const isPass = pct >= 60;
+
+  document.getElementById('r-score').textContent = res.totalScore;
+  document.getElementById('r-max').textContent   = res.maxScore;
+  document.getElementById('r-pct').textContent   = pct + '%';
+  document.getElementById('r-correct').textContent = res.totalScore;
+  document.getElementById('r-wrong').textContent   = res.maxScore - res.totalScore;
+  document.getElementById('r-rank').textContent    = '#' + (res.rank  || 1);
+  document.getElementById('r-rank-total').textContent =
+    `อันดับปัจจุบัน จากผู้เข้ารับการประเมินทั้งหมด ${res.total || 1} นาย`;
+
+  const badge = document.getElementById('r-badge');
+  badge.className   = `badge-status ${isPass ? 'pass' : 'fail'}`;
+  badge.textContent = isPass ? '✅ ผ่านเกณฑ์ประเมิน' : '❌ ไม่ผ่านเกณฑ์ (ต้องซ่อม)';
+
+  if (memberInfo) {
+    const nick = memberInfo.nickname ? ` (${memberInfo.nickname})` : '';
+    document.getElementById('r-name').textContent = (memberInfo.fullName || '') + nick;
+    document.getElementById('r-sub').textContent  =
+      `${memberInfo.rank || ''} ${memberInfo.position ? '· ' + memberInfo.position : ''}`.trim();
+  } else {
+    liff.getProfile().then(p => {
+      document.getElementById('r-name').textContent = p.displayName;
+    }).catch(() => {});
+    document.getElementById('r-sub').textContent = 'กำลังพล';
+  }
+
+  // สร้างรายการเฉลย — [FIX] ใช้ textContent ป้องกัน XSS ทุกจุด
+  const list = document.getElementById('r-list');
+  list.innerHTML = '';
+  (res.results || []).forEach((r, i) => {
+    const q        = questions.find(q => q.questionId === r.qid);
+    const qText    = q ? q.questionText : '—';
+    const choices  = (q && q.choices) ? q.choices : {};
+
+    const uLetter  = r.userAnswer || '—';
+    const uText    = choices[uLetter] || '';
+    const uFull    = uLetter !== '—' ? `${uLetter}: ${uText}` : 'ไม่ได้ตอบ';
+
+    const cLetter  = r.correct || '—';
+    const cText    = choices[cLetter] || '';
+    const cFull    = `${cLetter}: ${cText}`;
+
+    const card = document.createElement('div');
+    card.className = `ans-card ${r.isCorrect ? 'correct' : 'wrong'}`;
+
+    const hdr = document.createElement('div'); hdr.className = 'ans-header';
+    const ico = document.createElement('div'); ico.className = 'ans-icon';
+    ico.textContent = r.isCorrect ? '✅' : '❌';
+    const qtxt = document.createElement('div'); qtxt.className = 'ans-q-text';
+    qtxt.textContent = `ข้อ ${i+1}: ${qText}`;
+    hdr.appendChild(ico); hdr.appendChild(qtxt);
+
+    const rowU = makeAnsRow('คุณตอบ:', uFull, r.isCorrect ? 'val-correct' : 'val-wrong');
+    const rowC = makeAnsRow('เฉลย:',  cFull, 'val-correct');
+
+    card.appendChild(hdr);
+    card.appendChild(rowU);
+    card.appendChild(rowC);
+    list.appendChild(card);
+  });
 }
+
+function makeAnsRow(label, value, valClass) {
+  const row = document.createElement('div'); row.className = 'ans-row';
+  const lbl = document.createElement('div'); lbl.className = 'ans-lbl'; lbl.textContent = label;
+  const val = document.createElement('div'); val.className = `ans-val ${valClass}`; val.textContent = value;
+  row.appendChild(lbl); row.appendChild(val);
+  return row;
+}
+
+// ════════════════════════════════════════════
+//  OVERLAY HELPERS
+// ════════════════════════════════════════════
+function showOv(text) {
+  setOvText(text);
+  document.getElementById('ov-load').classList.remove('hidden');
+}
+function hideOv()         { document.getElementById('ov-load').classList.add('hidden'); }
+function setOvText(text)  { document.getElementById('ov-text').textContent = text; }
+
+// ════════════════════════════════════════════
+//  API HELPER — เพิ่ม timeout + retry-friendly
+// ════════════════════════════════════════════
+async function callAPI(method, params, timeoutMs = 20000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    let url  = GAS_URL;
+    let opts = { signal: ctrl.signal, redirect: 'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type': 'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
+    const resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('หมดเวลาเชื่อมต่อ กรุณาลองใหม่');
+    throw e;
+  }
+}
+
+// cleanup เมื่อ user ออกจากหน้า (เช่น LIFF ถูกปิด)
+window.addEventListener('pagehide', stopTimer);
+window.addEventListener('beforeunload', stopTimer);
 
 init();
 </script>
