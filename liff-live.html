@@ -8,276 +8,512 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@600;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --config-primary: #46178f;
-  --config-secondary: #ffd700;
-
-  --bg: #f2f2f2;
-  /* ปุ่ม 4 สี (สไตล์ Kahoot) */
-  --shape-red: #e21b3c;
-  --shape-blue: #1368ce;
+  --primary:   #46178f;
+  --secondary: #ffd700;
+  --bg:        #f2f2f2;
+  --shape-red:    #e21b3c;
+  --shape-blue:   #1368ce;
   --shape-yellow: #d89e00;
-  --shape-green: #26890c;
+  --shape-green:  #26890c;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Sarabun', sans-serif; background: var(--bg); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Sarabun',sans-serif; background:var(--bg); overflow:hidden; height:100dvh; display:flex; flex-direction:column; }
 
-/* Screens */
-.screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; position: absolute; inset: 0; z-index: 10; text-align: center; padding: 20px;}
-.hidden { display: none !important; }
+/* ── Screens ── */
+.screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; position:absolute; inset:0; z-index:10; text-align:center; padding:20px; }
+.hidden { display:none !important; }
 
-/* Status Screens */
-.status-screen { background: var(--config-primary); color: #fff; }
-.status-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; }
-.status-sub { font-size: 16px; opacity: 0.8; }
-.spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes pulse-opacity { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-.pulse-anim { animation: pulse-opacity 1.5s infinite; }
+/* ── Status screen base ── */
+.status-screen { background:var(--primary); color:#fff; }
+.status-title  { font-size:26px; font-weight:800; margin-bottom:10px; }
+.status-sub    { font-size:15px; opacity:0.85; }
 
-/* Joystick Buttons */
-.game-screen { background: #f2f2f2; padding: 10px; }
-.btn-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; width: 100%; height: 100%; }
-.btn-shape { border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 rgba(0,0,0,0.2); cursor: pointer; transition: 0.1s;}
-.btn-shape:active { transform: translateY(6px); box-shadow: none; }
-.shape-icon { width: 60px; height: 60px; background: #fff; pointer-events: none;}
-.bg-red { background: var(--shape-red); }
-.bg-blue { background: var(--shape-blue); }
-.bg-yellow { background: var(--shape-yellow); }
-.bg-green { background: var(--shape-green); }
+/* ── Spinner ── */
+.spinner { width:50px; height:50px; border:4px solid rgba(255,255,255,0.2); border-top:4px solid #fff; border-radius:50%; animation:spin 1s linear infinite; margin-bottom:20px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes pulse-opacity { 0%,100% { opacity:0.45; } 50% { opacity:1; } }
+.pulse-anim { animation:pulse-opacity 1.5s infinite; }
 
-.s-red { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
-.s-blue { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
-.s-yellow { border-radius: 50%; }
-.s-green { border-radius: 8px; }
+/* ── Error screen ── */
+#screen-error { background:var(--primary); color:#fff; gap:16px; }
+.err-title { font-size:22px; font-weight:800; }
+.err-sub   { font-size:14px; opacity:0.75; max-width:280px; line-height:1.5; }
+.err-btn   { margin-top:8px; padding:12px 28px; border-radius:10px; border:none; background:#fff; color:#333; font-weight:800; font-family:'Sarabun'; font-size:15px; cursor:pointer; }
+.err-btn:active { opacity:0.8; }
 
-/* Reveal */
-.reveal-correct { background: #66bf39; color: #fff; }
-.reveal-wrong { background: #ff3355; color: #fff; }
-.points-text { font-size: 20px; font-weight: 800; margin-top: 10px; background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 20px;}
+/* ── Reconnect badge ── */
+.reconnect-badge {
+  position:absolute; top:14px; right:14px;
+  background:rgba(0,0,0,0.35); color:#fff;
+  font-size:11px; font-weight:800; padding:4px 10px;
+  border-radius:20px; letter-spacing:0.5px;
+  opacity:0; transition:opacity 0.3s;
+  pointer-events:none;
+}
+.reconnect-badge.show { opacity:1; }
+
+/* ── Lobby screen ── */
+.lobby-rules {
+  background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.2);
+  border-radius:16px; padding:20px; text-align:left;
+  width:100%; max-width:400px; margin-top:12px;
+}
+.lobby-rules-title { font-size:15px; font-weight:800; color:var(--secondary); margin-bottom:12px; text-align:center; }
+.lobby-rules-body  { font-size:13px; line-height:1.6; display:flex; flex-direction:column; gap:8px; color:#ddd; }
+.lobby-rules-body b { color:#fff; }
+
+/* ── Question counter chip ── */
+.q-chip {
+  position:absolute; top:14px; left:50%; transform:translateX(-50%);
+  background:rgba(0,0,0,0.4); color:#fff; font-size:13px; font-weight:800;
+  padding:4px 14px; border-radius:20px; white-space:nowrap;
+}
+
+/* ── Game (button) screen ── */
+.game-screen { background:#f2f2f2; padding:10px; }
+.btn-grid    { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; width:100%; height:100%; }
+.btn-shape   { border-radius:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 0 rgba(0,0,0,0.2); cursor:pointer; transition:transform 0.1s, box-shadow 0.1s; -webkit-user-select:none; user-select:none; }
+.btn-shape:active { transform:translateY(6px); box-shadow:none; }
+.btn-shape.pressed { transform:translateY(6px); box-shadow:none; opacity:0.85; }
+.shape-icon { width:60px; height:60px; background:#fff; pointer-events:none; flex-shrink:0; }
+.bg-red    { background:var(--shape-red); }
+.bg-blue   { background:var(--shape-blue); }
+.bg-yellow { background:var(--shape-yellow); }
+.bg-green  { background:var(--shape-green); }
+.s-red    { clip-path:polygon(50% 0%,0% 100%,100% 100%); }
+.s-blue   { clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%); }
+.s-yellow { border-radius:50%; }
+.s-green  { border-radius:8px; }
+
+/* ── Wait screen ── */
+.wait-screen { background:#e5e5e5; color:#333; }
+
+/* ── Reveal screen ── */
+.reveal-correct { background:#26890c; color:#fff; }
+.reveal-wrong   { background:#e21b3c; color:#fff; }
+.reveal-timeout { background:#555;    color:#fff; }
+.points-pill { font-size:22px; font-weight:800; margin-top:12px; background:rgba(0,0,0,0.2); padding:6px 20px; border-radius:20px; }
+
+/* ── Connection bar ── */
+.conn-bar { position:fixed; bottom:0; left:0; right:0; background:rgba(255,50,50,0.9); color:#fff; font-size:13px; font-weight:800; text-align:center; padding:8px; z-index:999; transform:translateY(100%); transition:transform 0.3s; }
+.conn-bar.show { transform:translateY(0); }
 </style>
 </head>
 <body>
 
+<!-- ① Loading -->
 <div id="screen-loading" class="screen status-screen">
   <div class="spinner"></div>
   <div class="status-title">กำลังเชื่อมต่อ...</div>
+  <div class="status-sub" id="loading-sub">กำลังโหลดโปรไฟล์</div>
 </div>
 
+<!-- ② Error (แยกจาก loading — ป้องกัน innerHTML override) -->
+<div id="screen-error" class="screen hidden">
+  <div style="font-size:50px;">📡</div>
+  <div class="err-title" id="err-title">เกิดข้อผิดพลาด</div>
+  <div class="err-sub"   id="err-sub">ไม่สามารถเชื่อมต่อได้</div>
+  <button class="err-btn" onclick="liff.closeWindow()">ปิดหน้าต่าง</button>
+  <button class="err-btn" style="background:var(--secondary);color:#000;margin-top:4px;" onclick="location.reload()">ลองใหม่</button>
+</div>
+
+<!-- ③ Lobby -->
 <div id="screen-lobby" class="screen status-screen hidden">
-  <div style="font-size: 50px; margin-bottom: 10px;">🎮</div>
-  <div class="status-title" style="font-size: 26px; margin-bottom: 10px;">คุณอยู่ในห้องสอบแล้ว!</div>
-  <div class="status-sub" style="margin-bottom:20px;">รหัสประจำตัว: <span id="u-name" style="font-weight:800; color:var(--config-secondary);">-</span></div>
-  
-  <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 20px; text-align: left; width: 100%; max-width: 400px; margin-top: 10px;">
-    <div style="font-size: 16px; font-weight: 800; color: var(--config-secondary); margin-bottom: 12px; text-align: center;">📖 กติกาและวิธีการเล่น</div>
-    <div style="font-size: 14px; line-height: 1.6; display: flex; flex-direction: column; gap: 8px; color: #ddd;">
-      <div>1️⃣ <b style="color:#fff;">อ่านคำถามและตัวเลือก</b> ที่หน้าจอโปรเจคเตอร์ด้านหน้าห้องเรียน</div>
-      <div>2️⃣ <b style="color:#fff;">กดปุ่มสีบนมือถือ</b> ให้ตรงกับคำตอบที่คุณคิดว่าถูกต้อง</div>
-      <div>3️⃣ <b style="color:#fff;">ตอบให้ไวที่สุด!</b> ยิ่งตอบเร็ว ยิ่งได้คะแนนโบนัสเยอะ (คะแนนลดหลั่นตามเวลา)</div>
+  <!-- reconnect indicator -->
+  <div class="reconnect-badge" id="reconnect-badge">🔄 กำลังเชื่อมต่อใหม่...</div>
+
+  <div style="font-size:52px;margin-bottom:10px;">🎮</div>
+  <div class="status-title" style="font-size:24px;margin-bottom:8px;">คุณอยู่ในห้องสอบแล้ว!</div>
+  <div class="status-sub" style="margin-bottom:18px;">
+    รหัสประจำตัว: <span id="u-name" style="font-weight:800;color:var(--secondary);">-</span>
+  </div>
+
+  <div class="lobby-rules">
+    <div class="lobby-rules-title">📖 กติกาและวิธีการเล่น</div>
+    <div class="lobby-rules-body">
+      <div>1️⃣ <b>อ่านคำถามและตัวเลือก</b> ที่หน้าจอโปรเจคเตอร์</div>
+      <div>2️⃣ <b>กดปุ่มสีบนมือถือ</b> ให้ตรงกับคำตอบที่คิดว่าถูก</div>
+      <div>3️⃣ <b>ตอบให้ไวที่สุด!</b> ยิ่งตอบเร็ว ยิ่งได้คะแนนโบนัสเยอะ</div>
     </div>
   </div>
 
-  <div class="status-sub pulse-anim" style="margin-top:30px; font-size:16px;">⏳ รออาจารย์กดเริ่มข้อสอบ...</div>
+  <div class="status-sub pulse-anim" style="margin-top:28px;font-size:15px;">⏳ รออาจารย์กดเริ่มข้อสอบ...</div>
 </div>
 
+<!-- ④ Game — 4 color buttons -->
 <div id="screen-game" class="screen game-screen hidden">
+  <div class="q-chip" id="q-chip">ข้อ 1</div>
   <div class="btn-grid">
-    <div class="btn-shape bg-red" onclick="submitAnswer(0)"><div class="shape-icon s-red"></div></div>
-    <div class="btn-shape bg-blue" onclick="submitAnswer(1)"><div class="shape-icon s-blue"></div></div>
-    <div class="btn-shape bg-yellow" onclick="submitAnswer(2)"><div class="shape-icon s-yellow"></div></div>
-    <div class="btn-shape bg-green" onclick="submitAnswer(3)"><div class="shape-icon s-green"></div></div>
+    <div class="btn-shape bg-red"    id="btn-0" onclick="submitAnswer(0)"><div class="shape-icon s-red"></div></div>
+    <div class="btn-shape bg-blue"   id="btn-1" onclick="submitAnswer(1)"><div class="shape-icon s-blue"></div></div>
+    <div class="btn-shape bg-yellow" id="btn-2" onclick="submitAnswer(2)"><div class="shape-icon s-yellow"></div></div>
+    <div class="btn-shape bg-green"  id="btn-3" onclick="submitAnswer(3)"><div class="shape-icon s-green"></div></div>
   </div>
 </div>
 
-<div id="screen-wait" class="screen status-screen hidden" style="background:#e5e5e5; color:#333;">
-  <div class="spinner" style="border-color: #ccc; border-top-color: #666;"></div>
-  <div class="status-title">ส่งคำตอบแล้ว!</div>
-  <div class="status-sub">รอเพื่อนๆ ตอบให้ครบ...</div>
+<!-- ⑤ Wait (ส่งคำตอบแล้ว รอเพื่อน) -->
+<div id="screen-wait" class="screen wait-screen hidden">
+  <div class="spinner" style="border-color:#ccc;border-top-color:#555;"></div>
+  <div class="status-title" style="color:#333;">ส่งคำตอบแล้ว!</div>
+  <div class="status-sub" style="color:#666;">รอเพื่อนๆ ตอบให้ครบ...</div>
 </div>
 
+<!-- ⑥ Reveal -->
 <div id="screen-reveal" class="screen hidden">
-  <div style="font-size: 80px; margin-bottom:10px;" id="r-icon">✔️</div>
+  <div style="font-size:80px;margin-bottom:10px;" id="r-icon">✔️</div>
   <div class="status-title" id="r-title">ถูกต้อง!</div>
-  <div class="points-text hidden" id="r-points">+0</div>
-  <div class="status-sub" style="margin-top:40px;">มองที่หน้าจอหลักเพื่อดูอันดับ</div>
+  <div class="points-pill hidden" id="r-points">+0</div>
+  <div class="status-sub" style="margin-top:36px;opacity:0.85;">มองที่หน้าจอหลักเพื่อดูอันดับ</div>
 </div>
+
+<!-- Connection lost bar -->
+<div class="conn-bar" id="conn-bar">⚠️ เชื่อมต่อขัดข้อง กำลังลองใหม่...</div>
 
 <script>
+// ════════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════════
 const LIFF_ID = '2009717287-H2IUHwxQ';
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRhVNOnNIAkwZxrTcJOzI2nh_fmSIzI8tgbVurJoUJlDaZrR2Kovo0AydC3Qs0PNyU/exec';
 
-let userId = '';
-let userName = '';
-let currentState = null;
-let pollInterval = null;
-let isAnswered = false;
-let currentQIndex = -1;
+const POLL_INTERVAL_MS  = 1500;  // [PERF] 1.5s — สมดุลระหว่างความไวและ GAS quota
+const MAX_FAIL_COUNT    = 5;     // [NEW] จำนวน poll ที่ fail ก่อนแสดง error bar
+const SUBMIT_TIMEOUT_MS = 8000;
+const POLL_TIMEOUT_MS   = 6000;
+
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let userId           = '';
+let userName         = '';
+let currentState     = null;
+let pollIntervalId   = null;   // [FIX] เก็บ reference ให้ clear ได้จากทุกที่
+let isAnswered       = false;
+let currentQIndex    = -1;
 let questionStartTime = 0;
+let lastScore        = 0;
+let lastCorrect      = false;
+let hasJoinedRoom    = false;
+let failCount        = 0;      // [NEW] นับ poll fail ต่อเนื่อง
 
-let lastScore = 0;
-let lastCorrect = false;
-let hasJoinedRoom = false; 
-let appConfig = null;
-
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
 async function init() {
   try {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
-    
-    // โหลด Config แค่ครั้งเดียว
-    callAPI('GET', { action: 'get_config' }).then(configRes => {
-      if(configRes.status === 'ok') { 
-        appConfig = configRes.config; 
-        applyTemplate(appConfig); 
-      }
-    }).catch(e => console.log(e));
-    
+
+    // โหลด config (non-blocking)
+    callAPI('GET', { action:'get_config' }, 8000).then(res => {
+      if (res.status === 'ok' && res.config) applyTheme(res.config);
+    }).catch(() => {});
+
     const profile = await liff.getProfile();
-    userId = profile.userId;
+    userId   = profile.userId;
     userName = profile.displayName;
     document.getElementById('u-name').textContent = userName;
-    
-    // เริ่มดึงข้อมูลทันที ไม่ต้องรอ Config เสร็จ
-    fetchStateOnce(); 
+
+    setLoadSub('กำลังตรวจสอบห้องสอบ...');
+
+    // ดึง state ครั้งแรกทันที ก่อน interval เริ่ม
+    await fetchStateOnce();
     startPolling();
   } catch(e) {
-    document.getElementById('screen-loading').innerHTML = `<h2 style="color:#ff3355">ผิดพลาด</h2><p>${e.message}</p>`;
+    showErrorScreen(e.message || 'LIFF เริ่มต้นล้มเหลว');
   }
 }
 
-function applyTemplate(c) {
-  if(!c) return;
-  document.documentElement.style.setProperty('--config-primary', c.colorPrimary);
-  document.documentElement.style.setProperty('--config-secondary', c.colorSecondary);
-  document.title = "Live Quiz - " + c.appName;
+// ════════════════════════════════════════════
+//  THEME
+// ════════════════════════════════════════════
+function applyTheme(c) {
+  if (c.colorPrimary)   document.documentElement.style.setProperty('--primary',   c.colorPrimary);
+  if (c.colorSecondary) document.documentElement.style.setProperty('--secondary', c.colorSecondary);
+  document.title = 'Live Quiz — ' + (c.appName || 'Unit School');
 }
 
+// ════════════════════════════════════════════
+//  SCREEN MANAGEMENT
+// ════════════════════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
 
-// ดึงครั้งแรกเพื่อความไว
+function showErrorScreen(msg, sub) {
+  document.getElementById('err-title').textContent = msg || 'เกิดข้อผิดพลาด';
+  document.getElementById('err-sub').textContent   = sub || 'กรุณาปิดแล้วเปิดใหม่อีกครั้ง';
+  showScreen('screen-error');
+}
+
+function setLoadSub(text) {
+  const el = document.getElementById('loading-sub');
+  if (el) el.textContent = text;
+}
+
+// ════════════════════════════════════════════
+//  POLLING
+// ════════════════════════════════════════════
 async function fetchStateOnce() {
   try {
-    const res = await callAPI('GET', { action:'live_get_state', isHost:'false' });
-    if(res.status === 'ok') handleStateUpdate(res.state);
-  } catch(e) {}
+    const res = await callAPI('GET', { action:'live_get_state', isHost:'false' }, POLL_TIMEOUT_MS);
+    if (res.status === 'ok') {
+      handleStateUpdate(res.state);
+      onPollSuccess();
+    } else {
+      // ห้องยังไม่เปิด — แสดง lobby รอ
+      onPollSuccess();
+      showScreen('screen-lobby');
+    }
+  } catch(e) {
+    onPollFail();
+  }
 }
 
 function startPolling() {
-  // ⚡ ลดความถี่จาก 2000ms เป็น 1000ms (1 วินาที) เพื่อให้ตอบสนองอาจารย์ได้ไวขึ้น
-  pollInterval = setInterval(async () => {
-    try {
-      const res = await callAPI('GET', { action:'live_get_state', isHost:'false' });
-      if(res.status === 'ok') {
-        handleStateUpdate(res.state);
-      } else {
-        document.getElementById('screen-loading').innerHTML = `<h2 style="color:#ff3355; margin-bottom:20px;">อาจารย์ยังไม่เปิดห้อง</h2><button onclick="liff.closeWindow()" style="padding:10px 20px; border-radius:8px; border:none; background:#fff; color:#333; font-weight:800; font-family:'Sarabun'">ปิดหน้าต่าง</button>`;
-        showScreen('screen-loading');
-      }
-    } catch(e) {}
-  }, 1000); 
+  stopPolling(); // [FIX] clear interval เดิมก่อนเสมอ ป้องกัน interval ซ้ำ
+  pollIntervalId = setInterval(pollTick, POLL_INTERVAL_MS);
 }
 
-function handleStateUpdate(state) {
-  currentState = state;
-  
-  if(state.status === 'LOBBY' || state.status === 'SCOREBOARD') {
-    isAnswered = false;
-    showScreen('screen-lobby');
-    
-    if(state.status === 'LOBBY' && !hasJoinedRoom) {
-       hasJoinedRoom = true;
-       callAPI('POST', { action: 'live_join_room', userId: userId }).catch(e => hasJoinedRoom = false);
-    } else if (state.status === 'SCOREBOARD') {
-       hasJoinedRoom = false; 
-    }
-  } 
-  else if(state.status === 'QUESTION') {
-    if(currentQIndex !== state.currentQIndex) {
-       currentQIndex = state.currentQIndex;
-       isAnswered = false;
-       questionStartTime = Date.now();
-    }
-    
-    if(!isAnswered) {
-      showScreen('screen-game');
-    } else {
-      showScreen('screen-wait');
-    }
-  }
-  else if(state.status === 'REVEAL') {
-    const scr = document.getElementById('screen-reveal');
-    if(!isAnswered) {
-       scr.className = 'screen reveal-wrong';
-       document.getElementById('r-icon').textContent = '⏰';
-       document.getElementById('r-title').textContent = 'หมดเวลา!';
-       document.getElementById('r-points').classList.add('hidden');
-    } else {
-       scr.className = `screen ${lastCorrect ? 'reveal-correct' : 'reveal-wrong'}`;
-       document.getElementById('r-icon').textContent = lastCorrect ? '✔️' : '❌';
-       document.getElementById('r-title').textContent = lastCorrect ? 'อัจฉริยะ!' : 'ตอบผิด!';
-       if(lastCorrect) {
-         document.getElementById('r-points').textContent = `+${lastScore}`;
-         document.getElementById('r-points').classList.remove('hidden');
-       } else {
-         document.getElementById('r-points').classList.add('hidden');
-       }
-    }
-    showScreen('screen-reveal');
+// [FIX] stopPolling — แยกออกมาให้เรียกได้จากทุกที่
+function stopPolling() {
+  if (pollIntervalId !== null) {
+    clearInterval(pollIntervalId);
+    pollIntervalId = null;
   }
 }
 
-async function submitAnswer(colorIndex) {
-  if(isAnswered) return;
-  isAnswered = true;
-  // ⚡ สลับไปหน้า "ส่งคำตอบแล้ว" ทันทีที่นิ้วแตะ เพื่อให้ผู้ใช้รู้สึกว่าระบบตอบสนองทันที
-  showScreen('screen-wait'); 
-  
-  const timeTaken = Date.now() - questionStartTime;
-  const q = currentState.question;
-  let selectedKey = '';
-  
-  if (q.shuffledKeys && q.shuffledKeys.length > colorIndex) {
-    selectedKey = q.shuffledKeys[colorIndex];
-  } else {
-    const choiceKeys = Object.keys(q.choices);
-    selectedKey = choiceKeys[colorIndex];
-  }
-  
+async function pollTick() {
+  // ถ้ากำลัง submit อยู่ ข้าม tick นี้ไปป้องกัน race condition
+  if (_isSubmitting) return;
+
   try {
-    const res = await callAPI('POST', {
-       action: 'live_submit_answer',
-       userId: userId,
-       qIndex: currentState.currentQIndex,
-       answer: selectedKey,
-       timeTaken: timeTaken
-    });
-    
-    if(res.status === 'ok') {
-       lastCorrect = res.isCorrect;
-       lastScore = res.score;
+    const res = await callAPI('GET', { action:'live_get_state', isHost:'false' }, POLL_TIMEOUT_MS);
+    if (res.status === 'ok') {
+      handleStateUpdate(res.state);
+      onPollSuccess();
     } else {
-       isAnswered = false;
-       showScreen('screen-game');
-       alert(res.message);
+      // ห้องปิดหรือยังไม่เปิด
+      onPollSuccess();
+      // ถ้าอยู่หน้า lobby ให้คงอยู่หน้า lobby ต่อไป
+      if (currentState === null || currentState.status === 'LOBBY') {
+        showScreen('screen-lobby');
+      }
     }
   } catch(e) {
-    isAnswered = false;
-    showScreen('screen-game');
+    onPollFail();
   }
 }
 
-async function callAPI(method, params) {
-  let url = GAS_URL, opts = { method: 'POST', headers: {'Content-Type':'text/plain'}, body: JSON.stringify(params) };
-  if(method === 'GET') { url += '?' + new URLSearchParams(params).toString(); opts = {method:'GET'}; }
-  const resp = await fetch(url, opts);
-  return await resp.json();
+function onPollSuccess() {
+  failCount = 0;
+  setConnBar(false);
+  setReconnectBadge(false);
 }
 
+function onPollFail() {
+  failCount++;
+  if (failCount >= MAX_FAIL_COUNT) {
+    setConnBar(true);
+    setReconnectBadge(true);
+  }
+}
+
+function setConnBar(show) {
+  document.getElementById('conn-bar').classList.toggle('show', show);
+}
+
+function setReconnectBadge(show) {
+  document.getElementById('reconnect-badge').classList.toggle('show', show);
+}
+
+// ════════════════════════════════════════════
+//  STATE HANDLER
+// ════════════════════════════════════════════
+function handleStateUpdate(state) {
+  if (!state) return;
+  currentState = state;
+
+  // ── LOBBY / SCOREBOARD ──
+  if (state.status === 'LOBBY' || state.status === 'SCOREBOARD') {
+    isAnswered = false;
+    showScreen('screen-lobby');
+
+    if (state.status === 'LOBBY' && !hasJoinedRoom) {
+      hasJoinedRoom = true;
+      callAPI('POST', { action:'live_join_room', userId }, 8000)
+        .catch(() => { hasJoinedRoom = false; });
+    } else if (state.status === 'SCOREBOARD') {
+      hasJoinedRoom = false;
+    }
+    return;
+  }
+
+  // ── QUESTION ──
+  if (state.status === 'QUESTION') {
+    // ข้อใหม่ → reset answered flag
+    if (currentQIndex !== state.currentQIndex) {
+      currentQIndex     = state.currentQIndex;
+      isAnswered        = false;
+      questionStartTime = Date.now();
+      // อัปเดต chip แสดงเลขข้อ
+      const chip = document.getElementById('q-chip');
+      if (chip) chip.textContent = `ข้อ ${currentQIndex + 1}${state.totalQ ? ' / ' + state.totalQ : ''}`;
+    }
+    showScreen(isAnswered ? 'screen-wait' : 'screen-game');
+    return;
+  }
+
+  // ── REVEAL ──
+  if (state.status === 'REVEAL') {
+    const scr = document.getElementById('screen-reveal');
+    if (!isAnswered) {
+      scr.className = 'screen reveal-timeout';
+      document.getElementById('r-icon').textContent  = '⏰';
+      document.getElementById('r-title').textContent = 'หมดเวลา!';
+      document.getElementById('r-points').classList.add('hidden');
+    } else {
+      scr.className = `screen ${lastCorrect ? 'reveal-correct' : 'reveal-wrong'}`;
+      document.getElementById('r-icon').textContent  = lastCorrect ? '✔️' : '❌';
+      document.getElementById('r-title').textContent = lastCorrect ? 'อัจฉริยะ!' : 'ตอบผิด!';
+      const pts = document.getElementById('r-points');
+      if (lastCorrect && lastScore > 0) {
+        pts.textContent = `+${lastScore}`;
+        pts.classList.remove('hidden');
+      } else {
+        pts.classList.add('hidden');
+      }
+    }
+    showScreen('screen-reveal');
+    return;
+  }
+
+  // ── END ──
+  if (state.status === 'END') {
+    stopPolling(); // [FIX] หยุด poll เมื่อเกมจบ
+    showScreen('screen-lobby');
+  }
+}
+
+// ════════════════════════════════════════════
+//  SUBMIT ANSWER
+// ════════════════════════════════════════════
+let _isSubmitting = false; // [FIX] guard ป้องกัน submit ซ้ำ ระหว่างรอ response
+
+async function submitAnswer(colorIndex) {
+  // [FIX] ป้องกัน: ตอบแล้ว / กำลัง submit / ไม่มี state / ไม่ใช่ QUESTION
+  if (isAnswered || _isSubmitting) return;
+  if (!currentState || currentState.status !== 'QUESTION') return;
+  if (!currentState.question) return;
+
+  _isSubmitting = true;
+  isAnswered    = true;
+
+  // visual feedback ทันทีที่แตะ
+  const btn = document.getElementById(`btn-${colorIndex}`);
+  if (btn) btn.classList.add('pressed');
+  showScreen('screen-wait');
+
+  const timeTaken = Date.now() - questionStartTime;
+  const q         = currentState.question;
+
+  // หา key คำตอบที่ตรงกับปุ่มที่กด
+  let selectedKey = '';
+  if (Array.isArray(q.shuffledKeys) && q.shuffledKeys.length > colorIndex) {
+    selectedKey = q.shuffledKeys[colorIndex];
+  } else {
+    const keys  = Object.keys(q.choices || {});
+    selectedKey = keys[colorIndex] || '';
+  }
+
+  if (!selectedKey) {
+    // ป้องกัน index เกิน — reset ให้ลองใหม่
+    _isSubmitting = false;
+    isAnswered    = false;
+    if (btn) btn.classList.remove('pressed');
+    showScreen('screen-game');
+    return;
+  }
+
+  try {
+    const res = await callAPI('POST', {
+      action:    'live_submit_answer',
+      userId,
+      qIndex:    currentState.currentQIndex,
+      answer:    selectedKey,
+      timeTaken
+    }, SUBMIT_TIMEOUT_MS);
+
+    if (res.status === 'ok') {
+      lastCorrect = !!res.isCorrect;
+      lastScore   = Number(res.score) || 0;
+      // อยู่หน้า wait ต่อ — รอ polling ดึง REVEAL มาเอง
+    } else {
+      // [FIX] server ปฏิเสธ → reset ให้ user ตอบใหม่ได้
+      isAnswered = false;
+      showScreen('screen-game');
+    }
+  } catch(e) {
+    // network error → reset
+    isAnswered = false;
+    showScreen('screen-game');
+  } finally {
+    _isSubmitting = false;
+    if (btn) btn.classList.remove('pressed');
+  }
+}
+
+// ════════════════════════════════════════════
+//  API HELPER
+// ════════════════════════════════════════════
+async function callAPI(method, params, timeoutMs = 10000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    let url  = GAS_URL;
+    let opts = { signal: ctrl.signal, redirect: 'follow' };
+    if (method === 'GET') {
+      url += '?' + new URLSearchParams(params).toString();
+      opts.method = 'GET';
+    } else {
+      opts.method  = 'POST';
+      opts.headers = { 'Content-Type': 'text/plain' };
+      opts.body    = JSON.stringify(params);
+    }
+    const resp = await fetch(url, opts);
+    clearTimeout(tid);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch(e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
+// ════════════════════════════════════════════
+//  CLEANUP — [FIX] ล้าง interval เมื่อ LIFF ปิด
+// ════════════════════════════════════════════
+function cleanup() {
+  stopPolling();
+}
+
+window.addEventListener('pagehide',      cleanup);
+window.addEventListener('beforeunload',  cleanup);
+// LIFF visibility change (app goes to background on mobile)
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    // หยุด poll เมื่อ tab ซ่อน ประหยัด resource
+    stopPolling();
+  } else {
+    // กลับมา — ดึง state ทันทีแล้ว resume poll
+    fetchStateOnce();
+    startPolling();
+  }
+});
+
+// ── เริ่มต้น ──
 init();
 </script>
 </body>
 </html>
-
