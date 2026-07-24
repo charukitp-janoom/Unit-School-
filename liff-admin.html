@@ -518,7 +518,7 @@ function renderQuestions() {
           <div>
             <div class="badge mb-2">${q.category}</div>
             <div class="list-title">${q.questionText}</div>
-            <div class="list-sub mt-2" style="color:var(--green)">✅ เฉลย ${q.correctAnswer}: ${q.choices ? q.choices[q.correctAnswer] : '-'}</div>
+            <div class="list-sub mt-2" style="color:var(--green)">✅ เฉลย ${q.correctAnswer}: ${q['choice' + q.correctAnswer] || '-'}</div>
           </div>
           <div class="flex flex-col gap-2">
             <button class="btn btn-secondary btn-sm" onclick="editQuestion('${q.questionId}')">แก้ไข</button>
