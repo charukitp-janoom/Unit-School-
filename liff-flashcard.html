@@ -165,6 +165,7 @@ let currentCardEl = null;
 // Touch Drag Logic
 let startX = 0, startY = 0, currentX = 0, currentY = 0;
 let isDragging = false, isFlipped = false;
+let dragListenersBound = false;
 
 function customAlert(msg) {
   document.getElementById('ca-msg').innerHTML = msg;
@@ -246,12 +247,15 @@ function renderCard() {
   // Events สำหรับพลิกไพ่ และ ลาก (Drag)
   el.addEventListener('mousedown', dragStart);
   el.addEventListener('touchstart', dragStart, {passive:false});
-  
-  document.addEventListener('mousemove', dragMove);
-  document.addEventListener('touchmove', dragMove, {passive:false});
-  
-  document.addEventListener('mouseup', dragEnd);
-  document.addEventListener('touchend', dragEnd);
+
+  if (!dragListenersBound) {
+    dragListenersBound = true;
+    document.addEventListener('mousemove', dragMove);
+    document.addEventListener('touchmove', dragMove, {passive:false});
+
+    document.addEventListener('mouseup', dragEnd);
+    document.addEventListener('touchend', dragEnd);
+  }
 
   stack.appendChild(el);
   currentCardEl = el;
