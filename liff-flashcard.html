@@ -341,8 +341,11 @@ function endGame() {
   document.getElementById('end-ui').classList.remove('hidden');
   document.getElementById('end-score').textContent = score;
   
-  if (score > 0) {
-    callAPI('POST', { action: 'submit_flashcard_score', userId: userId, score: score });
+  // [FIX] ส่งผลทุกครั้งที่ทบทวนจบรอบ ไม่ใช่เฉพาะตอนมีแต้ม — เพราะระบบให้เหรียญตาม
+  // "จำนวนการ์ดที่ทบทวน" ไม่ใช่แต้มที่ผู้เล่นเคลมเอง คนที่ปัดซ้ายหมด (จำไม่ได้จริงๆ)
+  // ก็ควรได้เหรียญและนับภารกิจประจำวันเหมือนกัน
+  if (deck.length > 0) {
+    callAPI('POST', { action: 'submit_flashcard_score', userId: userId, score: score, reviewed: deck.length });
   }
 }
 
